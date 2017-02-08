@@ -7,6 +7,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebJobs.NetCore", "src\Micr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebJobs.Storage.NetCore", "src\Microsoft.Azure.WebJobs.Storage\WebJobs.Storage.NetCore.csproj", "{803FAC6F-5FEA-43C0-8862-B746E5A7AB14}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebJobs.Host.Core", "src\Microsoft.Azure.WebJobs.Host\WebJobs.Host.Core.csproj", "{F0642FF9-DFFF-4015-B918-23CA074AC602}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebJobs.Logging.Core", "src\Microsoft.Azure.WebJobs.Logging\WebJobs.Logging.Core.csproj", "{48F2681A-66CC-4A92-8A83-EA7A4F9885BD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,6 +45,30 @@ Global
 		{803FAC6F-5FEA-43C0-8862-B746E5A7AB14}.Release|x64.Build.0 = Release|x64
 		{803FAC6F-5FEA-43C0-8862-B746E5A7AB14}.Release|x86.ActiveCfg = Release|x86
 		{803FAC6F-5FEA-43C0-8862-B746E5A7AB14}.Release|x86.Build.0 = Release|x86
+		{F0642FF9-DFFF-4015-B918-23CA074AC602}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F0642FF9-DFFF-4015-B918-23CA074AC602}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F0642FF9-DFFF-4015-B918-23CA074AC602}.Debug|x64.ActiveCfg = Debug|x64
+		{F0642FF9-DFFF-4015-B918-23CA074AC602}.Debug|x64.Build.0 = Debug|x64
+		{F0642FF9-DFFF-4015-B918-23CA074AC602}.Debug|x86.ActiveCfg = Debug|x86
+		{F0642FF9-DFFF-4015-B918-23CA074AC602}.Debug|x86.Build.0 = Debug|x86
+		{F0642FF9-DFFF-4015-B918-23CA074AC602}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F0642FF9-DFFF-4015-B918-23CA074AC602}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F0642FF9-DFFF-4015-B918-23CA074AC602}.Release|x64.ActiveCfg = Release|x64
+		{F0642FF9-DFFF-4015-B918-23CA074AC602}.Release|x64.Build.0 = Release|x64
+		{F0642FF9-DFFF-4015-B918-23CA074AC602}.Release|x86.ActiveCfg = Release|x86
+		{F0642FF9-DFFF-4015-B918-23CA074AC602}.Release|x86.Build.0 = Release|x86
+		{48F2681A-66CC-4A92-8A83-EA7A4F9885BD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{48F2681A-66CC-4A92-8A83-EA7A4F9885BD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{48F2681A-66CC-4A92-8A83-EA7A4F9885BD}.Debug|x64.ActiveCfg = Debug|x64
+		{48F2681A-66CC-4A92-8A83-EA7A4F9885BD}.Debug|x64.Build.0 = Debug|x64
+		{48F2681A-66CC-4A92-8A83-EA7A4F9885BD}.Debug|x86.ActiveCfg = Debug|x86
+		{48F2681A-66CC-4A92-8A83-EA7A4F9885BD}.Debug|x86.Build.0 = Debug|x86
+		{48F2681A-66CC-4A92-8A83-EA7A4F9885BD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{48F2681A-66CC-4A92-8A83-EA7A4F9885BD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{48F2681A-66CC-4A92-8A83-EA7A4F9885BD}.Release|x64.ActiveCfg = Release|x64
+		{48F2681A-66CC-4A92-8A83-EA7A4F9885BD}.Release|x64.Build.0 = Release|x64
+		{48F2681A-66CC-4A92-8A83-EA7A4F9885BD}.Release|x86.ActiveCfg = Release|x86
+		{48F2681A-66CC-4A92-8A83-EA7A4F9885BD}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

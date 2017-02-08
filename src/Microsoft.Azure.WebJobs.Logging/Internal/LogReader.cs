@@ -100,7 +100,7 @@ namespace Microsoft.Azure.WebJobs.Logging
         {
             var tables = await _tableLookup.ListTablesAsync();
 
-            Task<FunctionInstanceLogItem>[] taskLookups = Array.ConvertAll(tables, async instanceTable =>
+            IEnumerable<Task<FunctionInstanceLogItem>> taskLookups = tables.Select(async instanceTable =>
             {
                 // Create a retrieve operation that takes a customer entity.
                 TableOperation retrieveOperation = InstanceTableEntity.GetRetrieveOperation(id);

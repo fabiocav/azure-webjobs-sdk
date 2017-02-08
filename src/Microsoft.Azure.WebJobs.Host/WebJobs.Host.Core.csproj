@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard1.3</TargetFramework>
+    <PackageTargetFallback Condition=" '$(TargetFramework)' == 'netstandard1.3' ">dotnet5.6;portable-net451+win8</PackageTargetFallback>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="WindowsAzure.Storage" Version="8.0.1" />
+  </ItemGroup>
+
+</Project>

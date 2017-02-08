@@ -26,7 +26,8 @@ namespace Microsoft.Azure.WebJobs.Logging
             {
                 return null;
             }
-
+            // TODO: FACAVAL - Properly serialize the token
+#if !NETSTANDARD1_3
             using (var writer = new StringWriter(CultureInfo.InvariantCulture))
             {
                 using (var xmlWriter = XmlWriter.Create(writer))
@@ -37,13 +38,16 @@ namespace Microsoft.Azure.WebJobs.Logging
                 var val = EncodeBase64(serialized);
                 return val;
             }
-
-           
+#else
+            return null;
+#endif
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times")]
         public static TableContinuationToken DeserializeToken(string token)
         {
+            // TODO: FACAVAL - Properly deserialize the token
+#if !NETSTANDARD1_3
             if (!string.IsNullOrWhiteSpace(token))
             {
                 var raw = DecodeBase64(token);
@@ -54,11 +58,14 @@ namespace Microsoft.Azure.WebJobs.Logging
                     contToken = new TableContinuationToken();
                     using (var xmlReader = XmlReader.Create(stringReader))
                     {
+                        
+                        contToken.
                         contToken.ReadXml(xmlReader);
                     }
                 }
                 return contToken;
             }
+#endif
             return null;            
         }
 
@@ -109,21 +116,21 @@ namespace Microsoft.Azure.WebJobs.Logging
 
         // Do a query. 
         // If table doesn't exist, return 0-length list of results. 
-        public static Task<TElement[]> SafeExecuteQueryAsync<TElement>(this CloudTable table, TableQuery<TElement> query)
+        public static async Task<TElement[]> SafeExecuteQueryAsync<TElement>(this CloudTable table, TableQuery<TElement> query)
             where TElement : ITableEntity, new()
         {
             try
             {
-                IEnumerable<TElement> results = table.ExecuteQuery(query);
+                IEnumerable<TElement> results = await table.SafeExecuteQueryAsync(query);
                 var rows = results.ToArray();
-                return Task.FromResult(rows);
+                return rows;
             }
             catch (StorageException e)
             {
                 var code = (HttpStatusCode)e.RequestInformation.HttpStatusCode;
                 if (code == HttpStatusCode.NotFound)
                 {
-                    return Task.FromResult(new TElement[0]);
+                    return new TElement[0];
                 }
                 throw;
             }
@@ -141,9 +148,11 @@ namespace Microsoft.Azure.WebJobs.Logging
             try
             {
                 var segment = await table.ExecuteQuerySegmentedAsync<TElement>(
-                  query,
-                  token,
-                  cancellationToken);
+                  query: query,
+                  token: token,
+                  operationContext: null,
+                  requestOptions: null,
+                  cancellationToken: cancellationToken);
                 return segment;
             }
             catch (StorageException e)
