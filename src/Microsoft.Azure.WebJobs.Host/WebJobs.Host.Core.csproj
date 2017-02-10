@@ -92,6 +92,7 @@
     <Compile Include="..\Microsoft.Azure.WebJobs.Storage\Queue\StorageQueue.cs" Link="Storage\Queue\StorageQueue.cs" />
     <Compile Include="..\Microsoft.Azure.WebJobs.Storage\Queue\StorageQueueClient.cs" Link="Storage\Queue\StorageQueueClient.cs" />
     <Compile Include="..\Microsoft.Azure.WebJobs.Storage\Queue\StorageQueueMessage.cs" Link="Storage\Queue\StorageQueueMessage.cs" />
+    <Compile Include="..\Microsoft.Azure.WebJobs.Storage\StorageExceptionExtensions.cs" Link="Storage\StorageExceptionExtensions.cs" />
     <Compile Include="..\Microsoft.Azure.WebJobs.Storage\Table\IEntityResolver.cs" Link="Storage\Table\IEntityResolver.cs" />
     <Compile Include="..\Microsoft.Azure.WebJobs.Storage\Table\IStorageTable.cs" Link="Storage\Table\IStorageTable.cs" />
     <Compile Include="..\Microsoft.Azure.WebJobs.Storage\Table\IStorageTableBatchOperation.cs" Link="Storage\Table\IStorageTableBatchOperation.cs" />
@@ -109,6 +110,7 @@
     <PackageReference Include="System.ComponentModel" Version="4.3.0" />
     <PackageReference Include="System.IO.FileSystem.Watcher" Version="4.3.0" />
     <PackageReference Include="System.Reflection" Version="4.3.0" />
+    <PackageReference Include="System.Reflection.Extensions" Version="4.3.0" />
     <PackageReference Include="System.Reflection.TypeExtensions" Version="4.3.0" />
     <PackageReference Include="System.Threading.Thread" Version="4.3.0" />
     <PackageReference Include="WindowsAzure.Storage" Version="8.0.1" />

@@ -5,7 +5,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Reflection;
 
@@ -114,15 +113,13 @@ namespace Microsoft.Azure.WebJobs.Host
 
             MethodInfo setMethod = property.GetSetMethod();
 
-            Contract.Assert(setMethod != null);
-            Contract.Assert(!setMethod.IsStatic);
-            Contract.Assert(setMethod.GetParameters().Length == 1);
-            Contract.Assert(!property.ReflectedType.IsValueType);
-
             // Instance methods in the CLR can be turned into static methods where the first parameter
             // is open over "this". This parameter is always passed by reference, so we have a code
             // path for value types and a code path for reference types.
-            Type typeInput = property.ReflectedType;
+
+            // TODO: FACAVAL - this is not semantically equivalent.
+            // Need to verify this will work as expected and that 
+            Type typeInput = property.DeclaringType;
             Type typeValue = setMethod.GetParameters()[0].ParameterType;
 
             Delegate callPropertySetterDelegate;
@@ -143,13 +140,8 @@ namespace Microsoft.Azure.WebJobs.Host
         /// <remarks>This method is more memory efficient than a dynamically compiled lambda, and about the same speed.</remarks>
         private static Func<object, object> MakeFastPropertyGetter(PropertyInfo propertyInfo)
         {
-            Contract.Assert(propertyInfo != null);
-
             MethodInfo getMethod = propertyInfo.GetGetMethod();
-            Contract.Assert(getMethod != null);
-            Contract.Assert(!getMethod.IsStatic);
-            Contract.Assert(getMethod.GetParameters().Length == 0);
-
+            
             // Instance methods in the CLR can be turned into static methods where the first parameter
             // is open over "this". This parameter is always passed by reference, so we have a code
             // path for value types and a code path for reference types.
@@ -157,7 +149,7 @@ namespace Microsoft.Azure.WebJobs.Host
             Type typeOutput = getMethod.ReturnType;
 
             Delegate callPropertyGetterDelegate;
-            if (typeInput.IsValueType)
+            if (typeInput.GetTypeInfo().IsValueType)
             {
                 // Create a delegate (ref TDeclaringType) -> TValue
                 Delegate propertyGetterAsFunc = getMethod.CreateDelegate(typeof(ByRefFunc<,>).MakeGenericType(typeInput, typeOutput));

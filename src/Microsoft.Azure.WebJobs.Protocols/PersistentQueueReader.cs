@@ -181,19 +181,20 @@ namespace Microsoft.Azure.WebJobs.Host.Protocols
             } while (results.Count == 0 && currentToken != null);
         }
 
+        // TODO: FACAVAL review async
         private BlobResultSegment GetSegment(BlobContinuationToken currentToken)
         {
             const int batchSize = 100;
 
             try
             {
-                return _outputContainer.ListBlobsSegmented(prefix: null,
+                return _outputContainer.ListBlobsSegmentedAsync(prefix: null,
                     useFlatBlobListing: true,
                     blobListingDetails: BlobListingDetails.Metadata,
                     maxResults: batchSize,
                     currentToken: currentToken,
                     options: null,
-                    operationContext: null);
+                    operationContext: null).GetAwaiter().GetResult();
             }
             catch (StorageException exception)
             {
