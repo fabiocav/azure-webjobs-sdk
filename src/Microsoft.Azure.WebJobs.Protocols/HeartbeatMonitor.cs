@@ -53,12 +53,12 @@ namespace Microsoft.Azure.WebJobs.Protocols
 
             try
             {
-                return directory.ListBlobsSegmented(useFlatBlobListing: true,
+                return directory.ListBlobsSegmentedAsync(useFlatBlobListing: true,
                     blobListingDetails: BlobListingDetails.None,
                     maxResults: batchSize,
                     currentToken: currentToken,
                     options: null,
-                    operationContext: null);
+                    operationContext: null).Result;
             }
             catch (StorageException exception)
             {
@@ -73,6 +73,7 @@ namespace Microsoft.Azure.WebJobs.Protocols
             }
         }
 
+        // TODO: FACAVAL - Update - async
         private static DateTimeOffset? GetFirstValidHeartbeatExpiration(IEnumerable<IListBlobItem> heartbeats,
             int expirationInSeconds)
         {
@@ -89,7 +90,7 @@ namespace Microsoft.Azure.WebJobs.Protocols
                 {
                     // Remove any expired heartbeats so that we can answer more efficiently in the future.
                     // If the host instance wakes back up, it will just re-create the heartbeat anyway.
-                    blob.DeleteIfExists();
+                    blob.DeleteIfExistsAsync().Wait();
                 }
             }
 
@@ -106,7 +107,7 @@ namespace Microsoft.Azure.WebJobs.Protocols
 
             try
             {
-                blob.FetchAttributes();
+                blob.FetchAttributesAsync().GetAwaiter().GetResult();
             }
             catch (StorageException exception)
             {
@@ -130,7 +131,7 @@ namespace Microsoft.Azure.WebJobs.Protocols
             {
                 // Remove any expired heartbeats so that we can answer more efficiently in the future.
                 // If the host instance wakes back up, it will just re-create the heartbeat anyway.
-                blob.DeleteIfExists();
+                blob.DeleteIfExistsAsync().GetAwaiter().GetResult();
                 return null;
             }
         }

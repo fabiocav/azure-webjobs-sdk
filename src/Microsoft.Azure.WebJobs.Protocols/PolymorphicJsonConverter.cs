@@ -8,6 +8,7 @@ using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
+using System.Reflection;
 
 #if PUBLICPROTOCOL
 namespace Microsoft.Azure.WebJobs.Protocols
@@ -169,14 +170,16 @@ namespace Microsoft.Azure.WebJobs.Host.Protocols
 
         private static IEnumerable<Type> GetTypesInHierarchy<T>()
         {
-            return typeof(T).Assembly.GetTypes().Where(t => typeof(T).IsAssignableFrom(t));
+            return typeof(T).GetTypeInfo().Assembly.DefinedTypes
+                .Where(t => typeof(T).GetTypeInfo().IsAssignableFrom(t))
+                .Select(t => t.AsType());
         }
 
         private static string GetDeclaredTypeName(Type type)
         {
             Debug.Assert(type != null, "type must not be null");
 
-            JsonTypeNameAttribute[] attributes = (JsonTypeNameAttribute[])type.GetCustomAttributes(
+            JsonTypeNameAttribute[] attributes = (JsonTypeNameAttribute[])type.GetTypeInfo().GetCustomAttributes(
                 typeof(JsonTypeNameAttribute), inherit: false);
 
             if (attributes != null && attributes.Length > 0)
@@ -249,7 +252,7 @@ namespace Microsoft.Azure.WebJobs.Host.Protocols
             {
                 JsonContract contract = base.CreateContract(objectType);
 
-                if (_contractType.IsAssignableFrom(objectType))
+                if (_contractType.GetTypeInfo().IsAssignableFrom(objectType.GetTypeInfo()))
                 {
                     contract.Converter = null;
                 }

@@ -105,6 +105,8 @@ namespace Microsoft.Azure.WebJobs.Host.Protocols
             TryMakeItemVisible(message.Blob);
         }
 
+        // TODO: FACAVAL review async
+
         /// <summary>
         /// Gets the number of messages in the queue
         /// </summary>
@@ -122,14 +124,14 @@ namespace Microsoft.Azure.WebJobs.Host.Protocols
             {
                 do
                 {
-                    results = _outputContainer.ListBlobsSegmented(
+                    results = _outputContainer.ListBlobsSegmentedAsync(
                         prefix: null,
                         useFlatBlobListing: true,
                         blobListingDetails: BlobListingDetails.None,
                         currentToken: continuationToken,
                         maxResults: limit,
                         options: null,
-                        operationContext: null);
+                        operationContext: null).GetAwaiter().GetResult();
 
                     blobCount += results.Results.Count();
                     continuationToken = results.ContinuationToken;
@@ -220,13 +222,15 @@ namespace Microsoft.Azure.WebJobs.Host.Protocols
             return DateTimeOffset.UtcNow > nextVisibleTime;
         }
 
+        // TODO: FACAVAL review async
         private static bool TryMakeItemVisible(ICloudBlob item)
         {
             item.Metadata.RemoveIfContainsKey(NextVisibleTimeKey);
 
             try
             {
-                item.SetMetadata(new AccessCondition { IfMatchETag = item.Properties.ETag });
+                item.SetMetadataAsync(new AccessCondition { IfMatchETag = item.Properties.ETag }, options: null, operationContext: null)
+                    .GetAwaiter().GetResult();
                 return true;
             }
             catch (StorageException exception)
@@ -278,13 +282,14 @@ namespace Microsoft.Azure.WebJobs.Host.Protocols
             }
         }
 
+        // TODO: FACAVAL review async
         private static bool TryDownloadItem(ICloudBlob possibleNextItem, DateTimeOffset createdOn, out T nextItem)
         {
             string contents;
 
             try
             {
-                using (Stream stream = possibleNextItem.OpenRead())
+                using (Stream stream = possibleNextItem.OpenReadAsync().GetAwaiter().GetResult())
                 {
                     using (TextReader reader = new StreamReader(stream))
                     {
@@ -355,6 +360,7 @@ namespace Microsoft.Azure.WebJobs.Host.Protocols
             }
         }
 
+        // TODO: FACAVAL review async
         /// <inheritdoc />
         public void Delete(T message)
         {
@@ -371,7 +377,7 @@ namespace Microsoft.Azure.WebJobs.Host.Protocols
 
             try
             {
-                archiveBlob.UploadText(blobText);
+                archiveBlob.UploadTextAsync(blobText).GetAwaiter().GetResult();
             }
             catch (StorageException exception)
             {
@@ -381,12 +387,12 @@ namespace Microsoft.Azure.WebJobs.Host.Protocols
                 }
                 else
                 {
-                    _archiveContainer.CreateIfNotExists();
-                    archiveBlob.UploadText(blobText);
+                    _archiveContainer.CreateIfNotExistsAsync().GetAwaiter().GetResult();
+                    archiveBlob.UploadTextAsync(blobText).GetAwaiter().GetResult();
                 }
             }
 
-            outputBlob.DeleteIfExists();
+            outputBlob.DeleteIfExistsAsync().GetAwaiter().GetResult();
         }
 
         private static void CopyProperties(ICloudBlob source, ICloudBlob destination)

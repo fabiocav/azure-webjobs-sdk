@@ -6,11 +6,16 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DefineConstants>TRACE;DEBUG;NETSTANDARD1_3;PUBLICSTORAGE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;NETSTANDARD1_3;PUBLICPROTOCOL</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
     <PackageReference Include="WindowsAzure.Storage" Version="8.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Microsoft.Azure.WebJobs.Storage\WebJobs.Storage.NetCore.csproj" />
   </ItemGroup>
 
 </Project>

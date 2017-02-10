@@ -34,7 +34,10 @@ namespace Microsoft.Azure.WebJobs.Host.Loggers
         {
             _outputBlob = outputBlob;
             _innerWriter = new StringWriter(CultureInfo.InvariantCulture);
-            _synchronizedWriter = TextWriter.Synchronized(_innerWriter);
+
+            // TODO: FACAVAL
+            //_synchronizedWriter = TextWriter. Synchronized(_innerWriter);
+            _synchronizedWriter = _innerWriter;
             _uploadCommand = uploadCommand;
         }
 
@@ -146,8 +149,8 @@ namespace Microsoft.Azure.WebJobs.Host.Loggers
 
                 if (flushAndClose)
                 {
-                    _synchronizedWriter.Close();
-                    _innerWriter.Close();
+                    _synchronizedWriter.Dispose();
+                    _innerWriter.Dispose();
                 }
             }
 

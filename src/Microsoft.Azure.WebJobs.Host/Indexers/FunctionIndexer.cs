@@ -19,8 +19,6 @@ namespace Microsoft.Azure.WebJobs.Host.Indexers
 {
     internal class FunctionIndexer
     {
-        private static readonly BindingFlags PublicMethodFlags = BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance | BindingFlags.DeclaredOnly;
-
         private readonly ITriggerBindingProvider _triggerBindingProvider;
         private readonly IBindingProvider _bindingProvider;
         private readonly IJobActivator _activator;
@@ -77,7 +75,7 @@ namespace Microsoft.Azure.WebJobs.Host.Indexers
 
         public async Task IndexTypeAsync(Type type, IFunctionIndexCollector index, CancellationToken cancellationToken)
         {
-            foreach (MethodInfo method in type.GetMethods(PublicMethodFlags).Where(IsJobMethod))
+            foreach (MethodInfo method in type.GetTypeInfo().DeclaredMethods.Where(IsJobMethod))
             {
                 try
                 {
@@ -105,12 +103,17 @@ namespace Microsoft.Azure.WebJobs.Host.Indexers
 
         public bool IsJobMethod(MethodInfo method)
         {
+            if (!method.IsPublic)
+            {
+                return false;
+            }
+
             if (method.ContainsGenericParameters)
             {
                 return false;
             }
 
-            if (method.GetCustomAttributesData().Any(HasJobAttribute))
+            if (method.CustomAttributes.Any(HasJobAttribute))
             {
                 return true;
             }
@@ -120,7 +123,7 @@ namespace Microsoft.Azure.WebJobs.Host.Indexers
                 return false;
             }
 
-            if (method.GetParameters().Any(p => p.GetCustomAttributesData().Any(HasJobAttribute)))
+            if (method.GetParameters().Any(p => p.CustomAttributes.Any(HasJobAttribute)))
             {
                 return true;
             }
@@ -132,7 +135,7 @@ namespace Microsoft.Azure.WebJobs.Host.Indexers
         {
             // create a set containing our own core assemblies
             HashSet<Assembly> assemblies = new HashSet<Assembly>();
-            assemblies.Add(typeof(BlobAttribute).Assembly);
+            assemblies.Add(typeof(BlobAttribute).GetTypeInfo().Assembly);
        
             // add any extension assemblies
             assemblies.UnionWith(extensions.GetExtensionAssemblies());
@@ -142,7 +145,7 @@ namespace Microsoft.Azure.WebJobs.Host.Indexers
 
         private bool HasJobAttribute(CustomAttributeData attributeData)
         {
-            return _jobAttributeAssemblies.Contains(attributeData.AttributeType.Assembly);
+            return _jobAttributeAssemblies.Contains(attributeData.AttributeType.GetTypeInfo().Assembly);
         }
 
         public async Task IndexMethodAsync(MethodInfo method, IFunctionIndexCollector index, CancellationToken cancellationToken)

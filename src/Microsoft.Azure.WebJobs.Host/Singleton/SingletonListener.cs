@@ -6,7 +6,6 @@ using System.Globalization;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Timers;
 
 namespace Microsoft.Azure.WebJobs.Host.Listeners
 {
@@ -36,7 +35,7 @@ namespace Microsoft.Azure.WebJobs.Host.Listeners
         }
 
         // exposed for testing
-        internal System.Timers.Timer LockTimer { get; set; }
+        internal System.Threading.Timer LockTimer { get; set; }
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
@@ -57,9 +56,7 @@ namespace Microsoft.Azure.WebJobs.Host.Listeners
                 // down for whatever reason, others will have a chance to resume the work.
                 if (recoveryEnabled)
                 {
-                    LockTimer = new System.Timers.Timer(_singletonConfig.ListenerLockRecoveryPollingInterval.TotalMilliseconds);
-                    LockTimer.Elapsed += OnLockTimer;
-                    LockTimer.Start();
+                    LockTimer = new Timer(OnLockTimer, null, _singletonConfig.ListenerLockRecoveryPollingInterval, _singletonConfig.ListenerLockRecoveryPollingInterval);
                 }
                 return;
             }
@@ -73,7 +70,7 @@ namespace Microsoft.Azure.WebJobs.Host.Listeners
         {
             if (LockTimer != null)
             {
-                LockTimer.Stop();
+                LockTimer.Dispose();
             }
 
             await ReleaseLockAsync(cancellationToken);
@@ -89,7 +86,7 @@ namespace Microsoft.Azure.WebJobs.Host.Listeners
         {
             if (LockTimer != null)
             {
-                LockTimer.Stop();
+                LockTimer.Dispose();
             }
 
             _innerListener.Cancel();
@@ -109,7 +106,7 @@ namespace Microsoft.Azure.WebJobs.Host.Listeners
             _innerListener.Dispose();
         }
 
-        private void OnLockTimer(object sender, ElapsedEventArgs e)
+        private void OnLockTimer(object state)
         {
             TryAcquireLock().GetAwaiter().GetResult();
         }
@@ -122,7 +119,6 @@ namespace Microsoft.Azure.WebJobs.Host.Listeners
             {
                 if (LockTimer != null)
                 {
-                    LockTimer.Stop();
                     LockTimer.Dispose();
                     LockTimer = null;
                 }

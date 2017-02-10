@@ -9,7 +9,6 @@ namespace Microsoft.Azure.WebJobs.Host
     /// <summary>
     /// Exception thrown when a job function invocation fails.
     /// </summary>
-    [Serializable]
     public class FunctionInvocationException : Exception
     {
         /// <inheritdoc/>
@@ -25,22 +24,6 @@ namespace Microsoft.Azure.WebJobs.Host
         /// <inheritdoc/>
         public FunctionInvocationException(string message, Exception innerException) : base(message, innerException)
         {
-        }
-
-        /// <summary>
-        /// Constructs a new instance.
-        /// </summary>
-        /// <param name="info">The <see cref="SerializationInfo"/>.</param>
-        /// <param name="context">The <see cref="StreamingContext"/>.</param>
-        protected FunctionInvocationException(SerializationInfo info, StreamingContext context) : base(info, context)
-        {
-            if (info == null)
-            {
-                throw new ArgumentNullException("info");
-            }
-
-            InstanceId = Guid.Parse(info.GetString("InstanceId"));
-            MethodName = info.GetString("MethodName");
         }
 
         /// <summary>
@@ -67,19 +50,5 @@ namespace Microsoft.Azure.WebJobs.Host
         /// Gets the fully qualified name of the function.
         /// </summary>
         public string MethodName { get; set; }
-
-        /// <inheritdoc/>
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            if (info == null)
-            {
-                throw new ArgumentNullException("info");
-            }
-
-            info.AddValue("InstanceId", this.InstanceId);
-            info.AddValue("MethodName", this.MethodName);
-
-            base.GetObjectData(info, context);
-        }
     }
 }

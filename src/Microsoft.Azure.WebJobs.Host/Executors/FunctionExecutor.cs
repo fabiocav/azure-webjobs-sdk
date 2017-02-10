@@ -333,7 +333,7 @@ namespace Microsoft.Azure.WebJobs.Host.Executors
         /// create and start the timer.
         /// </summary>
         [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope")]
-        internal static System.Timers.Timer StartFunctionTimeout(IFunctionInstance instance, TimeoutAttribute attribute, CancellationTokenSource cancellationTokenSource, TraceWriter trace)
+        internal static TimeoutTimer StartFunctionTimeout(IFunctionInstance instance, TimeoutAttribute attribute, CancellationTokenSource cancellationTokenSource, TraceWriter trace)
         {
             if (attribute == null)
             {
@@ -356,30 +356,22 @@ namespace Microsoft.Azure.WebJobs.Host.Executors
                 // Create a Timer that will cancel the token source when it fires. We're using our
                 // own Timer (rather than CancellationToken.CancelAfter) so we can write a log entry
                 // before cancellation occurs.
-                var timer = new System.Timers.Timer(timeout.Value.TotalMilliseconds)
-                {
-                    AutoReset = false
-                };
 
-                timer.Elapsed += (o, e) =>
+                var callback = new Action<object>((o) =>
                 {
-                    OnFunctionTimeout(timer, method, instance.Id, timeout.Value, attribute.TimeoutWhileDebugging, trace, cancellationTokenSource,
+                    OnFunctionTimeout(method, instance.Id, timeout.Value, attribute.TimeoutWhileDebugging, trace, cancellationTokenSource,
                         () => Debugger.IsAttached);
-                };
+                });
 
-                timer.Start();
-
-                return timer;
+                return new TimeoutTimer(callback, timeout.Value, null);
             }
 
             return null;
         }
 
-        internal static void OnFunctionTimeout(System.Timers.Timer timer, MethodInfo method, Guid instanceId, TimeSpan timeout, bool timeoutWhileDebugging,
+        internal static void OnFunctionTimeout(MethodInfo method, Guid instanceId, TimeSpan timeout, bool timeoutWhileDebugging,
             TraceWriter trace, CancellationTokenSource cancellationTokenSource, Func<bool> isDebuggerAttached)
         {
-            timer.Stop();
-
             bool shouldTimeout = timeoutWhileDebugging || !isDebuggerAttached();
             string message = string.Format(CultureInfo.InvariantCulture,
                 "Timeout value of {0} exceeded by function '{1}.{2}' (Id: '{3}'). {4}",
@@ -542,7 +534,7 @@ namespace Microsoft.Azure.WebJobs.Host.Executors
                 TimeoutAttribute timeoutAttribute = TypeUtility.GetHierarchicalAttributeOrNull<TimeoutAttribute>(method);
                 bool throwOnTimeout = timeoutAttribute == null ? false : timeoutAttribute.ThrowOnTimeout;
                 var timer = StartFunctionTimeout(instance, timeoutAttribute, timeoutTokenSource, traceWriter);
-                TimeSpan timerInterval = timer == null ? TimeSpan.MinValue : TimeSpan.FromMilliseconds(timer.Interval);
+                TimeSpan timerInterval = timer?.Timeout ?? TimeSpan.MinValue;
                 try
                 {
                     await InvokeAsync(invoker, invokeParameters, timeoutTokenSource, functionCancellationTokenSource,
@@ -552,7 +544,6 @@ namespace Microsoft.Azure.WebJobs.Host.Executors
                 {
                     if (timer != null)
                     {
-                        timer.Stop();
                         timer.Dispose();
                     }
                 }
@@ -843,6 +834,40 @@ namespace Microsoft.Azure.WebJobs.Host.Executors
 
                 return orderedBinder.StepOrder;
             }
+        }
+
+        internal class TimeoutTimer : IDisposable
+        {
+            private readonly Timer _timer;
+            private readonly Action<object> _callback;
+            private readonly object _state;
+            private readonly TimeSpan _timeout;
+
+            public TimeoutTimer(Action<object> callback, TimeSpan timeout, object state)
+            {
+                _callback = callback;
+                _state = state;
+                _timeout = timeout;
+                _timer = new Timer(Callback, state, timeout, TimeSpan.FromMilliseconds(-1));
+            }
+
+            public TimeSpan Timeout => _timeout;
+
+            private void Callback(object state)
+            {
+                _timer.Dispose();
+                _callback(_state);
+            }
+
+            protected virtual void Dispose(bool disposing)
+            {
+                if (disposing)
+                {
+                    _timer.Dispose();
+                }
+            }
+
+            public void Dispose() => Dispose(true);
         }
     }
 }

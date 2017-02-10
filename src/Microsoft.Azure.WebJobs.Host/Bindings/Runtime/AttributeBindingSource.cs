@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
@@ -59,10 +60,11 @@ namespace Microsoft.Azure.WebJobs.Host.Bindings.Runtime
 
             public FakeParameterInfo(Type parameterType, MemberInfo memberInfo, Attribute attribute, Attribute[] additionalAttributes)
             {
-                ClassImpl = parameterType;
-                AttrsImpl = ParameterAttributes.In;
-                NameImpl = "?";
-                MemberImpl = memberInfo;
+                // TODO: FACAVAL
+                //ClassImpl = parameterType;
+                //AttrsImpl = ParameterAttributes.In;
+                //NameImpl = "?";
+                //MemberImpl = memberInfo;
 
                 // union all the parameter attributes
                 _attributes.Add(attribute);
@@ -74,6 +76,8 @@ namespace Microsoft.Azure.WebJobs.Host.Bindings.Runtime
                     }
                 }
             }
+
+            public override IEnumerable<CustomAttributeData> CustomAttributes => base.CustomAttributes;
 
             public override object[] GetCustomAttributes(Type attributeType, bool inherit)
             {

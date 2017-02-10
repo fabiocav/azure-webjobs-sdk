@@ -10,7 +10,6 @@ namespace Microsoft.Azure.WebJobs.Host
     /// <summary>
     /// Exception thrown when a job function invocation fails due to a timeout.
     /// </summary>
-    [Serializable]
     public class FunctionTimeoutException : FunctionInvocationException
     {
         /// <inheritdoc/>
@@ -27,12 +26,7 @@ namespace Microsoft.Azure.WebJobs.Host
         public FunctionTimeoutException(string message, Exception innerException) : base(message, innerException)
         {
         }
-
-        /// <inheritdoc/>
-        protected FunctionTimeoutException(SerializationInfo info, StreamingContext context) : base(info, context)
-        {
-        }
-
+        
         /// <summary>
         /// Constructs a new instance.
         /// </summary>
@@ -58,18 +52,5 @@ namespace Microsoft.Azure.WebJobs.Host
         /// The task that did not complete due to a timeout.
         /// </summary>
         public Task Task { get; set; }
-
-        /// <inheritdoc/>
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            if (info == null)
-            {
-                throw new ArgumentNullException("info");
-            }
-
-            info.AddValue("Timeout", this.Timeout);
-
-            base.GetObjectData(info, context);
-        }
     }
 }

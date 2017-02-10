@@ -45,6 +45,7 @@ namespace Microsoft.Azure.WebJobs.Host.Blobs.Listeners
         {
             ThrowIfDisposed();
 
+#if !NETSTANDARD1_3
             // Initial background scans for all containers happen on first Execute call.
             // Prevent accidental late registrations.
             // (Also prevents incorrect concurrent execution of Register with Execute.)
@@ -52,6 +53,7 @@ namespace Microsoft.Azure.WebJobs.Host.Blobs.Listeners
             {
                 throw new InvalidOperationException("All registrations must be created before execution begins.");
             }
+#endif
 
             ICollection<ITriggerExecutor<IStorageBlob>> containerRegistrations;
 

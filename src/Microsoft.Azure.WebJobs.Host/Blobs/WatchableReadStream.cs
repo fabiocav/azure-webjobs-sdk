@@ -45,19 +45,6 @@ namespace Microsoft.Azure.WebJobs.Host.Blobs
             }
         }
 
-        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope")]
-        public override IAsyncResult BeginRead(byte[] buffer, int offset, int count, AsyncCallback callback, object state)
-        {
-            Task<int> baseTask = Task<int>.Factory.FromAsync(base.BeginRead, base.EndRead, buffer, offset, count, state: null);
-            return new TaskAsyncResult<int>(ReadAsyncCore(baseTask), callback, state);
-        }
-
-        public override int EndRead(IAsyncResult asyncResult)
-        {
-            TaskAsyncResult<int> taskResult = (TaskAsyncResult<int>)asyncResult;
-            return taskResult.End();
-        }
-
         public override int Read(byte[] buffer, int offset, int count)
         {
             try

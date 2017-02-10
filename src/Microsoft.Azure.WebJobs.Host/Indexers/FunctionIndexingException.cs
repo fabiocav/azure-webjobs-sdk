@@ -11,8 +11,6 @@ namespace Microsoft.Azure.WebJobs.Host.Indexers
     /// Exception that occurs when the <see cref="JobHost"/> encounters errors when trying
     /// to index job methods on startup.
     /// </summary>
-    [SuppressMessage("Microsoft.Design", "CA1032:ImplementStandardExceptionConstructors")]
-    [Serializable]
     public class FunctionIndexingException : Exception
     {
         /// <summary>
@@ -27,22 +25,6 @@ namespace Microsoft.Azure.WebJobs.Host.Indexers
         }
 
         /// <summary>
-        /// Constructs a new instance.
-        /// </summary>
-        /// <param name="info">The <see cref="SerializationInfo"/>.</param>
-        /// <param name="context">The <see cref="StreamingContext"/>.</param>
-        protected FunctionIndexingException(SerializationInfo info, StreamingContext context) : base(info, context)
-        {
-            if (info == null)
-            {
-                throw new ArgumentNullException("info");
-            }
-
-            MethodName = info.GetString("MethodName");
-            Handled = bool.Parse(info.GetString("Handled"));
-        }
-
-        /// <summary>
         /// The name of the method in error.
         /// </summary>
         public string MethodName { get; private set; }
@@ -52,19 +34,5 @@ namespace Microsoft.Azure.WebJobs.Host.Indexers
         /// as handled.
         /// </summary>
         public bool Handled { get; set; }
-
-        /// <inheritdoc/>
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            if (info == null)
-            {
-                throw new ArgumentNullException("info");
-            }
-
-            info.AddValue("MethodName", this.MethodName);
-            info.AddValue("Handled", this.Handled);
-
-            base.GetObjectData(info, context);
-        }
     }
 }

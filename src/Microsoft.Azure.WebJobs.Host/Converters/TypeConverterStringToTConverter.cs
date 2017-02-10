@@ -6,6 +6,7 @@ using System.Diagnostics;
 
 namespace Microsoft.Azure.WebJobs.Host.Converters
 {
+#if !NETSTANDARD1_3
     internal class TypeConverterStringToTConverter<TOutput> : IConverter<string, TOutput>
     {
         private readonly TypeConverter _typeConverter;
@@ -21,4 +22,5 @@ namespace Microsoft.Azure.WebJobs.Host.Converters
             return (TOutput)_typeConverter.ConvertFrom(input);
         }
     }
+#endif
 }
