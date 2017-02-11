@@ -74,8 +74,6 @@ namespace Microsoft.Azure.WebJobs.Host.Blobs
         {
             if (!_disposed)
             {
-                _task.Dispose();
-
                 _disposed = true;
             }
         }

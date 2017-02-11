@@ -100,7 +100,7 @@ namespace Microsoft.Azure.WebJobs
             }
 
             // Rewriter rule for generics so customers can say: IEnumerable<OpenType> 
-            if (t.IsGenericType)
+            if (t.GetTypeInfo().IsGenericType)
             {
                 var outerType = t.GetGenericTypeDefinition();
                 Type[] args = t.GetGenericArguments();
@@ -352,7 +352,7 @@ namespace Microsoft.Azure.WebJobs
                 {
                     throw new ArgumentNullException("type");
                 }
-                if (type.IsGenericType &&
+                if (type.GetTypeInfo().IsGenericType &&
                     type.GetGenericTypeDefinition() == _outerType)
                 {
                     var args = type.GetGenericArguments();

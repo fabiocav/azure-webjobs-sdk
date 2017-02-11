@@ -5,6 +5,7 @@ using System;
 using Microsoft.Azure.WebJobs.Host.Converters;
 using Microsoft.Azure.WebJobs.Host.Tables.Converters;
 using Microsoft.WindowsAzure.Storage.Table;
+using System.Reflection;
 
 namespace Microsoft.Azure.WebJobs.Host.Tables
 {
@@ -102,7 +103,7 @@ namespace Microsoft.Azure.WebJobs.Host.Tables
                 return new EntityPropertyToEnumConverter<TOutput>();
             }
 
-            if (typeof(TOutput).IsGenericType && typeof(TOutput).GetGenericTypeDefinition() == typeof(Nullable<>))
+            if (typeof(TOutput).GetTypeInfo().IsGenericType && typeof(TOutput).GetGenericTypeDefinition() == typeof(Nullable<>))
             {
                 Type nullableElementType = typeof(TOutput).GetGenericArguments()[0];
 

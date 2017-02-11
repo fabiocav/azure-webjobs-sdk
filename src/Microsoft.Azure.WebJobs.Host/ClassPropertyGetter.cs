@@ -37,9 +37,9 @@ namespace Microsoft.Azure.WebJobs.Host
                 throw new ArgumentNullException("property");
             }
 
-            if (typeof(TReflected) != property.ReflectedType)
+            if (typeof(TReflected) != property.DeclaringType)
             {
-                throw new ArgumentException("The property's ReflectedType must exactly match TReflected.", "property");
+                throw new ArgumentException("The property's DeclaringType must exactly match TReflected.", "property");
             }
 
             if (typeof(TProperty) != property.PropertyType)
@@ -65,8 +65,8 @@ namespace Microsoft.Azure.WebJobs.Host
                 throw new ArgumentException("The property must not be static.", "property");
             }
 
-            Debug.Assert(getMethod.ReflectedType == typeof(TReflected));
-            Debug.Assert(!getMethod.ReflectedType.IsValueType);
+            Debug.Assert(getMethod.DeclaringType == typeof(TReflected));
+            Debug.Assert(!getMethod.DeclaringType.GetTypeInfo().IsValueType);
             Debug.Assert(getMethod.GetParameters().Length == 0);
             Debug.Assert(getMethod.ReturnType == typeof(TProperty));
 

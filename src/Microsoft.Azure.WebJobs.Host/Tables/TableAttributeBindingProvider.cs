@@ -15,6 +15,7 @@ using Microsoft.Azure.WebJobs.Host.Storage;
 using Microsoft.Azure.WebJobs.Host.Storage.Table;
 using Microsoft.WindowsAzure.Storage.Table;
 using Newtonsoft.Json.Linq;
+using System.Collections.Generic;
 
 namespace Microsoft.Azure.WebJobs.Host.Tables
 {
@@ -355,7 +356,7 @@ namespace Microsoft.Azure.WebJobs.Host.Tables
 
                 if (!exists)
                 {
-                    return Enumerable.Empty<TElement>().AsQueryable();
+                    return new List<TElement>();
                 }
                 else
                 {

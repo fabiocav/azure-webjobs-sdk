@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Resources;
 using System.Runtime.CompilerServices;
 
-#if !NETSTANDARD1_3
+#if !NETSTANDARD1_5
 [assembly: AssemblyVersion("2.0.0.0")]
 [assembly: AssemblyFileVersion("2.0.0.0")]
 #endif

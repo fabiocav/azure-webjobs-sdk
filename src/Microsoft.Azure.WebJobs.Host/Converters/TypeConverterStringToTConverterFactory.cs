@@ -4,10 +4,11 @@
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Reflection;
 
 namespace Microsoft.Azure.WebJobs.Host.Converters
 {
-#if !NETSTANDARD1_3
+#if !NETSTANDARD1_5
     internal class TypeConverterStringToTConverterFactory : IStringToTConverterFactory
     {
         public IConverter<string, TOutput> TryCreate<TOutput>()
@@ -39,7 +40,7 @@ namespace Microsoft.Azure.WebJobs.Host.Converters
                 if (!string.IsNullOrWhiteSpace(assemblyQualifiedName))
                 {
                     // Type.GetType() may fail due to loader context issues.
-                    string assemblyName = type.Assembly.FullName;
+                    string assemblyName = type.GetTypeInfo().Assembly.FullName;
 
                     if (assemblyQualifiedName.EndsWith(assemblyName, StringComparison.OrdinalIgnoreCase))
                     {
@@ -48,7 +49,7 @@ namespace Microsoft.Azure.WebJobs.Host.Converters
                         {
                             string typename = assemblyQualifiedName.Substring(0, i);
 
-                            var a = type.Assembly;
+                            var a = type.GetTypeInfo().Assembly;
                             var t2 = a.GetType(typename); // lookup type name relative to the 
                             if (t2 != null)
                             {

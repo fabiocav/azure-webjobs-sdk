@@ -267,7 +267,7 @@ namespace Microsoft.Azure.WebJobs.Host.Protocols
 
             try
             {
-                item.SetMetadata(new AccessCondition { IfMatchETag = item.Properties.ETag });
+                item.SetMetadataAsync(new AccessCondition { IfMatchETag = item.Properties.ETag }, null, null).GetAwaiter().GetResult();
                 return true;
             }
             catch (StorageException exception)
@@ -290,7 +290,7 @@ namespace Microsoft.Azure.WebJobs.Host.Protocols
 
             try
             {
-                using (Stream stream = possibleNextItem.OpenReadAsync().GetAwaiter().GetResult())
+                using (Stream stream = possibleNextItem.OpenReadAsync(null, null, null).GetAwaiter().GetResult())
                 {
                     using (TextReader reader = new StreamReader(stream))
                     {

@@ -52,37 +52,5 @@ namespace Microsoft.Azure.WebJobs.Host.Bindings.Runtime
 
             return _bindingProvider.TryCreateAsync(bindingProviderContext);
         }
-
-        // A non-reflection based implementation
-        private class FakeParameterInfo : ParameterInfo
-        {
-            private readonly Collection<Attribute> _attributes = new Collection<Attribute>();
-
-            public FakeParameterInfo(Type parameterType, MemberInfo memberInfo, Attribute attribute, Attribute[] additionalAttributes)
-            {
-                // TODO: FACAVAL
-                //ClassImpl = parameterType;
-                //AttrsImpl = ParameterAttributes.In;
-                //NameImpl = "?";
-                //MemberImpl = memberInfo;
-
-                // union all the parameter attributes
-                _attributes.Add(attribute);
-                if (additionalAttributes != null)
-                {
-                    foreach (var additionalAttribute in additionalAttributes)
-                    {
-                        _attributes.Add(additionalAttribute);
-                    }
-                }
-            }
-
-            public override IEnumerable<CustomAttributeData> CustomAttributes => base.CustomAttributes;
-
-            public override object[] GetCustomAttributes(Type attributeType, bool inherit)
-            {
-                return _attributes.Where(p => p.GetType() == attributeType).ToArray();
-            }
-        }
     }
 }

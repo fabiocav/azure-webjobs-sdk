@@ -45,7 +45,7 @@ namespace Microsoft.Azure.WebJobs.Host.Blobs.Listeners
         {
             ThrowIfDisposed();
 
-#if !NETSTANDARD1_3
+#if !NETSTANDARD1_5
             // Initial background scans for all containers happen on first Execute call.
             // Prevent accidental late registrations.
             // (Also prevents incorrect concurrent execution of Register with Execute.)

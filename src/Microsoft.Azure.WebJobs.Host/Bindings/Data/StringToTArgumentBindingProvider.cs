@@ -35,8 +35,7 @@ namespace Microsoft.Azure.WebJobs.Host.Bindings.Data
             Debug.Assert(method != null);
             MethodInfo genericMethod = method.MakeGenericMethod(itemType);
             Debug.Assert(genericMethod != null);
-            Func<IArgumentBinding<string>> lambda = (Func<IArgumentBinding<string>>)Delegate.CreateDelegate(
-                typeof(Func<IArgumentBinding<string>>), genericMethod);
+            Func<IArgumentBinding<string>> lambda = (Func<IArgumentBinding<string>>)genericMethod.CreateDelegate(typeof(Func<IArgumentBinding<string>>));
 
             return lambda.Invoke();
         }

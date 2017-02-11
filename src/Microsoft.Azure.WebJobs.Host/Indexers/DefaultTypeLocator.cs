@@ -12,7 +12,7 @@ namespace Microsoft.Azure.WebJobs.Host.Indexers
     // Default policy for locating types. 
     internal class DefaultTypeLocator : ITypeLocator
     {
-        private static readonly string WebJobsAssemblyName = typeof(TableAttribute).Assembly.GetName().Name;
+        private static readonly string WebJobsAssemblyName = typeof(TableAttribute).GetTypeInfo().Assembly.GetName().Name;
 
         private readonly TextWriter _log;
         private readonly IExtensionRegistry _extensions;
@@ -37,11 +37,12 @@ namespace Microsoft.Azure.WebJobs.Host.Indexers
         private static bool AssemblyReferencesSdkOrExtension(Assembly assembly, IEnumerable<Assembly> extensionAssemblies)
         {
             // Don't index methods in our assemblies.
-            if (typeof(DefaultTypeLocator).Assembly == assembly)
+            if (typeof(DefaultTypeLocator).GetTypeInfo().Assembly == assembly)
             {
                 return false;
             }
 
+            
             AssemblyName[] referencedAssemblyNames = assembly.GetReferencedAssemblies();  
             foreach (var referencedAssemblyName in referencedAssemblyNames)
             {

@@ -32,6 +32,7 @@ namespace Microsoft.Azure.WebJobs.Host
                 throw new ArgumentNullException("property");
             }
 
+            // TODO: FACAVAL review change to DeclaringType here.
             if (typeof(TReflected) != property.DeclaringType)
             {
                 throw new ArgumentException("The property's ReflectedType must exactly match TReflected.", "property");
@@ -60,8 +61,8 @@ namespace Microsoft.Azure.WebJobs.Host
                 throw new ArgumentException("The property must not be static.", "property");
             }
 
-            Debug.Assert(getMethod.ReflectedType == typeof(TReflected));
-            Debug.Assert(getMethod.ReflectedType.IsValueType);
+            Debug.Assert(getMethod.DeclaringType == typeof(TReflected));
+            Debug.Assert(getMethod.DeclaringType.IsValueType);
             Debug.Assert(getMethod.GetParameters().Length == 0);
             Debug.Assert(getMethod.ReturnType == typeof(TProperty));
 

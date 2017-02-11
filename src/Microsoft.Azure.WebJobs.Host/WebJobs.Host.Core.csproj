@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard1.3</TargetFramework>
-    <PackageTargetFallback Condition=" '$(TargetFramework)' == 'netstandard1.3' ">dotnet5.6;portable-net451+win8</PackageTargetFallback>
+    <TargetFramework>netstandard1.5</TargetFramework>
+    <PackageTargetFallback Condition=" '$(TargetFramework)' == 'netstandard1.5' ">dotnet5.6;portable-net451+win8</PackageTargetFallback>
   </PropertyGroup>
 
   <ItemGroup>
@@ -32,12 +32,10 @@
     <Compile Include="..\Microsoft.Azure.WebJobs.Protocols\HeartbeatCommand.cs" Link="Protocols\HeartbeatCommand.cs" />
     <Compile Include="..\Microsoft.Azure.WebJobs.Protocols\HeartbeatDescriptor.cs" Link="Protocols\HeartbeatDescriptor.cs" />
     <Compile Include="..\Microsoft.Azure.WebJobs.Protocols\HostMessage.cs" Link="Protocols\HostMessage.cs" />
-    <Compile Include="..\Microsoft.Azure.WebJobs.Protocols\HostMessageSender.cs" Link="Protocols\HostMessageSender.cs" />
     <Compile Include="..\Microsoft.Azure.WebJobs.Protocols\HostOutputMessage.cs" Link="Protocols\HostOutputMessage.cs" />
     <Compile Include="..\Microsoft.Azure.WebJobs.Protocols\HostStartedMessage.cs" Link="Protocols\HostStartedMessage.cs" />
     <Compile Include="..\Microsoft.Azure.WebJobs.Protocols\IHeartbeatCommand.cs" Link="Protocols\IHeartbeatCommand.cs" />
     <Compile Include="..\Microsoft.Azure.WebJobs.Protocols\IHeartbeatMonitor.cs" Link="Protocols\IHeartbeatMonitor.cs" />
-    <Compile Include="..\Microsoft.Azure.WebJobs.Protocols\IHostMessageSender.cs" Link="Protocols\IHostMessageSender.cs" />
     <Compile Include="..\Microsoft.Azure.WebJobs.Protocols\IPersistentQueueReader.cs" Link="Protocols\IPersistentQueueReader.cs" />
     <Compile Include="..\Microsoft.Azure.WebJobs.Protocols\IPersistentQueueWriter.cs" Link="Protocols\IPersistentQueueWriter.cs" />
     <Compile Include="..\Microsoft.Azure.WebJobs.Protocols\JsonSerialization.cs" Link="Protocols\JsonSerialization.cs" />
@@ -109,6 +107,7 @@
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="1.1.0" />
     <PackageReference Include="System.ComponentModel" Version="4.3.0" />
     <PackageReference Include="System.IO.FileSystem.Watcher" Version="4.3.0" />
+    <PackageReference Include="System.Linq.Queryable" Version="4.3.0" />
     <PackageReference Include="System.Reflection" Version="4.3.0" />
     <PackageReference Include="System.Reflection.Extensions" Version="4.3.0" />
     <PackageReference Include="System.Reflection.TypeExtensions" Version="4.3.0" />

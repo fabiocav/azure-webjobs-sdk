@@ -38,7 +38,7 @@ namespace Microsoft.Azure.WebJobs.Protocols
             CloudQueue queue = _client.GetQueueReference(queueName);
             Debug.Assert(queue != null);
             queue.CreateIfNotExistsAsync().GetAwaiter().GetResult();
-            string content = JsonConvert.SerializeObject(message, Host.Protocols.JsonSerialization.Settings);
+            string content = JsonConvert.SerializeObject(message, JsonSerialization.Settings);
             Debug.Assert(content != null);
             CloudQueueMessage queueMessage = new CloudQueueMessage(content);
             queue.AddMessageAsync(queueMessage).GetAwaiter().GetResult();

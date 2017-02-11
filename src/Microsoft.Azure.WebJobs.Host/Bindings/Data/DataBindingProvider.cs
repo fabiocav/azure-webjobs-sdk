@@ -33,7 +33,7 @@ namespace Microsoft.Azure.WebJobs.Host.Bindings.Data
                 return Task.FromResult<IBinding>(null);
             }
 
-            if (bindingDataType.ContainsGenericParameters)
+            if (bindingDataType.GetTypeInfo().ContainsGenericParameters)
             {
                 return Task.FromResult<IBinding>(null);
             }
@@ -46,7 +46,7 @@ namespace Microsoft.Azure.WebJobs.Host.Bindings.Data
         {
             Type genericTypeDefinition;
 
-            if (!bindingDataType.IsValueType)
+            if (!bindingDataType.GetTypeInfo().IsValueType)
             {
                 genericTypeDefinition = typeof(ClassDataBindingProvider<>);
             }

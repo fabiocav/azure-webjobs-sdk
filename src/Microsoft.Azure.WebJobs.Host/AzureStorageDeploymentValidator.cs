@@ -21,7 +21,10 @@ namespace Microsoft.Azure.WebJobs.Host
         {
             try
             {
+// TODO: FACAVAL
+#if !NETSTANDARD1_5
                 VerifyTableServiceAssemblyLoad();
+#endif
             }
             catch (Exception ex)
             {
@@ -32,7 +35,7 @@ namespace Microsoft.Azure.WebJobs.Host
                 throw new InvalidOperationException("Microsoft.WindowsAzure.Storage is deployed incorrectly. Are you missing a Table Service assembly (Microsoft.Data.Services.Client, Microsoft.Data.OData or Microsoft.Data.Edm) or a related binding redirect?", ex);
             }
         }
-#if !NETSTANDARD1_3
+#if !NETSTANDARD1_5
         private static void VerifyTableServiceAssemblyLoad()
         {
             // this forces the relevant assemblies to load so we can catch issues early

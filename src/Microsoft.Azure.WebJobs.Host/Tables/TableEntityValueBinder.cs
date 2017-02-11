@@ -154,8 +154,8 @@ namespace Microsoft.Azure.WebJobs.Host.Tables
                     }
                     else
                     {
-                        clonedBytes = new byte[existingBytes.LongLength];
-                        Array.Copy(existingBytes, clonedBytes, existingBytes.LongLength);
+                        clonedBytes = new byte[existingBytes.Length];
+                        Array.Copy(existingBytes, clonedBytes, existingBytes.Length);
                     }
 
                     return new EntityProperty(clonedBytes);

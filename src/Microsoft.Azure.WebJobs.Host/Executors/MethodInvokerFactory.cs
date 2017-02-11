@@ -26,7 +26,9 @@ namespace Microsoft.Azure.WebJobs.Host.Executors
                 throw new NotSupportedException("Methods may only return void or Task.");
             }
 
-            if (typeof(TReflected) != method.ReflectedType)
+
+            // TODO: FACAVAL review use of DeclaringType
+            if (typeof(TReflected) != method.DeclaringType)
             {
                 throw new InvalidOperationException("The Type must match the method's ReflectedType.");
             }

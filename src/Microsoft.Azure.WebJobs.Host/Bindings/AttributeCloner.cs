@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs.Host.Bindings.Path;
 using Microsoft.Azure.WebJobs.Host.Tables;
+using System.Linq;
 
 namespace Microsoft.Azure.WebJobs.Host.Bindings
 {
@@ -277,7 +278,7 @@ namespace Microsoft.Azure.WebJobs.Host.Bindings
                 propertyValues[kv.Key] = kv.Value;
             }
 
-            var ctorArgs = Array.ConvertAll(_bestCtor.GetParameters(), param => propertyValues[param.Name]);
+            var ctorArgs = _bestCtor.GetParameters().Select(param => propertyValues[param.Name]).ToArray();
             var newAttr = (TAttribute)_bestCtor.Invoke(ctorArgs);
 
             foreach (var prop in t.GetProperties(BindingFlags.Instance | BindingFlags.Public))
@@ -294,7 +295,7 @@ namespace Microsoft.Azure.WebJobs.Host.Bindings
         internal TAttribute ResolveFromBindings(IReadOnlyDictionary<string, object> bindingData)
         {
             // Invoke ctor
-            var ctorArgs = Array.ConvertAll(_bestCtorArgBuilder, func => func(bindingData));
+            var ctorArgs = _bestCtorArgBuilder.Select(func => func(bindingData)).ToArray();
             var newAttr = (TAttribute)_bestCtor.Invoke(ctorArgs);
 
             foreach (var setProp in _setProperties)

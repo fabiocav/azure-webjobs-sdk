@@ -316,9 +316,11 @@ namespace Microsoft.Azure.WebJobs.Host.Executors
 
             if (firstMethod != null)
             {
-                return firstMethod.DeclaringType.Assembly;
+                return firstMethod.DeclaringType.GetTypeInfo().Assembly;
             }
 
+            // TODO: FACAVAL - Find alternative
+#if !NETSTANDARD1_5
             // 2. If there are no function definitions, try to use the entry assembly.
             Assembly entryAssembly = Assembly.GetEntryAssembly();
 
@@ -326,7 +328,7 @@ namespace Microsoft.Azure.WebJobs.Host.Executors
             {
                 return entryAssembly;
             }
-
+#endif
             // 3. If there's no entry assembly either, we don't have anything to use.
             return null;
         }

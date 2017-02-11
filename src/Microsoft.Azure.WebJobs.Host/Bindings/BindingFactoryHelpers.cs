@@ -129,7 +129,7 @@ namespace Microsoft.Azure.WebJobs.Host.Bindings
         public static Type GetAsyncCollectorCoreType(Type parameterType)
         {
             // IAsyncCollector<T>
-            if (parameterType.IsGenericType)
+            if (parameterType.GetTypeInfo().IsGenericType)
             {
                 var genericType = parameterType.GetGenericTypeDefinition();
                 var elementType = parameterType.GetGenericArguments()[0];
@@ -206,7 +206,7 @@ namespace Microsoft.Azure.WebJobs.Host.Bindings
             FuncArgumentBuilder<TAttribute> argumentBuilder = null;                                            
 
             // C# reflection trivia: If .IsOut = true, then IsGenericType = false. 
-            if (parameterType.IsGenericType)
+            if (parameterType.GetTypeInfo().IsGenericType)
             {
                 argumentBuilder = BindAsyncCollectorToInterface(converterManager, buildFromAttribute, cloner, parameterType, argumentBuilder);
             }
