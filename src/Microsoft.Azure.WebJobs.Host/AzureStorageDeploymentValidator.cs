@@ -3,7 +3,6 @@
 
 using System;
 using Microsoft.WindowsAzure.Storage.Table;
-using Microsoft.WindowsAzure.Storage.Table.DataServices;
 
 namespace Microsoft.Azure.WebJobs.Host
 {
@@ -22,7 +21,7 @@ namespace Microsoft.Azure.WebJobs.Host
         {
             try
             {
-                VerifyTableServiceAssemblyLoad();
+//                VerifyTableServiceAssemblyLoad();
             }
             catch (Exception ex)
             {
@@ -34,14 +33,15 @@ namespace Microsoft.Azure.WebJobs.Host
             }
         }
 
-        private static void VerifyTableServiceAssemblyLoad()
-        {
-            // this forces the relevant assemblies to load so we can catch issues early
-#pragma warning disable 618
-            using (var ignore = new TableServiceContext(new CloudTableClient(new Uri("http://test.core.windows.net"), null)))
-            {
-            }
-#pragma warning restore 618
-        }
+// TODO: FACAVAL - Is this still relevant?
+//        private static void VerifyTableServiceAssemblyLoad()
+//        {
+//            // this forces the relevant assemblies to load so we can catch issues early
+//#pragma warning disable 618
+//            using (var ignore = new TableServiceContext(new CloudTableClient(new Uri("http://test.core.windows.net"), null)))
+//            {
+//            }
+//#pragma warning restore 618
+//        }
     }
 }
