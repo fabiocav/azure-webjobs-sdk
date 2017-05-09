@@ -10,7 +10,6 @@ namespace Microsoft.Azure.WebJobs.Host
     /// <summary>
     /// A recoverable exception, i.e. can be handled.
     /// </summary>
-    [Serializable]
     public class RecoverableException : Exception
     {
         /// <inheritdoc/>
@@ -34,38 +33,10 @@ namespace Microsoft.Azure.WebJobs.Host
         }
 
         /// <summary>
-        /// Constructs a new instance.
-        /// </summary>
-        /// <param name="info">The <see cref="SerializationInfo"/>.</param>
-        /// <param name="context">The <see cref="StreamingContext"/>.</param>
-        protected RecoverableException(SerializationInfo info, StreamingContext context) : base(info, context)
-        {
-            if (info == null)
-            {
-                throw new ArgumentNullException("info");
-            }
-
-            Handled = bool.Parse(info.GetString("Handled"));
-        }
-
-        /// <summary>
         /// Gets or sets a value indicating whether the exception should be treated
         /// as handled.
         /// </summary>
         public bool Handled { get; set; }
-
-        /// <inheritdoc/>
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            if (info == null)
-            {
-                throw new ArgumentNullException("info");
-            }
-
-            info.AddValue("Handled", this.Handled);
-
-            base.GetObjectData(info, context);
-        }
 
         /// <summary>
         /// Tries to recover by propagating exception through trace pipeline.

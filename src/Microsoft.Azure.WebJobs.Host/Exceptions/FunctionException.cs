@@ -10,7 +10,6 @@ namespace Microsoft.Azure.WebJobs.Host
     /// <summary>
     /// Exception that is tied to a specific job method
     /// </summary>
-    [Serializable]
     public class FunctionException : RecoverableException
     {
         /// <inheritdoc/>
@@ -41,36 +40,8 @@ namespace Microsoft.Azure.WebJobs.Host
         }
 
         /// <summary>
-        /// Constructs a new instance.
-        /// </summary>
-        /// <param name="info">The <see cref="SerializationInfo"/>.</param>
-        /// <param name="context">The <see cref="StreamingContext"/>.</param>
-        protected FunctionException(SerializationInfo info, StreamingContext context) : base(info, context)
-        {
-            if (info == null)
-            {
-                throw new ArgumentNullException("info");
-            }
-
-            MethodName = info.GetString("MethodName");
-        }
-
-        /// <summary>
         /// The name of the method in error.
         /// </summary>
         public string MethodName { get; private set; }
-
-        /// <inheritdoc/>
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            if (info == null)
-            {
-                throw new ArgumentNullException("info");
-            }
-
-            info.AddValue("MethodName", this.MethodName);
-
-            base.GetObjectData(info, context);
-        }
     }
 }

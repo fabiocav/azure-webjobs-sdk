@@ -336,7 +336,7 @@ namespace Microsoft.Azure.WebJobs.Host.Executors
         /// create and start the timer.
         /// </summary>
         [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope")]
-        internal static System.Timers.Timer StartFunctionTimeout(IFunctionInstance instance, TimeoutAttribute attribute,
+        internal static TimeoutTimer StartFunctionTimeout(IFunctionInstance instance, TimeoutAttribute attribute,
             CancellationTokenSource cancellationTokenSource, TraceWriter trace, ILogger logger)
         {
             if (attribute == null)
@@ -360,30 +360,21 @@ namespace Microsoft.Azure.WebJobs.Host.Executors
                 // Create a Timer that will cancel the token source when it fires. We're using our
                 // own Timer (rather than CancellationToken.CancelAfter) so we can write a log entry
                 // before cancellation occurs.
-                var timer = new System.Timers.Timer(timeout.Value.TotalMilliseconds)
+                var callback = new Action<object>((o) =>
                 {
-                    AutoReset = false
-                };
-
-                timer.Elapsed += (o, e) =>
-                {
-                    OnFunctionTimeout(timer, method, instance.Id, timeout.Value, attribute.TimeoutWhileDebugging, trace, logger, cancellationTokenSource,
+                    OnFunctionTimeout(method, instance.Id, timeout.Value, attribute.TimeoutWhileDebugging, trace, cancellationTokenSource,
                         () => Debugger.IsAttached);
-                };
+                });
 
-                timer.Start();
-
-                return timer;
+                return new TimeoutTimer(callback, timeout.Value, null);
             }
 
             return null;
         }
 
-        internal static void OnFunctionTimeout(System.Timers.Timer timer, MethodInfo method, Guid instanceId, TimeSpan timeout, bool timeoutWhileDebugging,
-            TraceWriter trace, ILogger logger, CancellationTokenSource cancellationTokenSource, Func<bool> isDebuggerAttached)
+        internal static void OnFunctionTimeout(MethodInfo method, Guid instanceId, TimeSpan timeout, bool timeoutWhileDebugging,
+            TraceWriter trace, CancellationTokenSource cancellationTokenSource, Func<bool> isDebuggerAttached)
         {
-            timer.Stop();
-
             bool shouldTimeout = timeoutWhileDebugging || !isDebuggerAttached();
             string message = string.Format(CultureInfo.InvariantCulture,
                 "Timeout value of {0} exceeded by function '{1}.{2}' (Id: '{3}'). {4}",
@@ -391,7 +382,6 @@ namespace Microsoft.Azure.WebJobs.Host.Executors
                 shouldTimeout ? "Initiating cancellation." : "Function will not be cancelled while debugging.");
 
             trace.Error(message, null, TraceSource.Execution);
-            logger?.LogError(message);
 
             trace.Flush();
 
@@ -850,6 +840,40 @@ namespace Microsoft.Azure.WebJobs.Host.Executors
 
                 return orderedBinder.StepOrder;
             }
+        }
+
+        internal class TimeoutTimer : IDisposable
+        {
+            private readonly Timer _timer;
+            private readonly Action<object> _callback;
+            private readonly object _state;
+            private readonly TimeSpan _timeout;
+
+            public TimeoutTimer(Action<object> callback, TimeSpan timeout, object state)
+            {
+                _callback = callback;
+                _state = state;
+                _timeout = timeout;
+                _timer = new Timer(Callback, state, timeout, TimeSpan.FromMilliseconds(-1));
+            }
+
+            public TimeSpan Timeout => _timeout;
+
+            private void Callback(object state)
+            {
+                _timer.Dispose();
+                _callback(_state);
+            }
+
+            protected virtual void Dispose(bool disposing)
+            {
+                if (disposing)
+                {
+                    _timer.Dispose();
+                }
+            }
+
+            public void Dispose() => Dispose(true);
         }
     }
 }

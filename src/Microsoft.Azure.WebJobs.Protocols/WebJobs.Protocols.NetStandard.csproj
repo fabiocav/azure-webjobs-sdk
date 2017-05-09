@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard1.4</TargetFramework>
+    <AssemblyName>Microsoft.Azure.WebJobs.Host</AssemblyName>
+    <RootNamespace>MMicrosoft.Azure.WebJobs.Host</RootNamespace>
+    <Version>2.1.0.0</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Protocols\**" />
+    <EmbeddedResource Remove="Protocols\**" />
+    <None Remove="Protocols\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="WindowsAzure.Storage" Version="8.1.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Microsoft.Azure.WebJobs\WebJobs.Storage.NetStandard.csproj" />
+  </ItemGroup>
+
+</Project>

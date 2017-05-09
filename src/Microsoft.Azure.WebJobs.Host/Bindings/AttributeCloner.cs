@@ -228,7 +228,7 @@ namespace Microsoft.Azure.WebJobs.Host.Bindings
                 propertyValues[kv.Key] = kv.Value;
             }
 
-            var ctorArgs = Array.ConvertAll(_matchedCtor.GetParameters(), param => propertyValues[param.Name]);
+            var ctorArgs = _matchedCtor.GetParameters().Select(param => propertyValues[param.Name]).ToArray();
             var newAttr = (TAttribute)_matchedCtor.Invoke(ctorArgs);
 
             foreach (var prop in properties)
@@ -245,7 +245,7 @@ namespace Microsoft.Azure.WebJobs.Host.Bindings
         internal TAttribute ResolveFromBindings(IReadOnlyDictionary<string, object> bindingData)
         {
             // Invoke ctor
-            var ctorArgs = Array.ConvertAll(_ctorParamResolvers, func => func(_source, bindingData));
+            var ctorArgs = _ctorParamResolvers.Select(func => func(_source, bindingData)).ToArray();
             var newAttr = (TAttribute)_matchedCtor.Invoke(ctorArgs);
 
             foreach (var setProp in _propertySetters)

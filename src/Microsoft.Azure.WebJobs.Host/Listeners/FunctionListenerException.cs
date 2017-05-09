@@ -11,7 +11,6 @@ namespace Microsoft.Azure.WebJobs.Host.Listeners
     /// to index job methods on startup.
     /// </summary>
     [SuppressMessage("Microsoft.Design", "CA1032:ImplementStandardExceptionConstructors")]
-    [Serializable]
     public class FunctionListenerException : FunctionException
     {
         /// <summary>

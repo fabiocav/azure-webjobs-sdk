@@ -60,33 +60,6 @@ namespace Microsoft.Azure.WebJobs.Host.Blobs
             set { _inner.WriteTimeout = value; }
         }
 
-        public override IAsyncResult BeginRead(byte[] buffer, int offset, int count, AsyncCallback callback,
-            object state)
-        {
-            return _inner.BeginRead(buffer, offset, count, callback, state);
-        }
-
-        public override int EndRead(IAsyncResult asyncResult)
-        {
-            return _inner.EndRead(asyncResult);
-        }
-
-        public override IAsyncResult BeginWrite(byte[] buffer, int offset, int count, AsyncCallback callback,
-            object state)
-        {
-            return _inner.BeginWrite(buffer, offset, count, callback, state);
-        }
-
-        public override void EndWrite(IAsyncResult asyncResult)
-        {
-            _inner.EndWrite(asyncResult);
-        }
-
-        public override void Close()
-        {
-            _inner.Close();
-        }
-
         public override Task CopyToAsync(Stream destination, int bufferSize, CancellationToken cancellationToken)
         {
             return _inner.CopyToAsync(destination, bufferSize, cancellationToken);

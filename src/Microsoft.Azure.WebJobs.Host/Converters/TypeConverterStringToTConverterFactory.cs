@@ -4,10 +4,11 @@
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Reflection;
 
 namespace Microsoft.Azure.WebJobs.Host.Converters
 {
-    internal class TypeConverterStringToTConverterFactory : IStringToTConverterFactory
+     internal class TypeConverterStringToTConverterFactory : IStringToTConverterFactory
     {
         public IConverter<string, TOutput> TryCreate<TOutput>()
         {
@@ -31,14 +32,15 @@ namespace Microsoft.Azure.WebJobs.Host.Converters
         // loader contexts.
         private static TypeConverter GetTypeConverter(Type type)
         {
+            var typeInfo = type.GetTypeInfo();
             // $$$ There has got to be a better way than this to make TypeConverters work.
-            foreach (TypeConverterAttribute attr in type.GetCustomAttributes(typeof(TypeConverterAttribute), false))
+            foreach (TypeConverterAttribute attr in typeInfo.GetCustomAttributes(typeof(TypeConverterAttribute), false))
             {
                 string assemblyQualifiedName = attr.ConverterTypeName;
                 if (!string.IsNullOrWhiteSpace(assemblyQualifiedName))
                 {
                     // Type.GetType() may fail due to loader context issues.
-                    string assemblyName = type.Assembly.FullName;
+                    string assemblyName = typeInfo.Assembly.FullName;
 
                     if (assemblyQualifiedName.EndsWith(assemblyName, StringComparison.OrdinalIgnoreCase))
                     {
@@ -47,7 +49,7 @@ namespace Microsoft.Azure.WebJobs.Host.Converters
                         {
                             string typename = assemblyQualifiedName.Substring(0, i);
 
-                            var a = type.Assembly;
+                            var a = typeInfo.Assembly;
                             var t2 = a.GetType(typename); // lookup type name relative to the 
                             if (t2 != null)
                             {

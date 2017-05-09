@@ -609,7 +609,6 @@
     <Compile Include="Blobs\CloudBlobToStorageBlobConverter.cs" />
     <Compile Include="Blobs\Bindings\WriteBlobArgumentBinding.cs" />
     <Compile Include="Blobs\Bindings\CancellableTaskFactory.cs" />
-    <Compile Include="Blobs\Bindings\TaskCancellableAsyncResult.cs" />
     <Compile Include="Blobs\BlobCausalityReader.cs" />
     <Compile Include="Blobs\Listeners\StorageBlobContainerExtensions.cs" />
     <Compile Include="Blobs\Listeners\StorageBlobClientExtensions.cs" />
