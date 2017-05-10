@@ -18,11 +18,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="System.Diagnostics.TraceSource" Version="4.3.0" />
     <PackageReference Include="WindowsAzure.Storage" Version="8.1.1" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Microsoft.Azure.WebJobs\WebJobs.Storage.NetStandard.csproj" />
+    <ProjectReference Include="..\Microsoft.Azure.WebJobs.Storage\WebJobs.Storage.NetStandard.csproj" />
   </ItemGroup>
 
 </Project>
