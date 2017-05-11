@@ -2,7 +2,9 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System;
+#if !NETSTANDARD1_4
 using System.Configuration;
+#endif
 
 namespace Microsoft.Azure.WebJobs.Host
 {
@@ -15,12 +17,16 @@ namespace Microsoft.Azure.WebJobs.Host
                 return null;
             }
 
-            string configValue = ConfigurationManager.AppSettings[settingName];
+            string configValue = null;
+
+#if !NETSTANDARD1_4
+            configValue = ConfigurationManager.AppSettings[settingName];
             if (!string.IsNullOrEmpty(configValue))
             {
                 // config values take precedence over environment values
                 return configValue;
             }
+#endif
 
             return Environment.GetEnvironmentVariable(settingName) ?? configValue;
         }
@@ -28,11 +34,14 @@ namespace Microsoft.Azure.WebJobs.Host
         public static string GetConnectionFromConfigOrEnvironment(string connectionName)
         {
             string configValue = null;
+
+#if !NETSTANDARD1_4
             var connectionStringEntry = ConfigurationManager.ConnectionStrings[connectionName];
             if (connectionStringEntry != null)
             {
                 configValue = connectionStringEntry.ConnectionString;
             }
+#endif
 
             if (!string.IsNullOrEmpty(configValue))
             {

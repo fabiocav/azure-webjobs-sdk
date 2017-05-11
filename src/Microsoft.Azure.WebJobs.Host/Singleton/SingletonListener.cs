@@ -6,10 +6,6 @@ using System.Globalization;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Timers;
-using Microsoft.Azure.WebJobs.Host.Loggers;
-using Microsoft.Azure.WebJobs.Logging;
-using Microsoft.Extensions.Logging;
 
 namespace Microsoft.Azure.WebJobs.Host.Listeners
 {
@@ -20,12 +16,11 @@ namespace Microsoft.Azure.WebJobs.Host.Listeners
         private readonly SingletonConfiguration _singletonConfig;
         private readonly IListener _innerListener;
         private readonly TraceWriter _trace;
-        private readonly ILogger _logger;
         private string _lockId;
         private object _lockHandle;
         private bool _isListening;
 
-        public SingletonListener(MethodInfo method, SingletonAttribute attribute, SingletonManager singletonManager, IListener innerListener, TraceWriter trace, ILoggerFactory loggerFactory)
+        public SingletonListener(MethodInfo method, SingletonAttribute attribute, SingletonManager singletonManager, IListener innerListener, TraceWriter trace)
         {
             _attribute = attribute;
             _singletonManager = singletonManager;
@@ -37,11 +32,10 @@ namespace Microsoft.Azure.WebJobs.Host.Listeners
             _lockId += ".Listener";
 
             _trace = trace;
-            _logger = loggerFactory?.CreateLogger(LogCategories.Singleton);
         }
 
         // exposed for testing
-        internal System.Timers.Timer LockTimer { get; set; }
+        internal System.Threading.Timer LockTimer { get; set; }
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
@@ -52,9 +46,7 @@ namespace Microsoft.Azure.WebJobs.Host.Listeners
 
             if (_lockHandle == null)
             {
-                string msg = string.Format(CultureInfo.InvariantCulture, "Unable to acquire Singleton lock ({0}).", _lockId);
-                _trace.Verbose(msg, source: TraceSource.Execution);
-                _logger?.LogDebug(msg);
+                _trace.Verbose(string.Format(CultureInfo.InvariantCulture, "Unable to acquire Singleton lock ({0}).", _lockId), source: TraceSource.Execution);
 
                 // If we're unable to acquire the lock, it means another listener
                 // has it so we return w/o starting our listener.
@@ -64,9 +56,7 @@ namespace Microsoft.Azure.WebJobs.Host.Listeners
                 // down for whatever reason, others will have a chance to resume the work.
                 if (recoveryEnabled)
                 {
-                    LockTimer = new System.Timers.Timer(_singletonConfig.ListenerLockRecoveryPollingInterval.TotalMilliseconds);
-                    LockTimer.Elapsed += OnLockTimer;
-                    LockTimer.Start();
+                    LockTimer = new Timer(OnLockTimer, null, _singletonConfig.ListenerLockRecoveryPollingInterval, _singletonConfig.ListenerLockRecoveryPollingInterval);
                 }
                 return;
             }
@@ -80,7 +70,7 @@ namespace Microsoft.Azure.WebJobs.Host.Listeners
         {
             if (LockTimer != null)
             {
-                LockTimer.Stop();
+                LockTimer.Dispose();
             }
 
             await ReleaseLockAsync(cancellationToken);
@@ -96,7 +86,7 @@ namespace Microsoft.Azure.WebJobs.Host.Listeners
         {
             if (LockTimer != null)
             {
-                LockTimer.Stop();
+                LockTimer.Dispose();
             }
 
             _innerListener.Cancel();
@@ -116,7 +106,7 @@ namespace Microsoft.Azure.WebJobs.Host.Listeners
             _innerListener.Dispose();
         }
 
-        private void OnLockTimer(object sender, ElapsedEventArgs e)
+        private void OnLockTimer(object state)
         {
             TryAcquireLock().GetAwaiter().GetResult();
         }
@@ -129,7 +119,6 @@ namespace Microsoft.Azure.WebJobs.Host.Listeners
             {
                 if (LockTimer != null)
                 {
-                    LockTimer.Stop();
                     LockTimer.Dispose();
                     LockTimer = null;
                 }

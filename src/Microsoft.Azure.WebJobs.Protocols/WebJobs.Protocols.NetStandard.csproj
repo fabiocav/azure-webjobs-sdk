@@ -7,6 +7,10 @@
     <Version>2.1.0.0</Version>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>TRACE;DEBUG;NETSTANDARD1_4;PUBLICPROTOCOL</DefineConstants>
+  </PropertyGroup>
+
   <ItemGroup>
     <Compile Remove="Protocols\**" />
     <EmbeddedResource Remove="Protocols\**" />

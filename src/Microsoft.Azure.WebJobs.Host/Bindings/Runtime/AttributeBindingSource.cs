@@ -52,6 +52,7 @@ namespace Microsoft.Azure.WebJobs.Host.Bindings.Runtime
             return _bindingProvider.TryCreateAsync(bindingProviderContext);
         }
 
+#if !NETSTANDARD1_4
         // A non-reflection based implementation
         private class FakeParameterInfo : ParameterInfo
         {
@@ -80,5 +81,6 @@ namespace Microsoft.Azure.WebJobs.Host.Bindings.Runtime
                 return _attributes.Where(p => p.GetType() == attributeType).ToArray();
             }
         }
+#endif
     }
 }
