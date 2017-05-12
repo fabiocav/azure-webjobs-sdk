@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Reflection;
 using Microsoft.Azure.WebJobs.Host.Bindings.Path;
 
 namespace Microsoft.Azure.WebJobs.Host.Bindings
@@ -48,7 +49,7 @@ namespace Microsoft.Azure.WebJobs.Host.Bindings
         /// <inheritdoc/>
         public IReadOnlyDictionary<string, object> GetBindingData(object value)
         {
-            if (value != null && !_type.IsAssignableFrom(value.GetType()))
+            if (value != null && !_type.GetTypeInfo().IsAssignableFrom(value.GetType().GetTypeInfo()))
             {
                 throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "The supplied value was not of type '{0}'.", _type), "value");
             }

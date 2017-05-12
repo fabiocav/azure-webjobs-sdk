@@ -3,6 +3,7 @@
 
 using System;
 using System.Globalization;
+using System.Reflection;
 using Newtonsoft.Json.Linq;
 
 namespace Microsoft.Azure.WebJobs.Host.Bindings
@@ -23,42 +24,37 @@ namespace Microsoft.Azure.WebJobs.Host.Bindings
         {
             if (parameterValue != null)
             {
-                switch (Type.GetTypeCode(parameterValue.GetType()))
+                switch (parameterValue)
                 {
-                    case TypeCode.String:
-                        return (string)parameterValue;
-                    case TypeCode.Int16:
-                        return ((Int16)parameterValue).ToString(CultureInfo.InvariantCulture);
-                    case TypeCode.Int32:
-                        return ((Int32)parameterValue).ToString(CultureInfo.InvariantCulture);
-                    case TypeCode.Int64:
-                        return ((Int64)parameterValue).ToString(CultureInfo.InvariantCulture);
-                    case TypeCode.UInt16:
-                        return ((UInt16)parameterValue).ToString(CultureInfo.InvariantCulture);
-                    case TypeCode.UInt32:
-                        return ((UInt32)parameterValue).ToString(CultureInfo.InvariantCulture);
-                    case TypeCode.UInt64:
-                        return ((UInt64)parameterValue).ToString(CultureInfo.InvariantCulture);
-                    case TypeCode.Char:
-                        return ((Char)parameterValue).ToString(CultureInfo.InvariantCulture);
-                    case TypeCode.Byte:
-                        return ((Byte)parameterValue).ToString(CultureInfo.InvariantCulture);
-                    case TypeCode.SByte:
-                        return ((SByte)parameterValue).ToString(CultureInfo.InvariantCulture);
-                    case TypeCode.Object:
-                        if (parameterValue is Guid)
+                    case string value:
+                        return value;
+                    case short value:
+                        return value.ToString(CultureInfo.InvariantCulture);
+                    case int value:
+                        return value.ToString(CultureInfo.InvariantCulture);
+                    case long value:
+                        return value.ToString(CultureInfo.InvariantCulture);
+                    case ushort value:
+                        return value.ToString(CultureInfo.InvariantCulture);
+                    case uint value:
+                        return value.ToString(CultureInfo.InvariantCulture);
+                    case ulong value:
+                        return value.ToString(CultureInfo.InvariantCulture);
+                    case char value:
+                        return value.ToString();
+                    case Byte value:
+                        return value.ToString(CultureInfo.InvariantCulture);
+                    case sbyte value:
+                        return value.ToString(CultureInfo.InvariantCulture);
+                    case Guid value:
+                        return value.ToString();
+                    case JToken value:
+                        // Only accept primitive Json values. Don't accept complex objects. 
+                        if (!(parameterValue is JContainer))
                         {
                             return parameterValue.ToString();
                         }
-                        if (parameterValue is Newtonsoft.Json.Linq.JToken)
-                        {
-                            // Only accept primitive Json values. Don't accept complex objects. 
-                            if (!(parameterValue is JContainer))
-                            {
-                                return parameterValue.ToString();
-                            }
-                        }
-                        return null;
+                        break;
                 }
             }
 
