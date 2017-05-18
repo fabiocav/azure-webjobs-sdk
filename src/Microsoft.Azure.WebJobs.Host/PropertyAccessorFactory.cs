@@ -24,7 +24,7 @@ namespace Microsoft.Azure.WebJobs.Host
         {
             Type instanceTypeDefinition;
 
-            if (!typeof(TReflected).IsValueType)
+            if (!typeof(TReflected).GetTypeInfo().IsValueType)
             {
                 instanceTypeDefinition = typeof(ClassPropertyAccessorFactory<>);
             }

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using Microsoft.Azure.WebJobs.Host.Storage.Table;
 using Microsoft.WindowsAzure.Storage.Table;
@@ -84,7 +85,7 @@ namespace Microsoft.Azure.WebJobs.Host.Tables
 
         public static void VerifyDefaultConstructor(Type entityType)
         {
-            if (!entityType.IsValueType && entityType.GetConstructor(Type.EmptyTypes) == null)
+            if (!entityType.GetTypeInfo().IsValueType && entityType.GetConstructor(Type.EmptyTypes) == null)
             {
                 throw new InvalidOperationException("Table entity types must provide a default constructor.");
             }

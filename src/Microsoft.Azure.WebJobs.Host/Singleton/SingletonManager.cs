@@ -281,7 +281,7 @@ namespace Microsoft.Azure.WebJobs.Host
             }
             else
             {
-                singletonAttribute = listenerType.GetCustomAttributes<SingletonAttribute>().SingleOrDefault(p => p.Mode == SingletonMode.Listener);
+                singletonAttribute = listenerType.GetTypeInfo().GetCustomAttributes<SingletonAttribute>().SingleOrDefault(p => p.Mode == SingletonMode.Listener);
             }
 
             if (singletonAttribute != null)

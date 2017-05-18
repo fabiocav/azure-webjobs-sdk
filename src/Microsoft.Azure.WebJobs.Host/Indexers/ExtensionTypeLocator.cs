@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace Microsoft.Azure.WebJobs.Host.Indexers
 {
@@ -42,7 +43,7 @@ namespace Microsoft.Azure.WebJobs.Host.Indexers
                 {
                     foreach (Type interfaceType in type.GetInterfaces())
                     {
-                        if (interfaceType.IsGenericType)
+                        if (interfaceType.GetTypeInfo().IsGenericType)
                         {
                             Type interfaceGenericDefinition = interfaceType.GetGenericTypeDefinition();
 

@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Microsoft.Azure.WebJobs.Description;
 using Microsoft.Azure.WebJobs.ServiceBus;
-using Microsoft.ServiceBus.Messaging;
+using Microsoft.Azure.ServiceBus;
 
 namespace Microsoft.Azure.WebJobs
 {
@@ -16,7 +16,7 @@ namespace Microsoft.Azure.WebJobs
     /// <remarks>
     /// The method parameter type can be one of the following:
     /// <list type="bullet">
-    /// <item><description>BrokeredMessage (out parameter)</description></item>
+    /// <item><description>Message (out parameter)</description></item>
     /// <item><description><see cref="string"/> (out parameter)</description></item>
     /// <item><description><see cref="T:byte[]"/> (out parameter)</description></item>
     /// <item><description>A user-defined type (out parameter, serialized as JSON)</description></item>

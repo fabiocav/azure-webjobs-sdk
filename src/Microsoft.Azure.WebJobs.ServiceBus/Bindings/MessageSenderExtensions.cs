@@ -5,15 +5,15 @@ using System;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Azure.ServiceBus;
+using Microsoft.Azure.ServiceBus.Core;
 using Microsoft.Azure.WebJobs.ServiceBus.Listeners;
-using Microsoft.ServiceBus;
-using Microsoft.ServiceBus.Messaging;
 
 namespace Microsoft.Azure.WebJobs.ServiceBus.Bindings
 {
     internal static class MessageSenderExtensions
     {
-        public static async Task SendAndCreateEntityIfNotExists(this MessageSender sender, BrokeredMessage message,
+        public static async Task SendAndCreateEntityIfNotExists(this MessageSender sender, Message message,
             Guid functionInstanceId, NamespaceManager namespaceManager, AccessRights accessRights, EntityType entityType, CancellationToken cancellationToken)
         {
             if (sender == null)

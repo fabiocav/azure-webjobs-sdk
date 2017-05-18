@@ -16,7 +16,7 @@ namespace Microsoft.Azure.WebJobs.Host.Tables
                 return null;
             }
 
-            if (parameter.ParameterType.ContainsGenericParameters)
+            if (parameter.ParameterType.GetTypeInfo().ContainsGenericParameters)
             {
                 return null;
             }

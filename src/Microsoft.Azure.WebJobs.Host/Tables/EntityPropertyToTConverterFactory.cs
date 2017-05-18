@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System;
+using System.Reflection;
 using Microsoft.Azure.WebJobs.Host.Converters;
 using Microsoft.Azure.WebJobs.Host.Tables.Converters;
 using Microsoft.WindowsAzure.Storage.Table;
@@ -97,16 +98,16 @@ namespace Microsoft.Azure.WebJobs.Host.Tables
                 return (IConverter<EntityProperty, TOutput>)new EntityPropertyToStringConverter();
             }
 
-            if (typeof(TOutput).IsEnum)
+            if (typeof(TOutput).GetTypeInfo().IsEnum)
             {
                 return new EntityPropertyToEnumConverter<TOutput>();
             }
 
-            if (typeof(TOutput).IsGenericType && typeof(TOutput).GetGenericTypeDefinition() == typeof(Nullable<>))
+            if (typeof(TOutput).GetTypeInfo().IsGenericType && typeof(TOutput).GetGenericTypeDefinition() == typeof(Nullable<>))
             {
                 Type nullableElementType = typeof(TOutput).GetGenericArguments()[0];
 
-                if (nullableElementType.IsEnum)
+                if (nullableElementType.GetTypeInfo().IsEnum)
                 {
                     return CreateNullableEnumConverter<TOutput>(nullableElementType);
                 }

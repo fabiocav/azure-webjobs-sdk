@@ -52,7 +52,7 @@ namespace Microsoft.Azure.WebJobs.Host.Bindings
             {
                 // verify it's an IConverter 
 
-                if (!iface.IsGenericType)
+                if (!iface.GetTypeInfo().IsGenericType)
                 {
                     continue;
                 }
@@ -133,7 +133,8 @@ namespace Microsoft.Azure.WebJobs.Host.Bindings
             //    class Foo<T> : IEnumerable<T>
             //
             // MakeGenericType can only be called on a GenericTypeDefinition. 
-            if (type.IsGenericTypeDefinition)
+            TypeInfo typeInfo = type.GetTypeInfo();
+            if (typeInfo.IsGenericTypeDefinition)
             {
                 var typeArgs = type.GetGenericArguments();
                 int len = typeArgs.Length;
@@ -155,7 +156,7 @@ namespace Microsoft.Azure.WebJobs.Host.Bindings
                     var actual = genericArgs[type.Name];
                     return actual;
                 }
-                else if (type.ContainsGenericParameters)
+                else if (typeInfo.ContainsGenericParameters)
                 {                    
                     if (type.IsArray)
                     {
@@ -240,7 +241,7 @@ namespace Microsoft.Azure.WebJobs.Host.Bindings
             }
 
             // IFoo<T>, IFoo<string> 
-            if (specificType.IsGenericType && openType.IsGenericType)
+            if (specificType.GetTypeInfo().IsGenericType && openType.GetTypeInfo().IsGenericType)
             {
                 if (specificType.GetGenericTypeDefinition() != openType.GetGenericTypeDefinition())
                 {

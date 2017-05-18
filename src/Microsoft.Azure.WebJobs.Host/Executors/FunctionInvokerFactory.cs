@@ -23,15 +23,14 @@ namespace Microsoft.Azure.WebJobs.Host.Executors
                 throw new ArgumentNullException("activator");
             }
 
-            Type reflectedType = method.ReflectedType;
+            Type reflectedType = method.DeclaringType;
             MethodInfo genericMethodDefinition = typeof(FunctionInvokerFactory).GetMethod("CreateGeneric",
                 BindingFlags.NonPublic | BindingFlags.Static);
             Debug.Assert(genericMethodDefinition != null);
             MethodInfo genericMethod = genericMethodDefinition.MakeGenericMethod(reflectedType);
             Debug.Assert(genericMethod != null);
             Func<MethodInfo, IJobActivator, IFunctionInvoker> lambda =
-                (Func<MethodInfo, IJobActivator, IFunctionInvoker>)Delegate.CreateDelegate(
-                typeof(Func<MethodInfo, IJobActivator, IFunctionInvoker>), genericMethod);
+                (Func<MethodInfo, IJobActivator, IFunctionInvoker>)genericMethod.CreateDelegate(typeof(Func<MethodInfo, IJobActivator, IFunctionInvoker>));
             return lambda.Invoke(method, activator);
         }
 

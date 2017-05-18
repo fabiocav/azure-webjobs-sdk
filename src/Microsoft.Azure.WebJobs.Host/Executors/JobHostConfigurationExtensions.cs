@@ -103,7 +103,7 @@ namespace Microsoft.Azure.WebJobs.Host.Executors
             services.AddService<TraceWriter>(trace);
 
             // Add built-in extensions 
-            config.AddAttributesFromAssembly(typeof(TableAttribute).Assembly);
+            config.AddAttributesFromAssembly(typeof(TableAttribute).GetTypeInfo().Assembly);
 
             var exts = config.GetExtensions();
             bool builtinsAdded = exts.GetExtensions<IExtensionConfigProvider>().OfType<TableExtension>().Any();
@@ -410,7 +410,7 @@ namespace Microsoft.Azure.WebJobs.Host.Executors
 
             if (firstMethod != null)
             {
-                return firstMethod.DeclaringType.Assembly;
+                return firstMethod.DeclaringType.GetTypeInfo().Assembly;
             }
 
             // 2. If there are no function definitions, try to use the entry assembly.

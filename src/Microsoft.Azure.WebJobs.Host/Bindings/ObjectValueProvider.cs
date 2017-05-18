@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace Microsoft.Azure.WebJobs.Host.Bindings
@@ -13,7 +14,7 @@ namespace Microsoft.Azure.WebJobs.Host.Bindings
 
         public ObjectValueProvider(object value, Type valueType)
         {
-            if (value != null && !valueType.IsAssignableFrom(value.GetType()))
+            if (value != null && !valueType.GetTypeInfo().IsAssignableFrom(value.GetType()))
             {
                 throw new InvalidOperationException("value is not of the correct type.");
             }

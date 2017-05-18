@@ -16,8 +16,8 @@ namespace Microsoft.Azure.WebJobs.ServiceBus.Triggers
     {
         private static readonly IQueueTriggerArgumentBindingProvider InnerProvider =
             new CompositeArgumentBindingProvider(
-                new ConverterArgumentBindingProvider<BrokeredMessage>(
-                    new AsyncConverter<BrokeredMessage, BrokeredMessage>(new IdentityConverter<BrokeredMessage>())),
+                new ConverterArgumentBindingProvider<Message>(
+                    new AsyncConverter<Message, Message>(new IdentityConverter<Message>())),
                 new ConverterArgumentBindingProvider<string>(new BrokeredMessageToStringConverter()),
                 new ConverterArgumentBindingProvider<byte[]>(new BrokeredMessageToByteArrayConverter()),
                 new UserTypeArgumentBindingProvider()); // Must come last, because it will attempt to bind all types.
@@ -72,7 +72,7 @@ namespace Microsoft.Azure.WebJobs.ServiceBus.Triggers
                 entityPath = SubscriptionClient.FormatSubscriptionPath(topicName, subscriptionName);
             }
 
-            ITriggerDataArgumentBinding<BrokeredMessage> argumentBinding = InnerProvider.TryCreate(parameter);
+            ITriggerDataArgumentBinding<Message> argumentBinding = InnerProvider.TryCreate(parameter);
             if (argumentBinding == null)
             {
                 throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "Can't bind ServiceBusTrigger to type '{0}'.", parameter.ParameterType));

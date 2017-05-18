@@ -68,7 +68,7 @@ namespace Microsoft.Azure.WebJobs.Host.Bindings
         private CollectorBindingPattern GetMode(ParameterInfo parameter)
         {
             Type parameterType = parameter.ParameterType;
-            if (parameterType.IsGenericType)
+            if (parameterType.GetTypeInfo().IsGenericType)
             {
                 var genericType = parameterType.GetGenericTypeDefinition();
                 var elementType = parameterType.GetGenericArguments()[0];
@@ -323,7 +323,7 @@ namespace Microsoft.Azure.WebJobs.Host.Bindings
             // typeUser - type in the user's parameter. 
             private static Exception NewMissingConversionError(Type typeUser)
             {
-                if (typeUser.IsPrimitive)
+                if (typeUser.GetTypeInfo().IsPrimitive)
                 {
                     return new NotSupportedException("Primitive types are not supported.");
                 }

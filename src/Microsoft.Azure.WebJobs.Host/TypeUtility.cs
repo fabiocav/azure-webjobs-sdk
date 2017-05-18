@@ -27,7 +27,7 @@ namespace Microsoft.Azure.WebJobs.Host
 
         internal static bool IsNullable(Type type)
         {
-            return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
+            return type.GetTypeInfo().IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
         }
 
         internal static bool IsJObject(Type type)
@@ -44,7 +44,7 @@ namespace Microsoft.Azure.WebJobs.Host
             {
                 return typeof(void);
             }
-            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Task<>))
+            if (type.GetTypeInfo().IsGenericType && type.GetGenericTypeDefinition() == typeof(Task<>))
             {
                 return type.GetGenericArguments()[0];
             }
@@ -112,7 +112,7 @@ namespace Microsoft.Azure.WebJobs.Host
                 return attribute;
             }
 
-            attribute = method.DeclaringType.GetCustomAttribute(type);
+            attribute = method.DeclaringType.GetTypeInfo().GetCustomAttribute(type);
             if (attribute != null)
             {
                 return attribute;
@@ -130,7 +130,7 @@ namespace Microsoft.Azure.WebJobs.Host
             {
                 // if the attribute doesn't specify an explicit connnection, walk up
                 // the hierarchy looking for an override specified via attribute
-                var connectionProviderAttribute = attribute.GetType().GetCustomAttribute<ConnectionProviderAttribute>();
+                var connectionProviderAttribute = attribute.GetType().GetTypeInfo().GetCustomAttribute<ConnectionProviderAttribute>();
                 if (connectionProviderAttribute?.ProviderType != null)
                 {
                     var connectionOverrideProvider = GetHierarchicalAttributeOrNull(parameter, connectionProviderAttribute.ProviderType) as IConnectionProvider;
@@ -157,7 +157,7 @@ namespace Microsoft.Azure.WebJobs.Host
                 var stateMachineType = stateMachineAttribute.StateMachineType;
                 if (stateMachineType != null)
                 {
-                    return stateMachineType.GetCustomAttribute<CompilerGeneratedAttribute>() != null;
+                    return stateMachineType.GetTypeInfo().GetCustomAttribute<CompilerGeneratedAttribute>() != null;
                 }
             }
             return false;

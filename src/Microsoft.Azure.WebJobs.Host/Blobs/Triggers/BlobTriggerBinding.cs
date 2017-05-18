@@ -218,7 +218,8 @@ namespace Microsoft.Azure.WebJobs.Host.Blobs.Triggers
         {
             var bindingData = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
             bindingData.Add("BlobTrigger", value.GetBlobPath());
-            bindingData.Add("Uri", value.Uri);
+            bindingData.Add("Uri", value.GetBlobPath());
+            bindingData.Add("Path", value.GetBlobPath());
             bindingData.Add("Properties", value.Properties?.SdkObject);
             bindingData.Add("Metadata", value.Metadata);
 

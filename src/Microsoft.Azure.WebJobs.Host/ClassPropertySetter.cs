@@ -7,8 +7,8 @@ using System.Reflection;
 
 namespace Microsoft.Azure.WebJobs.Host
 {
-    internal class ClassPropertySetter<TReflected, TProperty> : IPropertySetter<TReflected, TProperty>
-        where TReflected : class
+    internal class ClassPropertySetter<TDeclaring, TProperty> : IPropertySetter<TDeclaring, TProperty>
+        where TDeclaring : class
     {
         private readonly PropertySetterDelegate _setter;
 
@@ -18,9 +18,9 @@ namespace Microsoft.Azure.WebJobs.Host
             _setter = setter;
         }
 
-        private delegate void PropertySetterDelegate(TReflected instance, TProperty value);
+        private delegate void PropertySetterDelegate(TDeclaring instance, TProperty value);
 
-        public void SetValue(ref TReflected instance, TProperty value)
+        public void SetValue(ref TDeclaring instance, TProperty value)
         {
             if (instance == null)
             {
@@ -30,16 +30,16 @@ namespace Microsoft.Azure.WebJobs.Host
             _setter.Invoke(instance, value);
         }
 
-        public static ClassPropertySetter<TReflected, TProperty> Create(PropertyInfo property)
+        public static ClassPropertySetter<TDeclaring, TProperty> Create(PropertyInfo property)
         {
             if (property == null)
             {
                 throw new ArgumentNullException("property");
             }
 
-            if (typeof(TReflected) != property.ReflectedType)
+            if (typeof(TDeclaring) != property.DeclaringType)
             {
-                throw new ArgumentException("The property's ReflectedType must exactly match TReflected.", "property");
+                throw new ArgumentException($"The property's DeclaringType must exactly match {nameof(TDeclaring)}.", "property");
             }
 
             if (typeof(TProperty) != property.PropertyType)
@@ -65,8 +65,8 @@ namespace Microsoft.Azure.WebJobs.Host
                 throw new ArgumentException("The property must not be static.", "property");
             }
 
-            Debug.Assert(setMethod.ReflectedType == typeof(TReflected));
-            Debug.Assert(!setMethod.ReflectedType.IsValueType);
+            Debug.Assert(setMethod.DeclaringType == typeof(TDeclaring));
+            Debug.Assert(!setMethod.DeclaringType.GetTypeInfo().IsValueType);
             Debug.Assert(setMethod.GetParameters().Length == 1);
             Debug.Assert(setMethod.GetParameters()[0].ParameterType == typeof(TProperty));
             Debug.Assert(setMethod.ReturnType == typeof(void));
@@ -74,7 +74,7 @@ namespace Microsoft.Azure.WebJobs.Host
             PropertySetterDelegate setter =
                 (PropertySetterDelegate)setMethod.CreateDelegate(typeof(PropertySetterDelegate));
 
-            return new ClassPropertySetter<TReflected, TProperty>(setter);
+            return new ClassPropertySetter<TDeclaring, TProperty>(setter);
         }
     }
 }

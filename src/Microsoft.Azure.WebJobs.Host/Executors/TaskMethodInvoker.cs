@@ -3,6 +3,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace Microsoft.Azure.WebJobs.Host.Executors
@@ -52,15 +53,16 @@ namespace Microsoft.Azure.WebJobs.Host.Executors
                 return null;
             }
 
+            TypeInfo taskTypeInfo = taskType.GetTypeInfo();
             // Secondary check: static Task methods sometimes return nested Task types which
             // fail the first check, but aren't generic types and throw an exception below.
-            if (!taskType.IsGenericType)
+            if (!taskTypeInfo.IsGenericType)
             {
                 return null;
             }
 
-            Debug.Assert(taskType.IsGenericType);
-            Debug.Assert(!taskType.IsGenericTypeDefinition);
+            Debug.Assert(taskTypeInfo.IsGenericType);
+            Debug.Assert(!taskTypeInfo.IsGenericTypeDefinition);
 
             // verify that the generic type is a Task
             Type genericTypeDefinition = taskType.GetGenericTypeDefinition();

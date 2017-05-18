@@ -3,7 +3,7 @@
 
 using System;
 using Microsoft.Azure.WebJobs.Host;
-using Microsoft.ServiceBus.Messaging;
+using Microsoft.Azure.ServiceBus;
 
 namespace Microsoft.Azure.WebJobs.ServiceBus
 {

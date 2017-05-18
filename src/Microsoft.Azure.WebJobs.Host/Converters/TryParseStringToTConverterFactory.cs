@@ -11,8 +11,7 @@ namespace Microsoft.Azure.WebJobs.Host.Converters
         public IConverter<string, TOutput> TryCreate<TOutput>()
         {
             // bool succeeded = TOutput.TryParse(string input, out TOutput result);
-            MethodInfo tryParseMethod = typeof(TOutput).GetMethod("TryParse", BindingFlags.Public | BindingFlags.Static,
-                null, new[] { typeof(string), typeof(TOutput).MakeByRefType() }, null);
+            MethodInfo tryParseMethod = typeof(TOutput).GetMethod("TryParse",  new[] { typeof(string), typeof(TOutput).MakeByRefType() });
 
             // Can't convert for the following close non-matches (don't match TryParseDelegate<TOutput>):
             // *<non-bool>* TryParse(string input, out TOutput result)
@@ -24,7 +23,7 @@ namespace Microsoft.Azure.WebJobs.Host.Converters
             }
 
             TryParseDelegate<TOutput> tryParseDelegate =
-                (TryParseDelegate<TOutput>)Delegate.CreateDelegate(typeof(TryParseDelegate<TOutput>), tryParseMethod);
+                (TryParseDelegate<TOutput>)tryParseMethod.CreateDelegate(typeof(TryParseDelegate<TOutput>));
             return new TryParseStringToTConverter<TOutput>(tryParseDelegate);
         }
     }

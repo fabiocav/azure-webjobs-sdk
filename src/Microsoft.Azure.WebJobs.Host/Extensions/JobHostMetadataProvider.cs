@@ -75,7 +75,7 @@ namespace Microsoft.Azure.WebJobs.Host
             {
                 if (typeof(Attribute).IsAssignableFrom(type))
                 {
-                    if (type.GetCustomAttribute(typeof(BindingAttribute)) != null)
+                    if (type.GetTypeInfo().GetCustomAttribute(typeof(BindingAttribute)) != null)
                     {
                         yield return type;
                     }                    
@@ -86,13 +86,13 @@ namespace Microsoft.Azure.WebJobs.Host
         // Do extra bookkeeping for a new extension. 
         public void AddExtension(IExtensionConfigProvider extension)
         {
-            AddAttributesFromAssembly(extension.GetType().Assembly);
+            AddAttributesFromAssembly(extension.GetType().GetTypeInfo().Assembly);
             AddAssembly(extension.GetType());         
         }
 
         private void AddAssembly(Type type)
         {
-            AddAssembly(type.Assembly);
+            AddAssembly(type.GetTypeInfo().Assembly);
         }
 
         private void AddAssembly(Assembly assembly)

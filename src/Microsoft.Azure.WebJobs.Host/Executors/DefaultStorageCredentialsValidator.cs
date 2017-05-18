@@ -87,8 +87,11 @@ namespace Microsoft.Azure.WebJobs.Host.Executors
             {
                 throw;
             }
+            // TODO: FACAVAL - Need to check the new exception type thrown when 
+#if !NETSTANDARD1_5
             catch (StorageException exception)
             {
+
                 WebException webException = exception.GetBaseException() as WebException;
                 if (webException != null && webException.Status == WebExceptionStatus.NameResolutionFailure)
                 {
@@ -97,8 +100,9 @@ namespace Microsoft.Azure.WebJobs.Host.Executors
                     account.Type = StorageAccountType.BlobOnly;
                     return;
                 }
-                throw;
+            throw;
             }
+#endif
         }
     }
 }

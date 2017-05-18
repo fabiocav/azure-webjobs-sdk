@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System;
+using System.Reflection;
 
 namespace Microsoft.Azure.WebJobs.Host.Bindings.Invoke
 {
@@ -14,14 +15,15 @@ namespace Microsoft.Azure.WebJobs.Host.Bindings.Invoke
                 return null;
             }
 
-            if (parameterType.ContainsGenericParameters)
+            TypeInfo parameterTypeInfo = parameterType.GetTypeInfo();
+            if (parameterTypeInfo.ContainsGenericParameters)
             { 
                 return null; 
             }
 
             Type genericTypeDefinition;
 
-            if (!parameterType.IsValueType)
+            if (!parameterTypeInfo.IsValueType)
             {
                 genericTypeDefinition = typeof(ClassInvokeBinding<>);
             }

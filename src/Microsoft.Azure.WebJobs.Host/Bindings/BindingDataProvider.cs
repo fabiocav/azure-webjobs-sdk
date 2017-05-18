@@ -111,7 +111,7 @@ namespace Microsoft.Azure.WebJobs.Host.Bindings
                         string.Format(CultureInfo.InvariantCulture, 
                         "Multiple properties named '{0}' found in type '{1}'.", property.Name, type.Name));
                 }
-                contract.Add(property.Name, property.PropertyType);
+                contract.Add(property.Name, property.Property.PropertyType);
             }
 
             return new BindingDataProvider(type, contract, bindingDataProperties);

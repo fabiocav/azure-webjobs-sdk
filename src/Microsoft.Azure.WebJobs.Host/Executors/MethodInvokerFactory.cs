@@ -26,9 +26,9 @@ namespace Microsoft.Azure.WebJobs.Host.Executors
                 throw new NotSupportedException("Methods may only return void or Task.");
             }
 
-            if (typeof(TReflected) != method.ReflectedType)
+            if (typeof(TReflected) != method.DeclaringType)
             {
-                throw new InvalidOperationException("The Type must match the method's ReflectedType.");
+                throw new InvalidOperationException("The Type must match the method's DeclaringType.");
             }
 
             // Parameter to invoker: TReflected instance

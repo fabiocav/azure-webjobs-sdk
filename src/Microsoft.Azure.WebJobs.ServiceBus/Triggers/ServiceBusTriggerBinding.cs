@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Threading.Tasks;
+using Microsoft.Azure.ServiceBus;
 using Microsoft.Azure.WebJobs.Host.Bindings;
 using Microsoft.Azure.WebJobs.Host.Converters;
 using Microsoft.Azure.WebJobs.Host.Listeners;
@@ -12,15 +13,14 @@ using Microsoft.Azure.WebJobs.Host.Protocols;
 using Microsoft.Azure.WebJobs.Host.Triggers;
 using Microsoft.Azure.WebJobs.ServiceBus.Bindings;
 using Microsoft.Azure.WebJobs.ServiceBus.Listeners;
-using Microsoft.ServiceBus.Messaging;
 
 namespace Microsoft.Azure.WebJobs.ServiceBus.Triggers
 {
     internal class ServiceBusTriggerBinding : ITriggerBinding
     {
         private readonly string _parameterName;
-        private readonly IObjectToTypeConverter<BrokeredMessage> _converter;
-        private readonly ITriggerDataArgumentBinding<BrokeredMessage> _argumentBinding;
+        private readonly IObjectToTypeConverter<Message> _converter;
+        private readonly ITriggerDataArgumentBinding<Message> _argumentBinding;
         private readonly IReadOnlyDictionary<string, Type> _bindingDataContract;
         private readonly ServiceBusAccount _account;
         private readonly string _namespaceName;
@@ -31,7 +31,7 @@ namespace Microsoft.Azure.WebJobs.ServiceBus.Triggers
         private readonly AccessRights _accessRights;
         private readonly ServiceBusConfiguration _config;
 
-        public ServiceBusTriggerBinding(string parameterName, Type parameterType, ITriggerDataArgumentBinding<BrokeredMessage> argumentBinding, ServiceBusAccount account,
+        public ServiceBusTriggerBinding(string parameterName, Type parameterType, ITriggerDataArgumentBinding<Message> argumentBinding, ServiceBusAccount account,
             AccessRights accessRights, ServiceBusConfiguration config, string queueName)
             : this(parameterName, parameterType, argumentBinding, account, accessRights, config)
         {
@@ -39,7 +39,7 @@ namespace Microsoft.Azure.WebJobs.ServiceBus.Triggers
             _entityPath = queueName;
         }
 
-        public ServiceBusTriggerBinding(string parameterName, Type parameterType, ITriggerDataArgumentBinding<BrokeredMessage> argumentBinding, ServiceBusAccount account,
+        public ServiceBusTriggerBinding(string parameterName, Type parameterType, ITriggerDataArgumentBinding<Message> argumentBinding, ServiceBusAccount account,
             AccessRights accessRights, ServiceBusConfiguration config, string topicName, string subscriptionName)
             : this(parameterName, parameterType, argumentBinding, account, accessRights, config)
         {
@@ -48,7 +48,7 @@ namespace Microsoft.Azure.WebJobs.ServiceBus.Triggers
             _entityPath = SubscriptionClient.FormatSubscriptionPath(topicName, subscriptionName);
         }
 
-        private ServiceBusTriggerBinding(string parameterName, Type parameterType, ITriggerDataArgumentBinding<BrokeredMessage> argumentBinding, 
+        private ServiceBusTriggerBinding(string parameterName, Type parameterType, ITriggerDataArgumentBinding<Message> argumentBinding, 
             ServiceBusAccount account, AccessRights accessRights, ServiceBusConfiguration config) 
         {
             _parameterName = parameterName;
@@ -65,7 +65,7 @@ namespace Microsoft.Azure.WebJobs.ServiceBus.Triggers
         {
             get
             {
-                return typeof(BrokeredMessage);
+                return typeof(Message);
             }
         }
 
@@ -96,10 +96,10 @@ namespace Microsoft.Azure.WebJobs.ServiceBus.Triggers
 
         public async Task<ITriggerData> BindAsync(object value, ValueBindingContext context)
         {
-            BrokeredMessage message = value as BrokeredMessage;
+            Message message = value as Message;
             if (message == null && !_converter.TryConvert(value, out message))
             {
-                throw new InvalidOperationException("Unable to convert trigger to BrokeredMessage.");
+                throw new InvalidOperationException("Unable to convert trigger to Message.");
             }
 
             ITriggerData triggerData = await _argumentBinding.BindAsync(message, context);
@@ -155,7 +155,7 @@ namespace Microsoft.Azure.WebJobs.ServiceBus.Triggers
             return contract;
         }
 
-        internal static IReadOnlyDictionary<string, object> CreateBindingData(BrokeredMessage value,
+        internal static IReadOnlyDictionary<string, object> CreateBindingData(Message value,
             IReadOnlyDictionary<string, object> bindingDataFromValueType)
         {
             var bindingData = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
@@ -214,10 +214,10 @@ namespace Microsoft.Azure.WebJobs.ServiceBus.Triggers
             };
         }
 
-        private static IObjectToTypeConverter<BrokeredMessage> CreateConverter(Type parameterType)
+        private static IObjectToTypeConverter<Message> CreateConverter(Type parameterType)
         {
-            return new CompositeObjectToTypeConverter<BrokeredMessage>(
-                    new OutputConverter<BrokeredMessage>(new IdentityConverter<BrokeredMessage>()),
+            return new CompositeObjectToTypeConverter<Message>(
+                    new OutputConverter<Message>(new IdentityConverter<Message>()),
                     new OutputConverter<string>(StringToBrokeredMessageConverterFactory.Create(parameterType)));
         }
     }

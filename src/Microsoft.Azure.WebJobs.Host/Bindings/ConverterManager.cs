@@ -52,13 +52,13 @@ namespace Microsoft.Azure.WebJobs
         {
             foreach (var func in _funcsWithAttr.Values)
             {
-                var t = func.GetType();
+                var t = func.GetType().GetTypeInfo();
                 if (t.IsGenericType)
                 {
                     var dt = t.GetGenericTypeDefinition();
                     if (dt == typeof(FuncConverter<,,>))
                     {
-                        foreach (var genericArg in t.GetGenericArguments())
+                        foreach (var genericArg in t.GenericTypeArguments)
                         {
                             funcAddType(genericArg);
                         }
@@ -97,7 +97,7 @@ namespace Microsoft.Azure.WebJobs
         private static Tuple<Type, Type, Type> DecodeFuncEntry(object func)
         {
             var t = func.GetType();
-            if (t.IsGenericType)
+            if (t.GetTypeInfo().IsGenericType)
             {
                 var dt = t.GetGenericTypeDefinition();
                 if (dt == typeof(FuncConverter<,,>))
@@ -155,7 +155,7 @@ namespace Microsoft.Azure.WebJobs
             }
 
             // Rewriter rule for generics so customers can say: IEnumerable<OpenType> 
-            if (t.IsGenericType)
+            if (t.GetTypeInfo().IsGenericType)
             {
                 var outerType = t.GetGenericTypeDefinition();
                 Type[] args = t.GetGenericArguments();
@@ -415,7 +415,7 @@ namespace Microsoft.Azure.WebJobs
 
             // General JSON serialization rule. 
 
-            if (typeSource.IsPrimitive ||
+            if (typeSource.GetTypeInfo().IsPrimitive ||
                (typeSource == typeof(object)) ||
                 typeof(IEnumerable).IsAssignableFrom(typeSource))
             {
@@ -496,7 +496,7 @@ namespace Microsoft.Azure.WebJobs
                 {
                     throw new ArgumentNullException("type");
                 }
-                if (type.IsGenericType &&
+                if (type.GetTypeInfo().IsGenericType &&
                     type.GetGenericTypeDefinition() == _outerType)
                 {
                     var args = type.GetGenericArguments();
@@ -546,7 +546,7 @@ namespace Microsoft.Azure.WebJobs
                     var element = t.GetElementType();
                     return "out " + TypeToString(element);
                 }
-                if (t.IsGenericType)
+                if (t.GetTypeInfo().IsGenericType)
                 {
                     var def = t.GetGenericTypeDefinition();
 

@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs.Host.Bindings;
@@ -20,7 +21,7 @@ namespace Microsoft.Azure.WebJobs.Host.Tables
 
         public TableEntityCollectorBinder(IStorageTable table, TableEntityWriter<T> tableWriter, Type valueType)
         {
-            if (tableWriter != null && !valueType.IsAssignableFrom(tableWriter.GetType()))
+            if (tableWriter != null && !valueType.GetTypeInfo().IsAssignableFrom(tableWriter.GetType().GetTypeInfo()))
             {
                 throw new InvalidOperationException("value is not of the correct type.");
             }

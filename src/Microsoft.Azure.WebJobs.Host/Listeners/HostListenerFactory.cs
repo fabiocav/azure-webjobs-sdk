@@ -135,10 +135,10 @@ namespace Microsoft.Azure.WebJobs.Host.Listeners
 
         internal static bool IsDisabledByProvider(Type providerType, MethodInfo jobFunction, IJobActivator activator)
         {
-            MethodInfo methodInfo = providerType.GetMethod(IsDisabledFunctionName, BindingFlags.Public | BindingFlags.Static, null, new Type[] { typeof(MethodInfo) }, null);
+            MethodInfo methodInfo = providerType.GetMethod(IsDisabledFunctionName, new Type[] { typeof(MethodInfo) });
             if (methodInfo == null)
             {
-                methodInfo = providerType.GetMethod(IsDisabledFunctionName, BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(MethodInfo) }, null);
+                methodInfo = providerType.GetMethod(IsDisabledFunctionName, new Type[] { typeof(MethodInfo) });
             }
 
             if (methodInfo == null || methodInfo.ReturnType != typeof(bool))

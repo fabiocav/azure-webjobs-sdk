@@ -7,8 +7,8 @@ using System.Reflection;
 
 namespace Microsoft.Azure.WebJobs.Host
 {
-    internal class ClassPropertyGetter<TReflected, TProperty> : IPropertyGetter<TReflected, TProperty>
-        where TReflected : class
+    internal class ClassPropertyGetter<TDeclaring, TProperty> : IPropertyGetter<TDeclaring, TProperty>
+        where TDeclaring : class
     {
         private readonly PropertyGetterDelegate _getter;
 
@@ -18,9 +18,9 @@ namespace Microsoft.Azure.WebJobs.Host
             _getter = getter;
         }
 
-        private delegate TProperty PropertyGetterDelegate(TReflected instance);
+        private delegate TProperty PropertyGetterDelegate(TDeclaring instance);
 
-        public TProperty GetValue(TReflected instance)
+        public TProperty GetValue(TDeclaring instance)
         {
             if (instance == null)
             {
@@ -30,16 +30,16 @@ namespace Microsoft.Azure.WebJobs.Host
             return _getter.Invoke(instance);
         }
 
-        public static ClassPropertyGetter<TReflected, TProperty> Create(PropertyInfo property)
+        public static ClassPropertyGetter<TDeclaring, TProperty> Create(PropertyInfo property)
         {
             if (property == null)
             {
                 throw new ArgumentNullException("property");
             }
 
-            if (typeof(TReflected) != property.ReflectedType)
+            if (typeof(TDeclaring) != property.DeclaringType)
             {
-                throw new ArgumentException("The property's ReflectedType must exactly match TReflected.", "property");
+                throw new ArgumentException("The property's DeclaringType must exactly match TDeclaring.", "property");
             }
 
             if (typeof(TProperty) != property.PropertyType)
@@ -65,15 +65,15 @@ namespace Microsoft.Azure.WebJobs.Host
                 throw new ArgumentException("The property must not be static.", "property");
             }
 
-            Debug.Assert(getMethod.ReflectedType == typeof(TReflected));
-            Debug.Assert(!getMethod.ReflectedType.IsValueType);
+            Debug.Assert(getMethod.DeclaringType == typeof(TDeclaring));
+            Debug.Assert(!getMethod.DeclaringType.GetTypeInfo().IsValueType);
             Debug.Assert(getMethod.GetParameters().Length == 0);
             Debug.Assert(getMethod.ReturnType == typeof(TProperty));
 
             PropertyGetterDelegate getter =
                 (PropertyGetterDelegate)getMethod.CreateDelegate(typeof(PropertyGetterDelegate));
 
-            return new ClassPropertyGetter<TReflected, TProperty>(getter);
+            return new ClassPropertyGetter<TDeclaring, TProperty>(getter);
         }
     }
 }

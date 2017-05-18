@@ -1,0 +1,40 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard1.5</TargetFramework>
+    <AssemblyName>Microsoft.Azure.WebJobs.ServiceBus</AssemblyName>
+    <RootNamespace>MMicrosoft.Azure.WebJobs.ServiceBus</RootNamespace>
+    <Version>2.1.0.0</Version>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>TRACE;DEBUG;NETSTANDARD1_5;PUBLICPROTOCOL</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Microsoft.Azure.WebJobs.Host\Converters\AsyncConverter.cs" Link="Converters\AsyncConverter.cs" />
+    <Compile Include="..\Microsoft.Azure.WebJobs.Host\Converters\CompositeObjectToTypeConverter.cs" Link="Converters\CompositeObjectToTypeConverter.cs" />
+    <Compile Include="..\Microsoft.Azure.WebJobs.Host\Converters\ConversionResult.cs" Link="Converters\ConversionResult.cs" />
+    <Compile Include="..\Microsoft.Azure.WebJobs.Host\Converters\IAsyncObjectToTypeConverter.cs" Link="Converters\IAsyncObjectToTypeConverter.cs" />
+    <Compile Include="..\Microsoft.Azure.WebJobs.Host\Converters\IdentityConverter.cs" Link="Converters\IdentityConverter.cs" />
+    <Compile Include="..\Microsoft.Azure.WebJobs.Host\Converters\IObjectToTypeConverter.cs" Link="Converters\IObjectToTypeConverter.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Converters\" />
+    <Folder Include="Properties\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Azure.EventHubs.Processor" Version="1.0.1" />
+    <PackageReference Include="Microsoft.Azure.ServiceBus" Version="0.0.5-preview" />
+    <PackageReference Include="System.Diagnostics.TraceSource" Version="4.3.0" />
+    <PackageReference Include="WindowsAzure.Storage" Version="8.1.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Microsoft.Azure.WebJobs.Host\WebJobs.Host.NetStandard.csproj" />
+    <ProjectReference Include="..\Microsoft.Azure.WebJobs\WebJobs.NetStandard.csproj" />
+  </ItemGroup>
+
+</Project>

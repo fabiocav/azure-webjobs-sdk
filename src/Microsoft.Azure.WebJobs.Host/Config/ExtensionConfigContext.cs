@@ -3,6 +3,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using Microsoft.Azure.WebJobs.Description;
 
 namespace Microsoft.Azure.WebJobs.Host.Config
@@ -63,7 +65,7 @@ namespace Microsoft.Azure.WebJobs.Host.Config
         /// <returns></returns>
         public FluentBindingRule<TAttribute> AddBindingRule<TAttribute>() where TAttribute : Attribute
         {
-            bool hasBindingAttr = typeof(TAttribute).GetCustomAttributes(typeof(BindingAttribute), false).Length > 0;
+            bool hasBindingAttr = typeof(TAttribute).GetTypeInfo().GetCustomAttributes(typeof(BindingAttribute), false).Count() > 0;
             if (!hasBindingAttr)
             {                
                 throw new InvalidOperationException($"Can't add a binding rule for '{typeof(TAttribute).Name}' since it is missing the a {typeof(BindingAttribute).Name}");

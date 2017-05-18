@@ -539,7 +539,7 @@ namespace Microsoft.Azure.WebJobs.Host.Executors
                 TimeoutAttribute timeoutAttribute = instance.FunctionDescriptor.TimeoutAttribute;
                 bool throwOnTimeout = timeoutAttribute == null ? false : timeoutAttribute.ThrowOnTimeout;
                 var timer = StartFunctionTimeout(instance, timeoutAttribute, timeoutTokenSource, traceWriter, logger);
-                TimeSpan timerInterval = timer == null ? TimeSpan.MinValue : TimeSpan.FromMilliseconds(timer.Interval);
+                TimeSpan timerInterval = timer?.Timeout ?? TimeSpan.MinValue;
                 try
                 {
                     await InvokeAsync(invoker, invokeParameters, timeoutTokenSource, functionCancellationTokenSource,
@@ -549,7 +549,6 @@ namespace Microsoft.Azure.WebJobs.Host.Executors
                 {
                     if (timer != null)
                     {
-                        timer.Stop();
                         timer.Dispose();
                     }
                 }

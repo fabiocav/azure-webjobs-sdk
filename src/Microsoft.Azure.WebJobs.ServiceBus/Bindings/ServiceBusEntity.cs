@@ -4,7 +4,8 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.ServiceBus.Messaging;
+using Microsoft.Azure.ServiceBus;
+using Microsoft.Azure.ServiceBus.Core;
 
 namespace Microsoft.Azure.WebJobs.ServiceBus.Bindings
 {
@@ -18,7 +19,7 @@ namespace Microsoft.Azure.WebJobs.ServiceBus.Bindings
 
         public EntityType EntityType { get; set; } = EntityType.Queue;
 
-        public Task SendAndCreateEntityIfNotExistsAsync(BrokeredMessage message, Guid functionInstanceId, CancellationToken cancellationToken)
+        public Task SendAndCreateEntityIfNotExistsAsync(Message message, Guid functionInstanceId, CancellationToken cancellationToken)
         {
             return MessageSender.SendAndCreateEntityIfNotExists(message, functionInstanceId,
                 Account.NamespaceManager, AccessRights, EntityType, cancellationToken);

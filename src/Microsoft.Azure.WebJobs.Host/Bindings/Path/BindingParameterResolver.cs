@@ -85,7 +85,7 @@ namespace Microsoft.Azure.WebJobs.Host.Bindings.Path
 
                 if (!string.IsNullOrEmpty(format))
                 {
-                    return Guid.NewGuid().ToString(format, CultureInfo.InvariantCulture);
+                    return Guid.NewGuid().ToString(format);
                 }
                 else
                 {

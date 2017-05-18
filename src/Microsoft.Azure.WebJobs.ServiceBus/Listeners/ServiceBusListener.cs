@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs.Host;
 using Microsoft.Azure.WebJobs.Host.Executors;
 using Microsoft.Azure.WebJobs.Host.Listeners;
-using Microsoft.ServiceBus.Messaging;
+using Microsoft.Azure.ServiceBus;
 
 namespace Microsoft.Azure.WebJobs.ServiceBus.Listeners
 {
@@ -106,12 +106,12 @@ namespace Microsoft.Azure.WebJobs.ServiceBus.Listeners
             }
         }
 
-        private Task ProcessMessageAsync(BrokeredMessage message)
+        private Task ProcessMessageAsync(Message message)
         {
             return ProcessMessageAsync(message, _cancellationTokenSource.Token);
         }
 
-        internal async Task ProcessMessageAsync(BrokeredMessage message, CancellationToken cancellationToken)
+        internal async Task ProcessMessageAsync(Message message, CancellationToken cancellationToken)
         {
             if (!await _messageProcessor.BeginProcessingMessageAsync(message, cancellationToken))
             {

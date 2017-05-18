@@ -90,11 +90,8 @@ namespace System
         {
             while (exception != null)
             {
-                if ((exception is OutOfMemoryException && !(exception is InsufficientMemoryException)) ||
-                    exception is ThreadAbortException ||
-                    exception is AccessViolationException ||
-                    exception is SEHException ||
-                    exception is StackOverflowException)
+                if (exception is OutOfMemoryException ||
+                    exception is SEHException)
                 {
                     return true;
                 }

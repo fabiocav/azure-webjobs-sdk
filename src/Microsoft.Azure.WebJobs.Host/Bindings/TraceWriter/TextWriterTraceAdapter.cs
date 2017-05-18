@@ -25,11 +25,12 @@ namespace Microsoft.Azure.WebJobs.Host.Bindings
 
         public override Encoding Encoding
         {
-            get { return Encoding.Default; }
+            get { return Encoding.UTF8; }
         }
         public static TextWriter Synchronized(TraceWriter traceWriter)
         {
-            return TextWriter.Synchronized(new TextWriterTraceAdapter(traceWriter));
+            // TODO: FACAVAL - Synchronized
+            return new TextWriterTraceAdapter(traceWriter);
         }
 
         public override void Write(char value)

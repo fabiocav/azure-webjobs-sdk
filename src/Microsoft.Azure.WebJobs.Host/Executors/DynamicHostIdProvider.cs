@@ -66,7 +66,7 @@ namespace Microsoft.Azure.WebJobs.Host.Executors
         {
             // Determine the host name from the method list
             MethodInfo firstMethod = indexedMethods.FirstOrDefault();
-            Assembly hostAssembly = firstMethod != null ? firstMethod.DeclaringType.Assembly : null;
+            Assembly hostAssembly = firstMethod != null ? firstMethod.DeclaringType.GetTypeInfo().Assembly : null;
             string hostName = hostAssembly != null ? hostAssembly.FullName : "Unknown";
             string sharedHostName = storageAccount.Credentials.AccountName + "/" + hostName;
             return sharedHostName;

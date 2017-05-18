@@ -9,7 +9,7 @@ namespace Microsoft.Azure.WebJobs.Host.Converters
     {
         public string Convert(char input)
         {
-            return input.ToString(CultureInfo.InvariantCulture);
+            return input.ToString();
         }
     }
 }

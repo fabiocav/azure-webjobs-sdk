@@ -3,6 +3,7 @@
 
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 using Microsoft.Azure.WebJobs.Host.Converters;
 using Microsoft.WindowsAzure.Storage.Table;
 
@@ -14,7 +15,7 @@ namespace Microsoft.Azure.WebJobs.Host.Tables.Converters
         [SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
         static NullableEnumToEntityPropertyConverter()
         {
-            if (!typeof(TEnum).IsEnum)
+            if (!typeof(TEnum).GetTypeInfo().IsEnum)
             {
                 throw new InvalidOperationException("The Type must be an Enum.");
             }

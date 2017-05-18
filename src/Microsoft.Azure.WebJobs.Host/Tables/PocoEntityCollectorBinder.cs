@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs.Host.Bindings;
@@ -18,7 +19,7 @@ namespace Microsoft.Azure.WebJobs.Host.Tables
 
         public PocoEntityCollectorBinder(IStorageTable table, PocoEntityWriter<T> value, Type valueType)
         {
-            if (value != null && !valueType.IsAssignableFrom(value.GetType()))
+            if (value != null && !valueType.GetTypeInfo().IsAssignableFrom(value.GetType().GetTypeInfo()))
             {
                 throw new InvalidOperationException("value is not of the correct type.");
             }

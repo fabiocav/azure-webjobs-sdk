@@ -106,7 +106,7 @@ namespace Microsoft.Azure.WebJobs.Host.Indexers
                 return false;
             }
 
-            if (method.GetCustomAttributesData().Any(HasJobAttribute))
+            if (method.GetCustomAttributes().Any(HasJobAttribute))
             {
                 return true;
             }
@@ -116,7 +116,7 @@ namespace Microsoft.Azure.WebJobs.Host.Indexers
                 return false;
             }
 
-            if (method.GetParameters().Any(p => p.GetCustomAttributesData().Any(HasJobAttribute)))
+            if (method.GetParameters().Any(p => p.GetCustomAttributes().Any(HasJobAttribute)))
             {
                 return true;
             }
@@ -128,7 +128,7 @@ namespace Microsoft.Azure.WebJobs.Host.Indexers
         {
             // create a set containing our own core assemblies
             HashSet<Assembly> assemblies = new HashSet<Assembly>();
-            assemblies.Add(typeof(BlobAttribute).Assembly);
+            assemblies.Add(typeof(BlobAttribute).GetTypeInfo().Assembly);
 
             // add any extension assemblies
             assemblies.UnionWith(extensions.GetExtensionAssemblies());
@@ -136,9 +136,9 @@ namespace Microsoft.Azure.WebJobs.Host.Indexers
             return assemblies;
         }
 
-        private bool HasJobAttribute(CustomAttributeData attributeData)
+        private bool HasJobAttribute(Attribute attribute)
         {
-            return _jobAttributeAssemblies.Contains(attributeData.AttributeType.Assembly);
+            return _jobAttributeAssemblies.Contains(attribute.GetType().GetTypeInfo().Assembly);
         }
 
         public async Task IndexMethodAsync(MethodInfo method, IFunctionIndexCollector index, CancellationToken cancellationToken)

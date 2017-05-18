@@ -4,10 +4,10 @@
 using System;
 using System.Globalization;
 using System.Threading.Tasks;
+using Microsoft.Azure.ServiceBus.Core;
 using Microsoft.Azure.WebJobs.Host.Bindings;
 using Microsoft.Azure.WebJobs.Host.Converters;
 using Microsoft.Azure.WebJobs.Host.Protocols;
-using Microsoft.ServiceBus.Messaging;
 
 namespace Microsoft.Azure.WebJobs.ServiceBus.Bindings
 {

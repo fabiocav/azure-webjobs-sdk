@@ -90,7 +90,7 @@ namespace Microsoft.Azure.WebJobs.Host.Diagnostics
 
         private static string GetAsyncStackTrace(Exception exception)
         {
-            var stackTrace = new StackTrace(exception, fNeedFileInfo: true);
+            var stackTrace = new StackTrace(exception, needFileInfo: true);
             var stackFrames = stackTrace.GetFrames();
             if (stackFrames == null)
             {
@@ -124,7 +124,7 @@ namespace Microsoft.Azure.WebJobs.Host.Diagnostics
                     FormatGenericArguments(stringBuilder, methodInfo.GetGenericArguments());
                 }
             }
-            else if (declaringType?.IsGenericType == true)
+            else if (declaringType?.GetTypeInfo().IsGenericType == true)
             {
                 FormatGenericArguments(stringBuilder, declaringType.GetGenericArguments());
             }

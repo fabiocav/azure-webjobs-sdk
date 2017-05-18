@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System;
+using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs.Host.Bindings;
 using Microsoft.Azure.WebJobs.Host.Storage.Blob;
@@ -17,7 +18,7 @@ namespace Microsoft.Azure.WebJobs.Host.Blobs
 
         public BlobWatchableValueProvider(IStorageBlob blob, object value, Type valueType, IWatcher watcher)
         {
-            if (value != null && !valueType.IsAssignableFrom(value.GetType()))
+            if (value != null && !valueType.GetTypeInfo().IsAssignableFrom(value.GetType()))
             {
                 throw new InvalidOperationException("value is not of the correct type.");
             }

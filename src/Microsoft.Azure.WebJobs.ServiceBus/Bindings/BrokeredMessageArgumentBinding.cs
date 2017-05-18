@@ -4,8 +4,8 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Azure.ServiceBus;
 using Microsoft.Azure.WebJobs.Host.Bindings;
-using Microsoft.ServiceBus.Messaging;
 
 namespace Microsoft.Azure.WebJobs.ServiceBus.Bindings
 {
@@ -13,7 +13,7 @@ namespace Microsoft.Azure.WebJobs.ServiceBus.Bindings
     {
         public Type ValueType
         {
-            get { return typeof(BrokeredMessage); }
+            get { return typeof(Message); }
         }
 
         public Task<IValueProvider> BindAsync(ServiceBusEntity value, ValueBindingContext context)
@@ -46,7 +46,7 @@ namespace Microsoft.Azure.WebJobs.ServiceBus.Bindings
 
             public Type Type
             {
-                get { return typeof(BrokeredMessage); }
+                get { return typeof(Message); }
             }
 
             public Task<object> GetValueAsync()
@@ -60,9 +60,9 @@ namespace Microsoft.Azure.WebJobs.ServiceBus.Bindings
             }
 
             /// <summary>
-            /// Sends a BrokeredMessage to the bound queue.
+            /// Sends a Message to the bound queue.
             /// </summary>
-            /// <param name="value">BrokeredMessage instance as retrieved from user's WebJobs method argument.</param>
+            /// <param name="value">Message instance as retrieved from user's WebJobs method argument.</param>
             /// <param name="cancellationToken">a cancellation token</param>
             /// <remarks>
             /// The out message parameter is processed as follows:
@@ -91,7 +91,7 @@ namespace Microsoft.Azure.WebJobs.ServiceBus.Bindings
                     return;
                 }
 
-                BrokeredMessage message = (BrokeredMessage)value;
+                Message message = (Message)value;
 
                 await _entity.SendAndCreateEntityIfNotExistsAsync(message, _functionInstanceId, cancellationToken);
             }

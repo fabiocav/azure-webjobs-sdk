@@ -6,13 +6,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Loader;
 
 namespace Microsoft.Azure.WebJobs.Host.Indexers
 {
     // Default policy for locating types. 
     internal class DefaultTypeLocator : ITypeLocator
     {
-        private static readonly string WebJobsAssemblyName = typeof(TableAttribute).Assembly.GetName().Name;
+        private static readonly string WebJobsAssemblyName = typeof(TableAttribute).GetTypeInfo().Assembly.GetName().Name;
 
         private readonly TextWriter _log;
         private readonly IExtensionRegistry _extensions;
@@ -37,7 +38,7 @@ namespace Microsoft.Azure.WebJobs.Host.Indexers
         private static bool AssemblyReferencesSdkOrExtension(Assembly assembly, IEnumerable<Assembly> extensionAssemblies)
         {
             // Don't index methods in our assemblies.
-            if (typeof(DefaultTypeLocator).Assembly == assembly)
+            if (typeof(DefaultTypeLocator).GetTypeInfo().Assembly == assembly)
             {
                 return false;
             }
@@ -88,19 +89,23 @@ namespace Microsoft.Azure.WebJobs.Host.Indexers
                 return false;
             }
 
-            return type.IsClass
+            TypeInfo typeInfo = type.GetTypeInfo();
+            return typeInfo.IsClass
                 // For C# static keyword classes, IsAbstract and IsSealed both return true. Include C# static keyword
                 // classes but not C# abstract keyword classes.
-                && (!type.IsAbstract || type.IsSealed)
+                && (!typeInfo.IsAbstract || typeInfo.IsSealed)
                 // We only consider public top-level classes as job classes. IsPublic returns false for nested classes,
                 // regardless of visibility modifiers. 
-                && type.IsPublic
-                && !type.ContainsGenericParameters;
+                && typeInfo.IsPublic
+                && !typeInfo.ContainsGenericParameters;
         }
 
         private static IEnumerable<Assembly> GetUserAssemblies()
         {
-            return AppDomain.CurrentDomain.GetAssemblies();
+            // TODO: FACAVAL - This logic is in place for testing only. We need to define how this is going to work moving forward.
+            var entryAssembly = Assembly.GetEntryAssembly();
+
+            return new List<Assembly> { entryAssembly };
         }
 
         private Type[] FindTypes(Assembly assembly, IEnumerable<Assembly> extensionAssemblies)

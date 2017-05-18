@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
@@ -45,42 +46,55 @@ namespace Microsoft.Azure.WebJobs.Host.Bindings.Runtime
 
         public Task<IBinding> BindAsync<TValue>(Attribute attribute, Attribute[] additionalAttributes = null, CancellationToken cancellationToken = default(CancellationToken))
         {
+#if !NETSTANDARD1_5
             ParameterInfo parameterInfo = new FakeParameterInfo(typeof(TValue), _memberInfo, attribute, additionalAttributes);
             BindingProviderContext bindingProviderContext =
                 new BindingProviderContext(parameterInfo, bindingDataContract: null, cancellationToken: cancellationToken);
 
             return _bindingProvider.TryCreateAsync(bindingProviderContext);
+#else
+            // TODO: FACAVAL - We'll like need to refactor the way the SDK works with parameter info to eliminate the direct dependency
+            return Task.FromResult<IBinding>(null);
+#endif
+
         }
+    }
 
-#if !NETSTANDARD1_4
-        // A non-reflection based implementation
-        private class FakeParameterInfo : ParameterInfo
+#if !NETSTANDARD1_5
+    // A non-reflection based implementation
+    public class FakeParameterInfo : ParameterInfo, ICustomAttributeProvider
+    {
+        private readonly Collection<Attribute> _attributes = new Collection<Attribute>();
+
+        public FakeParameterInfo(Type parameterType, MemberInfo memberInfo, Attribute attribute, Attribute[] additionalAttributes)
         {
-            private readonly Collection<Attribute> _attributes = new Collection<Attribute>();
+            ParameterType = parameterType;
+            Name = "?";
+            Member = memberInfo;
 
-            public FakeParameterInfo(Type parameterType, MemberInfo memberInfo, Attribute attribute, Attribute[] additionalAttributes)
+            // union all the parameter attributes
+            _attributes.Add(attribute);
+            if (additionalAttributes != null)
             {
-                ClassImpl = parameterType;
-                AttrsImpl = ParameterAttributes.In;
-                NameImpl = "?";
-                MemberImpl = memberInfo;
-
-                // union all the parameter attributes
-                _attributes.Add(attribute);
-                if (additionalAttributes != null)
+                foreach (var additionalAttribute in additionalAttributes)
                 {
-                    foreach (var additionalAttribute in additionalAttributes)
-                    {
-                        _attributes.Add(additionalAttribute);
-                    }
+                    _attributes.Add(additionalAttribute);
                 }
             }
-
-            public override object[] GetCustomAttributes(Type attributeType, bool inherit)
-            {
-                return _attributes.Where(p => p.GetType() == attributeType).ToArray();
-            }
         }
-#endif
+
+        public override Type ParameterType { get; }
+
+        public override string Name { get; }
+
+        public override MemberInfo Member { get; }
+
+        public override ParameterAttributes Attributes => ParameterAttributes.In;
+
+        object[] ICustomAttributeProvider.GetCustomAttributes(Type attributeType, bool inherit)
+        {
+            return _attributes.Where(p => p.GetType() == attributeType).ToArray();
+        }
     }
+#endif
 }

@@ -1,9 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard1.4</TargetFramework>
+    <TargetFramework>netstandard1.5</TargetFramework>
     <AssemblyName>Microsoft.Azure.WebJobs.Host</AssemblyName>
-    <RootNamespace>MMicrosoft.Azure.WebJobs.Host</RootNamespace>
+    <RootNamespace>Microsoft.Azure.WebJobs.Host</RootNamespace>
     <Version>2.1.0.0</Version>
   </PropertyGroup>
 
@@ -122,8 +122,10 @@
     <PackageReference Include="System.Reflection" Version="4.3.0" />
     <PackageReference Include="System.Reflection.Extensions" Version="4.3.0" />
     <PackageReference Include="System.Reflection.Metadata" Version="1.4.2" />
+    <PackageReference Include="System.Reflection.Primitives" Version="4.3.0" />
     <PackageReference Include="System.Reflection.TypeExtensions" Version="4.3.0" />
     <PackageReference Include="System.Runtime" Version="4.3.0" />
+    <PackageReference Include="System.Runtime.Loader" Version="4.3.0" />
     <PackageReference Include="System.Threading.Tasks.Dataflow" Version="4.7.0" />
     <PackageReference Include="System.Threading.Thread" Version="4.3.0" />
     <PackageReference Include="WindowsAzure.Storage" Version="8.1.1" />

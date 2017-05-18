@@ -110,7 +110,7 @@ namespace Microsoft.Azure.WebJobs.Host
             HashSet<Assembly> assemblies = new HashSet<Assembly>();
             foreach (Type extensionType in ExtensionTypes)
             {
-                var currAssemblies = registry.GetExtensions(extensionType).Select(p => p.GetType().Assembly);
+                var currAssemblies = registry.GetExtensions(extensionType).Select(p => p.GetType().GetTypeInfo().Assembly);
                 assemblies.UnionWith(currAssemblies);
             }
 

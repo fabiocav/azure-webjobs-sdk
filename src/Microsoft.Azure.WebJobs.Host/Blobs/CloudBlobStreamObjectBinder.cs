@@ -5,6 +5,7 @@ using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using Microsoft.Azure.WebJobs.Host.Blobs.Bindings;
 
 namespace Microsoft.Azure.WebJobs.Host.Blobs
@@ -34,18 +35,18 @@ namespace Microsoft.Azure.WebJobs.Host.Blobs
         {
             Type binderInterfaceType = GetCloudBlobStreamBinderInterface(binderType);
             Debug.Assert(binderInterfaceType != null);
-            return binderInterfaceType.GetGenericArguments()[0];
+            return binderInterfaceType.GetTypeInfo().GetGenericArguments()[0];
         }
 
         private static Type GetCloudBlobStreamBinderInterface(Type binderType)
         {
             return binderType.GetInterfaces().First(
-                i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICloudBlobStreamBinder<>));
+                i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(ICloudBlobStreamBinder<>));
         }
 
         private static void VerifyDefaultConstructor(Type binderType)
         {
-            if (!binderType.IsValueType && binderType.GetConstructor(Type.EmptyTypes) == null)
+            if (!binderType.GetTypeInfo().IsValueType && binderType.GetConstructor(Type.EmptyTypes) == null)
             {
                 throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "The class implementing {0} must provide a default constructor.", typeof(ICloudBlobStreamBinder<>).Name));
             }

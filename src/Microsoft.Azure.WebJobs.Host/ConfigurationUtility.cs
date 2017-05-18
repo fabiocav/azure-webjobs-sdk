@@ -2,7 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System;
-#if !NETSTANDARD1_4
+#if !NETSTANDARD1_5
 using System.Configuration;
 #endif
 
@@ -19,7 +19,7 @@ namespace Microsoft.Azure.WebJobs.Host
 
             string configValue = null;
 
-#if !NETSTANDARD1_4
+#if !NETSTANDARD1_5
             configValue = ConfigurationManager.AppSettings[settingName];
             if (!string.IsNullOrEmpty(configValue))
             {
@@ -35,7 +35,7 @@ namespace Microsoft.Azure.WebJobs.Host
         {
             string configValue = null;
 
-#if !NETSTANDARD1_4
+#if !NETSTANDARD1_5
             var connectionStringEntry = ConfigurationManager.ConnectionStrings[connectionName];
             if (connectionStringEntry != null)
             {

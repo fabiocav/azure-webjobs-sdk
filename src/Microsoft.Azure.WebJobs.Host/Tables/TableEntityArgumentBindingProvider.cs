@@ -11,7 +11,7 @@ namespace Microsoft.Azure.WebJobs.Host.Tables
     {
         public IArgumentBinding<TableEntityContext> TryCreate(ParameterInfo parameter)
         {
-            if (parameter.ParameterType.ContainsGenericParameters)
+            if (parameter.ParameterType.GetTypeInfo().ContainsGenericParameters)
             {
                 return null;
             }
