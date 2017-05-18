@@ -13,8 +13,7 @@ namespace Microsoft.Azure.WebJobs.ServiceBus.Triggers
         [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope")]
         public Message Convert(string input)
         {
-            MemoryStream stream = new MemoryStream(StrictEncodings.Utf8.GetBytes(input), writable: false);
-            Message message = new BrokeredMessage(stream);
+            Message message = new Message(StrictEncodings.Utf8.GetBytes(input));
             message.ContentType = ContentTypes.TextPlain;
             return message;
         }
