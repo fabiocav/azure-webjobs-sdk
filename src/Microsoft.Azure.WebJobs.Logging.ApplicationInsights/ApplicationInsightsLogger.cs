@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using System.Web;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.Extensions.Logging;
@@ -224,7 +223,8 @@ namespace Microsoft.Azure.WebJobs.Logging.ApplicationInsights
                 return;
             }
 
-            requestTelemetry.Url = new Uri(request.RequestUri.GetLeftPart(UriPartial.Path));
+            var components = request.RequestUri.GetComponents(UriComponents.SchemeAndServer | UriComponents.Path, UriFormat.Unescaped);
+            requestTelemetry.Url = new Uri(components);
             requestTelemetry.Properties[LoggingKeys.HttpMethod] = request.Method.ToString();
 
             requestTelemetry.Context.Location.Ip = GetIpAddress(request);
@@ -317,8 +317,13 @@ namespace Microsoft.Azure.WebJobs.Logging.ApplicationInsights
                 }
             }
 
+#if !NETSTANDARD2_0
             HttpContextBase context = httpRequest.Properties.GetValueOrDefault<HttpContextBase>(ApplicationInsightsScopeKeys.HttpContext);
             return context?.Request?.UserHostAddress ?? LoggingConstants.ZeroIpAddress;
+#else
+            // TODO: FACAVAL
+            return LoggingConstants.ZeroIpAddress;
+#endif
         }
 
         private static string RemovePort(string address)

@@ -53,9 +53,9 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
             if (_storageAccount != null)
             {
                 CloudQueueClient queueClient = _storageAccount.CreateCloudQueueClient();
-                foreach (var testQueue in queueClient.ListQueues(TestArtifactPrefix))
+                foreach (var testQueue in queueClient.ListQueuesSegmentedAsync(TestArtifactPrefix, null).Result.Results)
                 {
-                    testQueue.Delete();
+                    testQueue.DeleteAsync().Wait();
                 }
             }
         }

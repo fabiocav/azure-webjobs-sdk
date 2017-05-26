@@ -30,10 +30,13 @@ namespace Microsoft.Azure.WebJobs.Logging.FunctionalTests
         // Delete any tables we created. 
         public void Dispose()
         {
+            var tasks = new List<Task>();
             foreach (var table in _tables)
             {
-                table.DeleteIfExists();
+                tasks.Add(table.DeleteIfExistsAsync());
             }
+
+            Task.WaitAll(tasks.ToArray());
         }
 
         // Test abandonded status
@@ -251,8 +254,8 @@ namespace Microsoft.Azure.WebJobs.Logging.FunctionalTests
             // Now... delete the middle table; and verify the other data is still there. 
             ILogTableProvider provider = this;
             var table = provider.GetTable("201204");
-            Assert.True(table.Exists());
-            table.Delete();
+            Assert.True(await table.ExistsAsync());
+            await table.DeleteAsync();
 
             await Verify(reader, DateTime.MinValue, DateTime.MaxValue, logs[3], logs[1], logs[0]); // Infinite range, includes all.
 
@@ -671,8 +674,8 @@ namespace Microsoft.Azure.WebJobs.Logging.FunctionalTests
 
             Mock<CloudTable> mockTable = new Mock<CloudTable>(MockBehavior.Strict, new Uri("https://fakeaccount.table.core.windows.net/sometable"));
             mockTable
-                .Setup(t => t.Execute(It.IsAny<TableOperation>(), null, null))
-                .Returns(new TableResult());
+                .Setup(t => t.ExecuteAsync(It.IsAny<TableOperation>(), null, null))
+                .ReturnsAsync(new TableResult());
             mockTable
                 .Setup(t => t.ExecuteAsync(It.IsAny<TableOperation>()))
                 .ReturnsAsync(new TableResult());
@@ -749,11 +752,11 @@ namespace Microsoft.Azure.WebJobs.Logging.FunctionalTests
 
 
         // List all tables that we may have handed out. 
-        Task<CloudTable[]> ILogTableProvider.ListTablesAsync()
+        async Task<CloudTable[]> ILogTableProvider.ListTablesAsync()
         {
             var tableClient = GetTableClient();
-            var tables = tableClient.ListTables(_tableNamePrefix).ToArray();
-            return Task.FromResult<CloudTable[]>(tables);
+            var tables = (await tableClient.ListTablesSegmentedAsync(_tableNamePrefix, null)).ToArray();
+            return tables;
         }
 
         private CloudTableClient GetTableClient()

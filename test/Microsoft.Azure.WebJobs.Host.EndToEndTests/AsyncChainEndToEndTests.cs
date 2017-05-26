@@ -79,9 +79,9 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
             CloudQueueClient queueClient = _storageAccount.CreateCloudQueueClient();
             string queueName = _resolver.ResolveInString(TestQueueName);
             _testQueue = queueClient.GetQueueReference(queueName);
-            if (!_testQueue.CreateIfNotExists())
+            if (!_testQueue.CreateIfNotExistsAsync().Result)
             {
-                _testQueue.Clear();
+                _testQueue.ClearAsync().Wait();
             }
         }
 
@@ -404,17 +404,17 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
         }
 
         [Fact]
-        public void SystemParameterBindingOutput_GeneratesExpectedBlobs()
+        public async Task SystemParameterBindingOutput_GeneratesExpectedBlobs()
         {
             JobHost host = new JobHost(_hostConfig);
 
             var blobClient = _fixture.StorageAccount.CreateCloudBlobClient();
             var container = blobClient.GetContainerReference("test-output");
-            if (container.Exists())
+            if (await container.ExistsAsync())
             {
-                foreach (CloudBlockBlob blob in container.ListBlobs())
+                foreach (CloudBlockBlob blob in (await container.ListBlobsSegmentedAsync(null)).Results)
                 {
-                    blob.Delete();
+                    await blob.DeleteAsync();
                 }
             }
 
@@ -426,11 +426,11 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
             host.Call(methodInfo, arguments);
 
             // We expect 3 separate blobs to have been written
-            var blobs = container.ListBlobs().Cast<CloudBlockBlob>().ToArray();
+            var blobs = (await container.ListBlobsSegmentedAsync(null)).Results.Cast<CloudBlockBlob>().ToArray();
             Assert.Equal(3, blobs.Length);
             foreach (var blob in blobs)
             {
-                string content = blob.DownloadText(Encoding.UTF8);
+                string content = await blob.DownloadTextAsync();
                 Assert.Equal("Test Value", content.Trim(new char[] { '\uFEFF', '\u200B' }));
             }
         }
@@ -542,7 +542,7 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
                     await host.StartAsync();
 
                     CloudQueueMessage message = new CloudQueueMessage("test message");
-                    _testQueue.AddMessage(message);
+                    await _testQueue.AddMessageAsync(message);
 
                     _functionCompletedEvent.WaitOne();
 
@@ -576,7 +576,7 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
                     await host.StartAsync();
 
                     CloudQueueMessage message = new CloudQueueMessage("throw_message");
-                    _testQueue.AddMessage(message);
+                    await _testQueue.AddMessageAsync(message);
 
                     _functionCompletedEvent.WaitOne();
 
@@ -901,15 +901,15 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
             public void Dispose()
             {
                 CloudBlobClient blobClient = StorageAccount.CreateCloudBlobClient();
-                foreach (var testContainer in blobClient.ListContainers(TestArtifactsPrefix))
+                foreach (var testContainer in blobClient.ListContainersSegmentedAsync(TestArtifactsPrefix, null).Result.Results)
                 {
-                    testContainer.Delete();
+                    testContainer.DeleteAsync().Wait();
                 }
 
                 CloudQueueClient queueClient = StorageAccount.CreateCloudQueueClient();
-                foreach (var testQueue in queueClient.ListQueues(TestArtifactsPrefix))
+                foreach (var testQueue in queueClient.ListQueuesSegmentedAsync(TestArtifactsPrefix, null).Result.Results)
                 {
-                    testQueue.Delete();
+                    testQueue.DeleteAsync().Wait();
                 }
             }
         }

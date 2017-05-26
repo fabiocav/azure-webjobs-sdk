@@ -195,10 +195,10 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
         public async Task BindToOutString()
         {
             CloudBlockBlob blob = _fixture.BlobContainer.GetBlockBlobReference("overwrite");
-            Assert.Equal(TestData, blob.DownloadText());
+            Assert.Equal(TestData, await blob.DownloadTextAsync());
             await _fixture.Host.CallAsync(typeof(BlobBindingEndToEndTests).GetMethod("OutStringBinding_Block"));
             string text = null;
-            using (var reader = new StreamReader(blob.OpenRead()))
+            using (var reader = new StreamReader(await blob.OpenReadAsync()))
             {
                 text = reader.ReadToEnd();
             }
@@ -222,11 +222,11 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
         public async Task BindToTextWriter()
         {
             CloudBlockBlob blob = _fixture.BlobContainer.GetBlockBlobReference("overwrite");
-            Assert.Equal(TestData, blob.DownloadText());
+            Assert.Equal(TestData, await blob.DownloadTextAsync());
             await _fixture.Host.CallAsync(typeof(BlobBindingEndToEndTests).GetMethod("OutStringBinding_Block"));
 
             string text = null;
-            using (var reader = new StreamReader(blob.OpenRead()))
+            using (var reader = new StreamReader(await blob.OpenReadAsync()))
             {
                 text = reader.ReadToEnd();
             }
@@ -256,14 +256,14 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
             await _fixture.Host.CallAsync(method, arguments);
 
             CloudBlockBlob blob = _fixture.OutputBlobContainer.GetBlockBlobReference("blob1");
-            Assert.False(blob.Exists());
+            Assert.False(await blob.ExistsAsync());
 
             // if the function sets a value, the blob should be written
             arguments = new { input = TestData };
             await _fixture.Host.CallAsync(method, arguments);
 
-            Assert.True(blob.Exists());
-            string result = blob.DownloadText();
+            Assert.True(await blob.ExistsAsync());
+            string result = await blob.DownloadTextAsync();
             Assert.Equal(TestData, result);
         }
 
@@ -278,9 +278,9 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
         }
 
         [Fact]
-        public void BlobTriggerSingletonListener_LockIsHeld()
+        public async Task BlobTriggerSingletonListener_LockIsHeld()
         {
-            _fixture.VerifyLockState("WebJobs.Internal.Blobs.Listener", LeaseState.Leased, LeaseStatus.Locked);
+            await _fixture.VerifyLockState("WebJobs.Internal.Blobs.Listener", LeaseState.Leased, LeaseStatus.Locked);
         }
 
         // This function just exists to force initialization of the
@@ -293,32 +293,32 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
         public static void CloudBlobContainerBinding(
             [Blob(ContainerName)] CloudBlobContainer container)
         {
-            var blobs = container.ListBlobs();
-            foreach (CloudBlockBlob blob in blobs)
+            var blobs = container.ListBlobsSegmentedAsync(null).Result;
+            foreach (CloudBlockBlob blob in blobs.Results)
             {
-                string content = blob.DownloadText();
+                string content = blob.DownloadTextAsync().Result;
                 Assert.Equal(TestData, content);
             }
-            NumBlobsRead = blobs.Count();
+            NumBlobsRead = blobs.Results.Count();
         }
 
         [NoAutomaticTrigger]
-        public static void CloudBlobDirectoryBinding(
+        public async static Task CloudBlobDirectoryBinding(
             [Blob(HierarchicalBlobContainerName + "/sub")] CloudBlobDirectory directory)
         {
-            var directoryItems = directory.ListBlobs();
+            var directoryItems = await directory.ListBlobsSegmentedAsync(null);
 
-            var blobs = directoryItems.OfType<CloudBlockBlob>();
+            var blobs = directoryItems.Results.OfType<CloudBlockBlob>();
             foreach (CloudBlockBlob blob in blobs)
             {
-                string content = blob.DownloadText();
+                string content = blob.DownloadTextAsync().Result;
                 Assert.Equal(TestData, content);
             }
             NumBlobsRead += blobs.Count();
 
-            CloudBlobDirectory subDirectory = directoryItems.OfType<CloudBlobDirectory>().Single();
-            CloudBlockBlob subBlob = subDirectory.ListBlobs().Cast<CloudBlockBlob>().Single();
-            Assert.Equal(TestData, subBlob.DownloadText());
+            CloudBlobDirectory subDirectory = directoryItems.Results.OfType<CloudBlobDirectory>().Single();
+            CloudBlockBlob subBlob = (await subDirectory.ListBlobsSegmentedAsync(null)).Results.Cast<CloudBlockBlob>().Single();
+            Assert.Equal(TestData, await subBlob.DownloadTextAsync());
             NumBlobsRead += 1;
         }
 
@@ -331,12 +331,12 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
         }
 
         [NoAutomaticTrigger]
-        public static void IEnumerableCloudBlockBlobBinding_WithPrefixFilter(
+        public async static Task IEnumerableCloudBlockBlobBinding_WithPrefixFilter(
             [Blob(ContainerName + "/blo")] IEnumerable<CloudBlockBlob> blobs)
         {
             foreach (var blob in blobs)
             {
-                string content = blob.DownloadText();
+                string content = await blob.DownloadTextAsync();
                 Assert.Equal(TestData, content);
             }
             NumBlobsRead = blobs.Count();
@@ -350,12 +350,12 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
         }
 
         [NoAutomaticTrigger]
-        public static void IEnumerableCloudBlockBlobBinding_WithPrefixFilter_HierarchicalBlobs(
+        public async static Task IEnumerableCloudBlockBlobBinding_WithPrefixFilter_HierarchicalBlobs(
             [Blob(HierarchicalBlobContainerName + "/sub/bl")] IEnumerable<CloudBlockBlob> blobs)
         {
             foreach (var blob in blobs)
             {
-                string content = blob.DownloadText();
+                string content = await blob.DownloadTextAsync();
                 Assert.Equal(TestData, content);
             }
             NumBlobsRead = blobs.Count();
@@ -365,38 +365,38 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
         // sub directries, blobs within those sub directories are returned. Users can bind
         // to CloudBlobDirectory if they want to operate on directories.
         [NoAutomaticTrigger]
-        public static void IEnumerableCloudBlockBlobBinding_WithPrefixFilter_HierarchicalBlobs_UsesFlatBlobListing(
+        public async static Task IEnumerableCloudBlockBlobBinding_WithPrefixFilter_HierarchicalBlobs_UsesFlatBlobListing(
             [Blob(HierarchicalBlobContainerName + "/sub")] IEnumerable<CloudBlockBlob> blobs)
         {
             foreach (var blob in blobs)
             {
-                string content = blob.DownloadText();
+                string content = await blob.DownloadTextAsync();
                 Assert.Equal(TestData, content);
             }
             NumBlobsRead = blobs.Count();
         }
 
         [NoAutomaticTrigger]
-        public static void IEnumerableCloudBlockBlobBinding_WithModelBinding(
+        public async static Task IEnumerableCloudBlockBlobBinding_WithModelBinding(
             [QueueTrigger("testqueue")] TestPoco poco,
             [Blob("{A}/{B}ob")] IEnumerable<CloudBlockBlob> blobs)
         {
             foreach (var blob in blobs)
             {
-                string content = blob.DownloadText();
+                string content = await blob.DownloadTextAsync();
                 Assert.Equal(TestData, content);
             }
             NumBlobsRead = blobs.Count();
         }
 
         [NoAutomaticTrigger]
-        public static void IEnumerableCloudPageBlobBinding(
+        public async static Task IEnumerableCloudPageBlobBinding(
             [Blob(PageBlobContainerName)] IEnumerable<CloudPageBlob> blobs)
         {
             foreach (var blob in blobs)
             {
                 byte[] bytes = new byte[512];
-                int byteCount = blob.DownloadToByteArray(bytes, 0);
+                int byteCount = await blob.DownloadToByteArrayAsync(bytes, 0);
                 string content = Encoding.UTF8.GetString(bytes, 0, byteCount);
                 Assert.True(content.StartsWith(TestData));
             }
@@ -404,12 +404,12 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
         }
 
         [NoAutomaticTrigger]
-        public static void IEnumerableCloudAppendBlobBinding(
+        public async static Task IEnumerableCloudAppendBlobBinding(
             [Blob(AppendBlobContainerName)] IEnumerable<CloudAppendBlob> blobs)
         {
             foreach (var blob in blobs)
             {
-                string content = blob.DownloadText();
+                string content = await blob.DownloadTextAsync();
                 Assert.Equal(TestData, content);
             }
             NumBlobsRead = blobs.Count();
@@ -459,7 +459,7 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
         {
             foreach (var blob in blobs)
             {
-                Stream stream = await blob.OpenReadAsync();
+                Stream stream = await blob.OpenReadAsync(null, null, null);
                 using (StreamReader reader = new StreamReader(stream))
                 {
                     string content = reader.ReadToEnd();
@@ -629,6 +629,12 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
         {
             public TestFixture()
             {
+                Initialize().Wait();
+                
+            }
+
+            private async Task Initialize()
+            {
                 RandomNameResolver nameResolver = new RandomNameResolver();
                 JobHostConfiguration hostConfiguration = new JobHostConfiguration()
                 {
@@ -641,49 +647,49 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
                 CloudBlobClient blobClient = StorageAccount.CreateCloudBlobClient();
 
                 BlobContainer = blobClient.GetContainerReference(nameResolver.ResolveInString(ContainerName));
-                Assert.False(BlobContainer.Exists());
-                BlobContainer.Create();
+                Assert.False(await BlobContainer.ExistsAsync());
+                await BlobContainer.CreateAsync();
 
                 OutputBlobContainer = blobClient.GetContainerReference(nameResolver.ResolveInString(OutputContainerName));
 
                 CloudBlobContainer pageBlobContainer = blobClient.GetContainerReference(nameResolver.ResolveInString(PageBlobContainerName));
-                Assert.False(pageBlobContainer.Exists());
-                pageBlobContainer.Create();
+                Assert.False(await pageBlobContainer.ExistsAsync());
+                await pageBlobContainer.CreateAsync();
 
                 CloudBlobContainer hierarchicalBlobContainer = blobClient.GetContainerReference(nameResolver.ResolveInString(HierarchicalBlobContainerName));
-                Assert.False(hierarchicalBlobContainer.Exists());
-                hierarchicalBlobContainer.Create();
+                Assert.False(await hierarchicalBlobContainer.ExistsAsync());
+                await hierarchicalBlobContainer.CreateAsync();
 
                 CloudBlobContainer appendBlobContainer = blobClient.GetContainerReference(nameResolver.ResolveInString(AppendBlobContainerName));
-                Assert.False(appendBlobContainer.Exists());
-                appendBlobContainer.Create();
+                Assert.False(await appendBlobContainer.ExistsAsync());
+                await appendBlobContainer.CreateAsync();
 
                 Host = new JobHost(hostConfiguration);
                 Host.Start();
 
                 // upload some test blobs
                 CloudBlockBlob blob = BlobContainer.GetBlockBlobReference("blob1");
-                blob.UploadText(TestData);
+                await blob.UploadTextAsync(TestData);
                 blob = BlobContainer.GetBlockBlobReference("blob2");
-                blob.UploadText(TestData);
+                await blob.UploadTextAsync(TestData);
                 blob = BlobContainer.GetBlockBlobReference("blob3");
-                blob.UploadText(TestData);
+                await blob.UploadTextAsync(TestData);
                 blob = BlobContainer.GetBlockBlobReference("file1");
-                blob.UploadText(TestData);
+                await blob.UploadTextAsync(TestData);
                 blob = BlobContainer.GetBlockBlobReference("file2");
-                blob.UploadText(TestData);
+                await blob.UploadTextAsync(TestData);
                 blob = BlobContainer.GetBlockBlobReference("overwrite");
-                blob.UploadText(TestData);
+                await blob.UploadTextAsync(TestData);
 
                 // add a couple hierarchical blob paths
                 blob = hierarchicalBlobContainer.GetBlockBlobReference("sub/blob1");
-                blob.UploadText(TestData);
+                await blob.UploadTextAsync(TestData);
                 blob = hierarchicalBlobContainer.GetBlockBlobReference("sub/blob2");
-                blob.UploadText(TestData);
+                await blob.UploadTextAsync(TestData);
                 blob = hierarchicalBlobContainer.GetBlockBlobReference("sub/sub/blob3");
-                blob.UploadText(TestData);
+                await blob.UploadTextAsync(TestData);
                 blob = hierarchicalBlobContainer.GetBlockBlobReference("blob4");
-                blob.UploadText(TestData);
+                await blob.UploadTextAsync(TestData);
 
                 byte[] bytes = new byte[512];
                 byte[] testBytes = Encoding.UTF8.GetBytes(TestData);
@@ -692,16 +698,16 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
                     bytes[i] = testBytes[i];
                 }
                 CloudPageBlob pageBlob = pageBlobContainer.GetPageBlobReference("blob1");
-                pageBlob.UploadFromByteArray(bytes, 0, bytes.Length);
+                await pageBlob.UploadFromByteArrayAsync(bytes, 0, bytes.Length);
                 pageBlob = pageBlobContainer.GetPageBlobReference("blob2");
-                pageBlob.UploadFromByteArray(bytes, 0, bytes.Length);
+                await pageBlob.UploadFromByteArrayAsync(bytes, 0, bytes.Length);
 
                 CloudAppendBlob appendBlob = appendBlobContainer.GetAppendBlobReference("blob1");
-                appendBlob.UploadText(TestData);
+                await blob.UploadTextAsync(TestData);
                 appendBlob = appendBlobContainer.GetAppendBlobReference("blob2");
-                appendBlob.UploadText(TestData);
+                await blob.UploadTextAsync(TestData);
                 appendBlob = appendBlobContainer.GetAppendBlobReference("blob3");
-                appendBlob.UploadText(TestData);
+                await blob.UploadTextAsync(TestData);
             }
 
             public JobHost Host
@@ -738,24 +744,24 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
             {
                 Host.Stop();
 
-                VerifyLockState("WebJobs.Internal.Blobs.Listener", LeaseState.Available, LeaseStatus.Unlocked);
+                VerifyLockState("WebJobs.Internal.Blobs.Listener", LeaseState.Available, LeaseStatus.Unlocked).Wait();
 
                 CloudBlobClient blobClient = StorageAccount.CreateCloudBlobClient();
-                foreach (var testContainer in blobClient.ListContainers(TestArtifactPrefix))
+                foreach (var testContainer in blobClient.ListContainersSegmentedAsync(TestArtifactPrefix, null).Result.Results)
                 {
-                    testContainer.Delete();
+                    testContainer.DeleteAsync().Wait();
                 }
             }
 
-            public void VerifyLockState(string lockId, LeaseState state, LeaseStatus status)
+            public async Task VerifyLockState(string lockId, LeaseState state, LeaseStatus status)
             {
                 CloudBlobClient blobClient = StorageAccount.CreateCloudBlobClient();
                 var container = blobClient.GetContainerReference("azure-webjobs-hosts");
                 string blobName = string.Format("locks/{0}/{1}", Config.HostId, lockId);
                 var lockBlob = container.GetBlockBlobReference(blobName);
 
-                Assert.True(lockBlob.Exists());
-                lockBlob.FetchAttributes();
+                Assert.True(await lockBlob.ExistsAsync());
+                await lockBlob.FetchAttributesAsync();
 
                 Assert.Equal(state, lockBlob.Properties.LeaseState);
                 Assert.Equal(status, lockBlob.Properties.LeaseStatus);

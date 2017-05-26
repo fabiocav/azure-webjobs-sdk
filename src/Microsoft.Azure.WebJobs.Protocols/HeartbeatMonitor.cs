@@ -53,12 +53,13 @@ namespace Microsoft.Azure.WebJobs.Protocols
 
             try
             {
-                return directory.ListBlobsSegmented(useFlatBlobListing: true,
+                // TODO: FACAVAL - ASYNC
+                return directory.ListBlobsSegmentedAsync(useFlatBlobListing: true,
                     blobListingDetails: BlobListingDetails.None,
                     maxResults: batchSize,
                     currentToken: currentToken,
                     options: null,
-                    operationContext: null);
+                    operationContext: null).Result;
             }
             catch (StorageException exception)
             {
@@ -89,7 +90,8 @@ namespace Microsoft.Azure.WebJobs.Protocols
                 {
                     // Remove any expired heartbeats so that we can answer more efficiently in the future.
                     // If the host instance wakes back up, it will just re-create the heartbeat anyway.
-                    blob.DeleteIfExists();
+                    // TODO: FACAVAL - ASYNC
+                    blob.DeleteIfExistsAsync().Wait();
                 }
             }
 
@@ -106,7 +108,8 @@ namespace Microsoft.Azure.WebJobs.Protocols
 
             try
             {
-                blob.FetchAttributes();
+                // TODO: FACAVAL - ASYNC
+                blob.FetchAttributesAsync().Wait();
             }
             catch (StorageException exception)
             {
@@ -130,7 +133,8 @@ namespace Microsoft.Azure.WebJobs.Protocols
             {
                 // Remove any expired heartbeats so that we can answer more efficiently in the future.
                 // If the host instance wakes back up, it will just re-create the heartbeat anyway.
-                blob.DeleteIfExists();
+                // TODO: FACAVAL - ASYNC
+                blob.DeleteIfExistsAsync();
                 return null;
             }
         }

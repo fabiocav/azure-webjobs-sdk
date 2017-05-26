@@ -26,6 +26,7 @@ namespace Microsoft.Azure.WebJobs.Protocols
             _client = client;
         }
 
+        // TODO: FACAVAL - ASYNC
         /// <inheritdoc />
         public void Enqueue(string queueName, HostMessage message)
         {
@@ -36,11 +37,11 @@ namespace Microsoft.Azure.WebJobs.Protocols
 
             CloudQueue queue = _client.GetQueueReference(queueName);
             Debug.Assert(queue != null);
-            queue.CreateIfNotExists();
+            queue.CreateIfNotExistsAsync().Wait();
             string content = JsonConvert.SerializeObject(message, JsonSerialization.Settings);
             Debug.Assert(content != null);
             CloudQueueMessage queueMessage = new CloudQueueMessage(content);
-            queue.AddMessage(queueMessage);
+            queue.AddMessageAsync(queueMessage).Wait();
         }
     }
 }

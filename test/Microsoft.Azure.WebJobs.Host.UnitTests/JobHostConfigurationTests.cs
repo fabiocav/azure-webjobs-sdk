@@ -29,7 +29,7 @@ namespace Microsoft.Azure.WebJobs.Host.UnitTests
             Assert.NotNull(config.Singleton);
 
             Assert.NotNull(config.Tracing);
-            Assert.Equal(TraceLevel.Info, config.Tracing.ConsoleLevel);
+            Assert.Equal(System.Diagnostics.TraceLevel.Info, config.Tracing.ConsoleLevel);
             Assert.Equal(0, config.Tracing.Tracers.Count);
             Assert.False(config.Blobs.CentralizedPoisonQueue);
 
@@ -288,6 +288,9 @@ namespace Microsoft.Azure.WebJobs.Host.UnitTests
         [InlineData("development", true)]
         public void IsDevelopment_ReturnsCorrectValue(string settingValue, bool expected)
         {
+            // Forces configuration to be re-read:
+            ConfigurationUtility.Reset();
+
             string prev = Environment.GetEnvironmentVariable(Constants.EnvironmentSettingName);
             Environment.SetEnvironmentVariable(Constants.EnvironmentSettingName, settingValue);
 
@@ -297,9 +300,9 @@ namespace Microsoft.Azure.WebJobs.Host.UnitTests
             Environment.SetEnvironmentVariable(Constants.EnvironmentSettingName, prev);
         }
 
-        [Fact]
         public void UseDevelopmentSettings_ConfiguresCorrectValues()
         {
+            ConfigurationUtility.Reset();
             string prev = Environment.GetEnvironmentVariable(Constants.EnvironmentSettingName);
             Environment.SetEnvironmentVariable(Constants.EnvironmentSettingName, "Development");
 
@@ -312,7 +315,7 @@ namespace Microsoft.Azure.WebJobs.Host.UnitTests
             }
 
             Assert.True(config.UsingDevelopmentSettings);
-            Assert.Equal(TraceLevel.Verbose, config.Tracing.ConsoleLevel);
+            Assert.Equal(System.Diagnostics.TraceLevel.Verbose, config.Tracing.ConsoleLevel);
             Assert.Equal(TimeSpan.FromSeconds(2), config.Queues.MaxPollingInterval);
             Assert.Equal(TimeSpan.FromSeconds(15), config.Singleton.ListenerLockPeriod);
 

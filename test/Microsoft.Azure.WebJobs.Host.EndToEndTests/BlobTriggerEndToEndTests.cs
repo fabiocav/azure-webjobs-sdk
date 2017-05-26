@@ -56,8 +56,8 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
             _storageAccount = CloudStorageAccount.Parse(_hostConfiguration.StorageConnectionString);
             CloudBlobClient blobClient = _storageAccount.CreateCloudBlobClient();
             _testContainer = blobClient.GetContainerReference(_nameResolver.ResolveInString(SingleTriggerContainerName));
-            Assert.False(_testContainer.Exists());
-            _testContainer.Create();
+            Assert.False(_testContainer.ExistsAsync().Result);
+            _testContainer.CreateAsync().Wait();
         }
 
         public static void BlobProcessorPrimary(
@@ -143,11 +143,11 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
             var blobClient = storageAccount.CreateCloudBlobClient();
             var containerName = _nameResolver.ResolveInString(PoisonTestContainerName);
             var container = blobClient.GetContainerReference(containerName);
-            container.Create();
+            await container.CreateAsync();
 
             var blobName = Guid.NewGuid().ToString();
             CloudBlockBlob blob = container.GetBlockBlobReference(blobName);
-            blob.UploadText("0");
+            await blob.UploadTextAsync("0");
 
             using (JobHost host = new JobHost(_hostConfiguration))
             {
@@ -162,14 +162,14 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
         }
 
         [Fact]
-        public void BlobGetsProcessedOnlyOnce_SingleHost()
+        public async Task BlobGetsProcessedOnlyOnce_SingleHost()
         {
             TextWriter hold = Console.Out;
             StringWriter consoleOutput = new StringWriter();
             Console.SetOut(consoleOutput);
 
             CloudBlockBlob blob = _testContainer.GetBlockBlobReference(TestBlobName);
-            blob.UploadText("0");
+            await blob.UploadTextAsync("0");
 
             int timeToProcess;
 
@@ -211,14 +211,14 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
         }
 
         [Fact]
-        public void BlobChainTest()
+        public async Task BlobChainTest()
         {
             // write the initial trigger blob to start the chain
             var blobClient = _storageAccount.CreateCloudBlobClient();
             var container = blobClient.GetContainerReference(_nameResolver.ResolveInString(BlobChainContainerName));
-            container.CreateIfNotExists();
+            await container.CreateIfNotExistsAsync();
             CloudBlockBlob blob = container.GetBlockBlobReference(BlobChainTriggerBlobName);
-            blob.UploadText("0");
+            await blob.UploadTextAsync("0");
 
             using (_completedEvent = new ManualResetEvent(initialState: false))
             using (JobHost host = new JobHost(_hostConfiguration))
@@ -229,11 +229,11 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
         }
 
         [Fact]
-        public void BlobGetsProcessedOnlyOnce_MultipleHosts()
+        public async Task BlobGetsProcessedOnlyOnce_MultipleHosts()
         {
-            _testContainer
+            await _testContainer
                 .GetBlockBlobReference(TestBlobName)
-                .UploadText("10");
+                .UploadTextAsync("10");
 
             using (_completedEvent = new ManualResetEvent(initialState: false))
             using (JobHost host1 = new JobHost(_hostConfiguration))
@@ -251,9 +251,9 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
         public void Dispose()
         {
             CloudBlobClient blobClient = _storageAccount.CreateCloudBlobClient();
-            foreach (var testContainer in blobClient.ListContainers(TestArtifactPrefix))
+            foreach (var testContainer in blobClient.ListContainersSegmentedAsync(TestArtifactPrefix, null).Result.Results)
             {
-                testContainer.Delete();
+                testContainer.DeleteAsync();
             }
         }
     }

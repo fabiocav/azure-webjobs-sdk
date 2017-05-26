@@ -39,9 +39,9 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
         {
             CloudBlockBlob resultBlob = null;
 
-            await TestHelpers.Await(() =>
+            await TestHelpers.Await(async () =>
             {
-                resultBlob = (CloudBlockBlob)_fixture.OutputContainer2.ListBlobs("blob1").SingleOrDefault();
+                resultBlob = (CloudBlockBlob) (await _fixture.OutputContainer2.ListBlobsSegmentedAsync("blob1", null)).Results.SingleOrDefault();
                 return resultBlob != null;
             });
 
@@ -55,9 +55,9 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
         {
             CloudBlockBlob resultBlob = null;
 
-            await TestHelpers.Await(() =>
+            await TestHelpers.Await(async () =>
             {
-                resultBlob = (CloudBlockBlob)_fixture.OutputContainer1.ListBlobs().SingleOrDefault();
+                resultBlob = (CloudBlockBlob) (await _fixture.OutputContainer1.ListBlobsSegmentedAsync(null)).Results.SingleOrDefault();
                 return resultBlob != null;
             });
 
@@ -71,9 +71,9 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
         {
             CloudQueueMessage resultMessage = null;
 
-            await TestHelpers.Await(() =>
+            await TestHelpers.Await(async () =>
             {
-                resultMessage = _fixture.OutputQueue2.GetMessage();
+                resultMessage = await _fixture.OutputQueue2.GetMessageAsync();
                 return resultMessage != null;
             });
 
@@ -94,16 +94,13 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
             };
             await _fixture.Host.CallAsync(method, new { input = jObject.ToString() });
 
-            var blobReference = _fixture.OutputContainer2.GetBlobReferenceFromServer(name);
-            await TestHelpers.Await(() =>
-            {
-                return blobReference.Exists();
-            });
+            var blobReference = await _fixture.OutputContainer2.GetBlobReferenceFromServerAsync(name);
+            await TestHelpers.Await(() => blobReference.ExistsAsync());
 
             string data;
             using (var memoryStream = new MemoryStream())
             {
-                blobReference.DownloadToStream(memoryStream);
+                await blobReference.DownloadToStreamAsync(memoryStream);
                 memoryStream.Position = 0;
                 using (var reader = new StreamReader(memoryStream, Encoding.Unicode))
                 {
@@ -118,9 +115,9 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
         {
             CloudQueueMessage resultMessage = null;
 
-            await TestHelpers.Await(() =>
+            await TestHelpers.Await(async () =>
             {
-                resultMessage = _fixture.OutputQueue1.GetMessage();
+                resultMessage = await _fixture.OutputQueue1.GetMessageAsync();
                 return resultMessage != null;
             });
 
@@ -134,15 +131,15 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
 
             TestTableEntity entity1 = null;
             TestTableEntity entity2 = null;
-            await TestHelpers.Await(() =>
+            await TestHelpers.Await(async () =>
             {
-                TableResult result = _fixture.OutputTable1.Execute(TableOperation.Retrieve<TestTableEntity>("test", "test"));
+                TableResult result = await _fixture.OutputTable1.ExecuteAsync(TableOperation.Retrieve<TestTableEntity>("test", "test"));
                 if (result != null)
                 {
                     entity1 = (TestTableEntity)result.Result;
                 }
 
-                result = _fixture.OutputTable2.Execute(TableOperation.Retrieve<TestTableEntity>("test", "test"));
+                result = await _fixture.OutputTable2.ExecuteAsync(TableOperation.Retrieve<TestTableEntity>("test", "test"));
                 if (result != null)
                 {
                     entity2 = (TestTableEntity)result.Result;
@@ -210,7 +207,7 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
         }
 
         [NoAutomaticTrigger]
-        public static void Table_PrimaryAndSecondary(
+        public async static Task Table_PrimaryAndSecondary(
             [Table(OutputTableName)] CloudTable primaryOutput,
             [Table(OutputTableName, Connection = Secondary)] CloudTable secondaryOutput)
         {
@@ -220,8 +217,8 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
                 RowKey = "test",
                 Text = TestData
             };
-            primaryOutput.Execute(TableOperation.InsertOrReplace(entity));
-            secondaryOutput.Execute(TableOperation.InsertOrReplace(entity));
+            await primaryOutput.ExecuteAsync(TableOperation.InsertOrReplace(entity));
+            await secondaryOutput.ExecuteAsync(TableOperation.InsertOrReplace(entity));
         }
 
         [NoAutomaticTrigger]
@@ -249,6 +246,12 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
         {
             public TestFixture()
             {
+                Initialize();
+              
+            }
+
+            private async Task Initialize()
+            {
                 RandomNameResolver nameResolver = new TestNameResolver();
                 JobHostConfiguration hostConfiguration = new JobHostConfiguration()
                 {
@@ -261,33 +264,33 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
                 string secondaryConnectionString = AmbientConnectionStringProvider.Instance.GetConnectionString(Secondary);
                 Account2 = CloudStorageAccount.Parse(secondaryConnectionString);
 
-                CleanContainers();
+                await CleanContainers();
 
                 CloudBlobClient blobClient1 = Account1.CreateCloudBlobClient();
                 string inputName = nameResolver.ResolveInString(Input);
                 CloudBlobContainer inputContainer1 = blobClient1.GetContainerReference(inputName);
-                inputContainer1.Create();
+                await inputContainer1.CreateAsync();
                 string outputName = nameResolver.ResolveWholeString(Output);
                 OutputContainer1 = blobClient1.GetContainerReference(outputName);
-                OutputContainer1.CreateIfNotExists();
+                await OutputContainer1.CreateIfNotExistsAsync();
 
                 CloudBlobClient blobClient2 = Account2.CreateCloudBlobClient();
                 CloudBlobContainer inputContainer2 = blobClient2.GetContainerReference(inputName);
-                inputContainer2.Create();
+                await inputContainer2.CreateAsync();
                 OutputContainer2 = blobClient2.GetContainerReference(outputName);
-                OutputContainer2.CreateIfNotExists();
+                await OutputContainer2.CreateIfNotExistsAsync();
 
                 CloudQueueClient queueClient1 = Account1.CreateCloudQueueClient();
                 CloudQueue inputQueue1 = queueClient1.GetQueueReference(inputName);
-                inputQueue1.CreateIfNotExists();
+                await inputQueue1.CreateIfNotExistsAsync();
                 OutputQueue1 = queueClient1.GetQueueReference(outputName);
-                OutputQueue1.CreateIfNotExists();
+                await OutputQueue1.CreateIfNotExistsAsync();
 
                 CloudQueueClient queueClient2 = Account2.CreateCloudQueueClient();
                 CloudQueue inputQueue2 = queueClient2.GetQueueReference(inputName);
-                inputQueue2.CreateIfNotExists();
+                await inputQueue2.CreateIfNotExistsAsync();
                 OutputQueue2 = queueClient2.GetQueueReference(outputName);
-                OutputQueue2.CreateIfNotExists();
+                await OutputQueue2.CreateIfNotExistsAsync();
 
                 CloudTableClient tableClient1 = Account1.CreateCloudTableClient();
                 string outputTableName = nameResolver.ResolveWholeString(OutputTableName);
@@ -296,13 +299,13 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
 
                 // upload some test blobs to the input containers of both storage accounts
                 CloudBlockBlob blob = inputContainer1.GetBlockBlobReference("blob1");
-                blob.UploadText(TestData);
+                await blob.UploadTextAsync(TestData);
                 blob = inputContainer2.GetBlockBlobReference("blob2");
-                blob.UploadText(TestData);
+                await blob.UploadTextAsync(TestData);
 
                 // upload some test queue messages to the input queues of both storage accounts
-                inputQueue1.AddMessage(new CloudQueueMessage(TestData));
-                inputQueue2.AddMessage(new CloudQueueMessage(TestData));
+                await inputQueue1.AddMessageAsync(new CloudQueueMessage(TestData));
+                await inputQueue2.AddMessageAsync(new CloudQueueMessage(TestData));
 
                 Host = new JobHost(hostConfiguration);
                 Host.Start();
@@ -339,34 +342,34 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
             {
                 Host.Stop();
 
-                CleanContainers();
+                CleanContainers().Wait();
             }
 
-            private void CleanContainers()
+            private async Task CleanContainers()
             {
-                Clean(Account1);
-                Clean(Account2);
+                await Clean(Account1);
+                await Clean(Account2);
             }
         }
 
-        private static void Clean(CloudStorageAccount account)
+        private async static Task Clean(CloudStorageAccount account)
         {
             CloudBlobClient blobClient = account.CreateCloudBlobClient();
-            foreach (var testContainer in blobClient.ListContainers(TestArtifactPrefix))
+            foreach (var testContainer in (await blobClient.ListContainersSegmentedAsync(TestArtifactPrefix, null)).Results)
             {
-                testContainer.Delete();
+                await testContainer.DeleteAsync();
             }
 
             CloudTableClient tableClient = account.CreateCloudTableClient();
-            foreach (var table in tableClient.ListTables(TestArtifactPrefix))
+            foreach (var table in await tableClient.ListTablesSegmentedAsync(TestArtifactPrefix, null))
             {
-                table.Delete();
+                await table.DeleteAsync();
             }
 
             CloudQueueClient queueClient = account.CreateCloudQueueClient();
-            foreach (var queue in queueClient.ListQueues(TestArtifactPrefix))
+            foreach (var queue in (await queueClient.ListQueuesSegmentedAsync(TestArtifactPrefix, null)).Results)
             {
-                queue.Delete();
+                await queue.DeleteAsync();
             }
         }
 

@@ -3,7 +3,9 @@
 
 using System;
 using Microsoft.ApplicationInsights;
+#if !NETSTANDARD2_0
 using Microsoft.ApplicationInsights.WindowsServer.Channel.Implementation;
+#endif
 using Microsoft.Azure.WebJobs.Logging;
 using Microsoft.Azure.WebJobs.Logging.ApplicationInsights;
 
@@ -28,8 +30,7 @@ namespace Microsoft.Extensions.Logging
             string instrumentationKey,
             Func<string, LogLevel, bool> filter)
         {
-            ITelemetryClientFactory defaultFactory = new DefaultTelemetryClientFactory(instrumentationKey,
-                new SamplingPercentageEstimatorSettings(), filter);
+            ITelemetryClientFactory defaultFactory = new DefaultTelemetryClientFactory(instrumentationKey, filter);
 
             return AddApplicationInsights(loggerFactory, defaultFactory);
         }

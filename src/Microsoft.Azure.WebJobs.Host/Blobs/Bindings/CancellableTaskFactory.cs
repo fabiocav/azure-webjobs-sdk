@@ -8,6 +8,7 @@ using Microsoft.WindowsAzure.Storage;
 
 namespace Microsoft.Azure.WebJobs.Host.Blobs.Bindings
 {
+#if !NETSTANDARD2_0
     internal static class CancellableTaskFactory
     {
         // Similar to TaskFactory.FromAsync, except it supports cancellation using ICancellableAsyncResult.
@@ -59,4 +60,5 @@ namespace Microsoft.Azure.WebJobs.Host.Blobs.Bindings
             return source.Task;
         }
     }
+#endif
 }

@@ -7,11 +7,13 @@ using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.ApplicationInsights.Extensibility.Implementation;
+#if !NETSTANDARD2_0
 using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector;
 using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
 using Microsoft.ApplicationInsights.WindowsServer;
 using Microsoft.ApplicationInsights.WindowsServer.Channel.Implementation;
 using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel;
+#endif
 using Microsoft.Extensions.Logging;
 
 namespace Microsoft.Azure.WebJobs.Logging.ApplicationInsights
@@ -22,14 +24,16 @@ namespace Microsoft.Azure.WebJobs.Logging.ApplicationInsights
     public class DefaultTelemetryClientFactory : ITelemetryClientFactory
     {
         private readonly string _instrumentationKey;
+#if !NETSTANDARD2_0
         private readonly SamplingPercentageEstimatorSettings _samplingSettings;
-
         private QuickPulseTelemetryModule _quickPulseModule;
         private PerformanceCollectorModule _perfModule;
+#endif
         private TelemetryConfiguration _config;
         private bool _disposed;
         private Func<string, LogLevel, bool> _filter;
 
+#if !NETSTANDARD2_0
         /// <summary>
         /// Instantiates an instance.
         /// </summary>
@@ -42,7 +46,17 @@ namespace Microsoft.Azure.WebJobs.Logging.ApplicationInsights
             _samplingSettings = samplingSettings;
             _filter = filter;
         }
-
+#else
+        /// <summary>
+        /// Instantiates an instance.
+        /// </summary>
+        /// <param name="instrumentationKey">The Application Insights instrumentation key.</param>
+        public DefaultTelemetryClientFactory(string instrumentationKey, Func<string, LogLevel, bool> filter)
+        {
+            _instrumentationKey = instrumentationKey;
+            _filter = filter;
+        }
+#endif
         /// <summary>
         /// Creates a <see cref="TelemetryClient"/>. 
         /// </summary>
@@ -74,6 +88,8 @@ namespace Microsoft.Azure.WebJobs.Logging.ApplicationInsights
 
             AddInitializers(config);
 
+            // TODO: FACAVAL - working with brettsam to understand impact, reach out to the team and find alternatives
+#if !NETSTANDARD2_0
             // Plug in Live stream and adaptive sampling
             QuickPulseTelemetryProcessor processor = null;
             TelemetryProcessorChainBuilder builder = config.TelemetryProcessorChainBuilder
@@ -94,7 +110,6 @@ namespace Microsoft.Azure.WebJobs.Logging.ApplicationInsights
                     return new AdaptiveSamplingTelemetryProcessor(_samplingSettings, null, next);
                 });
             }
-
             builder.Build();
 
             _quickPulseModule = CreateQuickPulseTelemetryModule();
@@ -116,6 +131,7 @@ namespace Microsoft.Azure.WebJobs.Logging.ApplicationInsights
             }
 
             config.TelemetryChannel = channel;
+#endif
 
             return config;
         }
@@ -128,23 +144,19 @@ namespace Microsoft.Azure.WebJobs.Logging.ApplicationInsights
         /// <returns>The <see cref="ITelemetryChannel"/></returns>
         protected virtual ITelemetryChannel CreateTelemetryChannel()
         {
+#if !NETSTANDARD2_0
             return new ServerTelemetryChannel();
-        }
-
-        /// <summary>
-        /// Creates the <see cref="QuickPulseTelemetryModule"/> to be used by the <see cref="TelemetryClient"/>.
-        /// </summary>
-        /// <returns>The <see cref="QuickPulseTelemetryModule"/>.</returns>
-        protected virtual QuickPulseTelemetryModule CreateQuickPulseTelemetryModule()
-        {
-            return new QuickPulseTelemetryModule();
+#else
+            throw new NotSupportedException();
+#endif
         }
 
         internal static void AddInitializers(TelemetryConfiguration config)
         {
+#if !NETSTANDARD2_0
             // This picks up the RoleName from the server
             config.TelemetryInitializers.Add(new AzureWebAppRoleEnvironmentTelemetryInitializer());
-
+#endif
             // This applies our special scope properties and gets RoleInstance name
             config.TelemetryInitializers.Add(new WebJobsTelemetryInitializer());
         }
@@ -167,10 +179,10 @@ namespace Microsoft.Azure.WebJobs.Logging.ApplicationInsights
                 // TelemetryConfiguration.Dispose will dispose the Channel and the TelemetryProcessors
                 // registered with the TelemetryProcessorChainBuilder.
                 _config?.Dispose();
-
+#if !NETSTANDARD2_0
                 _perfModule?.Dispose();
                 _quickPulseModule?.Dispose();
-
+#endif
                 _disposed = true;
             }
         }

@@ -266,7 +266,7 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
             host.Dispose();
 
             // make sure the lease blob was only created in the secondary account
-            VerifyLeaseDoesNotExist(method, SingletonScope.Function, null);
+            await VerifyLeaseDoesNotExistAsync(method, SingletonScope.Function, null);
             VerifyLeaseState(method, SingletonScope.Function, null, LeaseState.Available, LeaseStatus.Unlocked, directory: _secondaryLockDirectory);
         }
 
@@ -321,18 +321,18 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
 
             CloudBlobDirectory lockDirectory = directory ?? _lockDirectory;
             CloudBlockBlob lockBlob = lockDirectory.GetBlockBlobReference(lockId);
-            lockBlob.FetchAttributes();
+            lockBlob.FetchAttributesAsync().Wait();
             Assert.Equal(leaseState, lockBlob.Properties.LeaseState);
             Assert.Equal(leaseStatus, lockBlob.Properties.LeaseStatus);
         }
 
-        internal static void VerifyLeaseDoesNotExist(MethodInfo method, SingletonScope scope, string scopeId, CloudBlobDirectory directory = null)
+        internal static async Task VerifyLeaseDoesNotExistAsync(MethodInfo method, SingletonScope scope, string scopeId, CloudBlobDirectory directory = null)
         {
             string lockId = FormatLockId(method, scope, scopeId);
 
             CloudBlobDirectory lockDirectory = directory ?? _lockDirectory;
             CloudBlockBlob lockBlob = lockDirectory.GetBlockBlobReference(lockId);
-            Assert.False(lockBlob.Exists());
+            Assert.False(await lockBlob.ExistsAsync());
         }
 
         private static string FormatLockId(MethodInfo method, SingletonScope scope, string scopeId)
@@ -772,25 +772,28 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
             {
                 if (storageAccount != null)
                 {
-                    Clean();
+                    Clean().Wait();
                 }
             }
 
-            private void Clean()
+            private async Task Clean()
             {
                 CloudQueueClient queueClient = storageAccount.CreateCloudQueueClient();
-                foreach (var queue in queueClient.ListQueues(TestArtifactsPrefix))
+                var queuesResult = await queueClient.ListQueuesSegmentedAsync(TestArtifactsPrefix, null);
+                foreach (var queue in queuesResult.Results)
                 {
-                    queue.Delete();
+                    await queue.DeleteAsync();
                 }
 
                 CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
                 CloudBlobContainer hostContainer = blobClient.GetContainerReference("azure-webjobs-hosts");
-                foreach (CloudBlockBlob lockBlob in hostContainer.ListBlobs(string.Format("locks/{0}", TestHostId), useFlatBlobListing: true))
+                var blobs = await hostContainer.ListBlobsSegmentedAsync(string.Format("locks/{0}", TestHostId), useFlatBlobListing: true, blobListingDetails: BlobListingDetails.None,
+                    maxResults: null, currentToken: null, options: null, operationContext: null);
+                foreach (CloudBlockBlob lockBlob in blobs.Results)
                 {
                     try
                     {
-                        lockBlob.Delete();
+                        await lockBlob.DeleteAsync();
                     }
                     catch (StorageException)
                     {

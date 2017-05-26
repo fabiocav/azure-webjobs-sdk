@@ -8,30 +8,38 @@ namespace Microsoft.Azure.WebJobs.Host.UnitTests
 {
     public class ConfigurationUtilityTests
     {
-        [Fact]
+        [Fact()]
         public void GetSettingFromConfigOrEnvironment_NotFound_ReturnsEmpty()
         {
+            ConfigurationUtility.Reset();
+
             string value = ConfigurationUtility.GetSettingFromConfigOrEnvironment("DNE");
             Assert.Equal(null, value);
         }
 
-        [Fact]
+        [Fact()]
         public void GetSettingFromConfigOrEnvironment_NameNull_ReturnsEmpty()
         {
+            ConfigurationUtility.Reset();
+
             string value = ConfigurationUtility.GetSettingFromConfigOrEnvironment(null);
             Assert.Equal(null, value);
         }
 
-        [Fact]
+        [Fact()]
         public void GetSettingFromConfigOrEnvironment_ConfigSetting_NoEnvironmentSetting()
         {
+            ConfigurationUtility.Reset();
+
             string value = ConfigurationUtility.GetSettingFromConfigOrEnvironment("DisableSetting0");
             Assert.Equal("0", value);
         }
 
-        [Fact]
+        [Fact()]
         public void GetSettingFromConfigOrEnvironment_EnvironmentSetting_NoConfigSetting()
         {
+            ConfigurationUtility.Reset();
+
             Environment.SetEnvironmentVariable("EnvironmentSetting", "1");
 
             string value = ConfigurationUtility.GetSettingFromConfigOrEnvironment("EnvironmentSetting");
@@ -40,15 +48,17 @@ namespace Microsoft.Azure.WebJobs.Host.UnitTests
             Environment.SetEnvironmentVariable("EnvironmentSetting", null);
         }
 
-        [Fact]
+        [Fact()]
         public void GetSettingFromConfigOrEnvironment_ConfigAndEnvironment_ConfigWins()
         {
+            ConfigurationUtility.Reset();
+
             Environment.SetEnvironmentVariable("DisableSetting0", "1");
 
             string value = ConfigurationUtility.GetSettingFromConfigOrEnvironment("DisableSetting0");
             Assert.Equal("0", value);
 
-            Environment.SetEnvironmentVariable("EnvironmentSetting", null);
+            Environment.SetEnvironmentVariable("DisableSetting0", null);
         }
     }
 }

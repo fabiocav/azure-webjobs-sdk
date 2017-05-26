@@ -9,9 +9,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.ApplicationInsights.Channel;
-using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
-using Microsoft.ApplicationInsights.WindowsServer.Channel.Implementation;
-using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel;
 using Microsoft.Azure.WebJobs.Host.TestCommon;
 using Microsoft.Azure.WebJobs.Logging;
 using Microsoft.Azure.WebJobs.Logging.ApplicationInsights;
@@ -37,8 +34,7 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
             filter.DefaultLevel = defaultLevel;
 
             var loggerFactory = new LoggerFactory()
-                .AddApplicationInsights(
-                    new TestTelemetryClientFactory(_mockApplicationInsightsKey, new SamplingPercentageEstimatorSettings(), filter.Filter));
+                .AddApplicationInsights(new TestTelemetryClientFactory(_mockApplicationInsightsKey, filter.Filter));
 
             JobHostConfiguration config = new JobHostConfiguration
             {
@@ -234,16 +230,9 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
 
         private class TestTelemetryClientFactory : DefaultTelemetryClientFactory
         {
-            public TestTelemetryClientFactory(string instrumentationKey, SamplingPercentageEstimatorSettings samplingSettings, Func<string, LogLevel, bool> filter)
-                : base(instrumentationKey, samplingSettings, filter)
+            public TestTelemetryClientFactory(string instrumentationKey, Func<string, LogLevel, bool> filter)
+                : base(instrumentationKey, filter)
             {
-            }
-
-            protected override QuickPulseTelemetryModule CreateQuickPulseTelemetryModule()
-            {
-                QuickPulseTelemetryModule module = base.CreateQuickPulseTelemetryModule();
-                module.QuickPulseServiceEndpoint = _mockQuickPulseUrl;
-                return module;
             }
 
             protected override ITelemetryChannel CreateTelemetryChannel()
@@ -253,8 +242,7 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
 
                 // DeveloperMode prevents buffering so items are sent immediately.
                 channel.DeveloperMode = true;
-                ((ServerTelemetryChannel)channel).MaxTelemetryBufferDelay = TimeSpan.FromSeconds(1);
-
+                
                 return channel;
             }
         }

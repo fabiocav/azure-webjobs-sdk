@@ -108,7 +108,7 @@ namespace Microsoft.Azure.WebJobs.Host.Executors
                     }
 
                     _lastContent = content;
-                    await _blobResults.UploadTextAsync(content, cancellationToken);
+                    await _blobResults.UploadTextAsync(content, null, null, null, null, cancellationToken);
                 }
                 catch (OperationCanceledException)
                 {

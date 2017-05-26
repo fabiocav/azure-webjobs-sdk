@@ -142,7 +142,7 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
                 Number = e2equeue.Number + 1
             };
 
-            table.Execute(TableOperation.InsertOrReplace(result));
+            table.ExecuteAsync(TableOperation.InsertOrReplace(result)).Wait();
 
             // Write a queue message to signal the scenario completion
             e2edone = "done";
@@ -187,15 +187,15 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
 
         // Uncomment the Fact attribute to run
         // [Fact(Timeout = 20 * 60 * 1000)]
-        public void AzureStorageEndToEndSlow()
+        public async Task AzureStorageEndToEndSlow()
         {
-            EndToEndTest(uploadBlobBeforeHostStart: false);
+            await EndToEndTest(uploadBlobBeforeHostStart: false);
         }
 
         [Fact]
-        public void AzureStorageEndToEndFast()
+        public async Task AzureStorageEndToEndFast()
         {
-            EndToEndTest(uploadBlobBeforeHostStart: true);
+            await EndToEndTest(uploadBlobBeforeHostStart: true);
         }
 
         [Fact]
@@ -275,7 +275,7 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
             Assert.Equal("Bill", (string)results[0]["Name"]);
         }
 
-        private void EndToEndTest(bool uploadBlobBeforeHostStart)
+        private async Task EndToEndTest(bool uploadBlobBeforeHostStart)
         {
             // Reinitialize the name resolver to avoid conflicts
             _resolver = new RandomNameResolver();
@@ -291,7 +291,7 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
             if (uploadBlobBeforeHostStart)
             {
                 // The function will be triggered fast because the blob is already there
-                UploadTestObject();
+                await UploadTestObject();
             }
 
             // The jobs host is started
@@ -303,8 +303,8 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
 
             if (!uploadBlobBeforeHostStart)
             {
-                WaitForTestFunctionsToStart();
-                UploadTestObject();
+                await WaitForTestFunctionsToStart();
+                await UploadTestObject();
             }
 
             bool signaled = _functionChainWaitHandle.WaitOne(15 * 60 * 1000);
@@ -315,7 +315,7 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
             Assert.True(signaled);
 
             // Verify
-            VerifyTableResults();
+            await VerifyTableResultsAsync();
         }
 
         [Fact]
@@ -342,7 +342,7 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
             // use a custom processor so we can grab the Id and PopReceipt
             hostConfig.Queues.QueueProcessorFactory = new TestQueueProcessorFactory();
 
-            var tracer = new TestTraceWriter(TraceLevel.Verbose);
+            var tracer = new TestTraceWriter(System.Diagnostics.TraceLevel.Verbose);
             hostConfig.Tracing.Tracers.Add(tracer);
 
             ILoggerFactory loggerFactory = new LoggerFactory();
@@ -374,12 +374,12 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
             await queue.AddMessageAsync(message);
 
             CloudQueueMessage poisonMessage = null;
-            await TestHelpers.Await(() =>
+            await TestHelpers.Await(async () =>
             {
                 bool done = false;
-                if (poisonQueue.Exists())
+                if (await poisonQueue.ExistsAsync())
                 {
-                    poisonMessage = poisonQueue.GetMessage();
+                    poisonMessage = await poisonQueue.GetMessageAsync();
                     done = poisonMessage != null;
 
                     if (done)
@@ -391,8 +391,8 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
                         // The message is in the second queue
                         var queue2 = queueClient.GetQueueReference(_resolver.ResolveInString(BadMessageQueue2));
 
-                        StorageException ex = Assert.Throws<StorageException>(
-                            () => queue2.DeleteMessage(_lastMessageId, _lastMessagePopReceipt));
+                        StorageException ex = await Assert.ThrowsAsync<StorageException>(
+                            () => queue2.DeleteMessageAsync(_lastMessageId, _lastMessagePopReceipt));
                         Assert.Equal("MessageNotFound", ex.RequestInformation.ExtendedErrorInformation.ErrorCode);
                     }
                 }
@@ -412,7 +412,7 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
             Assert.Equal(0, _badMessage2Calls);
 
             // make sure the exception is being properly logged
-            var errors = tracer.Traces.Where(t => t.Level == TraceLevel.Error);
+            var errors = tracer.Traces.Where(t => t.Level == System.Diagnostics.TraceLevel.Error);
             Assert.True(errors.All(t => t.Exception.InnerException.InnerException is FormatException));
 
             // Validate Logger
@@ -420,12 +420,12 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
             Assert.True(loggerErrors.All(t => t.Exception.InnerException.InnerException is FormatException));
         }
 
-        private void UploadTestObject()
+        private async Task UploadTestObject()
         {
             string testContainerName = _resolver.ResolveInString(ContainerName);
 
             CloudBlobContainer container = _storageAccount.CreateCloudBlobClient().GetContainerReference(testContainerName);
-            container.CreateIfNotExists();
+            await container.CreateIfNotExistsAsync();
 
             // The test blob
             CloudBlockBlob testBlob = container.GetBlockBlobReference(BlobName);
@@ -435,10 +435,10 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
                 Number = 42
             };
 
-            testBlob.UploadText(JsonConvert.SerializeObject(testObject));
+            await testBlob.UploadTextAsync(JsonConvert.SerializeObject(testObject));
         }
 
-        private void WaitForTestFunctionsToStart()
+        private async Task WaitForTestFunctionsToStart()
         {
             _startWaitHandle = new ManualResetEvent(initialState: false);
 
@@ -446,20 +446,20 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
 
             CloudQueueClient queueClient = _storageAccount.CreateCloudQueueClient();
             CloudQueue queue = queueClient.GetQueueReference(startQueueName);
-            queue.CreateIfNotExists();
-            queue.AddMessage(new CloudQueueMessage(String.Empty));
+            await queue.CreateIfNotExistsAsync();
+            await queue.AddMessageAsync(new CloudQueueMessage(String.Empty));
 
             _startWaitHandle.WaitOne();
         }
 
-        private void VerifyTableResults()
+        private async Task VerifyTableResultsAsync()
         {
             string testTableName = _resolver.ResolveInString(TableName);
 
             CloudTableClient tableClient = _storageAccount.CreateCloudTableClient();
             CloudTable table = tableClient.GetTableReference(testTableName);
 
-            Assert.True(table.Exists(), "Result table not found");
+            Assert.True(await table.ExistsAsync(), "Result table not found");
 
             TableQuery query = new TableQuery()
                 .Where(TableQuery.CombineFilters(
@@ -467,7 +467,7 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
                     TableOperators.And,
                     TableQuery.GenerateFilterCondition("RowKey", QueryComparisons.Equal, "test")))
                 .Take(1);
-            DynamicTableEntity result = table.ExecuteQuery(query).FirstOrDefault();
+            DynamicTableEntity result = (await table.ExecuteQuerySegmentedAsync(query, null)).FirstOrDefault();
 
             // Ensure expected row found
             Assert.NotNull(result);
@@ -481,7 +481,7 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
                     TableOperators.And,
                     TableQuery.GenerateFilterCondition("RowKey", QueryComparisons.Equal, "testETag")))
                 .Take(1);
-            result = table.ExecuteQuery(query).FirstOrDefault();
+            result = (await table.ExecuteQuerySegmentedAsync(query, null)).FirstOrDefault();
 
             // Ensure expected row found
             Assert.NotNull(result);
@@ -544,21 +544,21 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
             public void Dispose()
             {
                 CloudBlobClient blobClient = StorageAccount.CreateCloudBlobClient();
-                foreach (var testContainer in blobClient.ListContainers(TestArtifactsPrefix))
+                foreach (var testContainer in blobClient.ListContainersSegmentedAsync(TestArtifactsPrefix, null).Result.Results)
                 {
-                    testContainer.Delete();
+                    testContainer.DeleteAsync().Wait();
                 }
 
                 CloudQueueClient queueClient = StorageAccount.CreateCloudQueueClient();
-                foreach (var testQueue in queueClient.ListQueues(TestArtifactsPrefix))
+                foreach (var testQueue in queueClient.ListQueuesSegmentedAsync(TestArtifactsPrefix, null).Result.Results)
                 {
-                    testQueue.Delete();
+                    testQueue.DeleteAsync().Wait();
                 }
 
                 CloudTableClient tableClient = StorageAccount.CreateCloudTableClient();
-                foreach (var testTable in tableClient.ListTables(TestArtifactsPrefix))
+                foreach (var testTable in tableClient.ListTablesSegmentedAsync(TestArtifactsPrefix, null).Result.Results)
                 {
-                    testTable.Delete();
+                    testTable.DeleteAsync().Wait();
                 }
             }
         }

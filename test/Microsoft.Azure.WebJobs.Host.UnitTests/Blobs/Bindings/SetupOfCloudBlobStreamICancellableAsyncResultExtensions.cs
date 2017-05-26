@@ -11,7 +11,7 @@ namespace Microsoft.Azure.WebJobs.Host.UnitTests.Blobs.Bindings
     internal static class SetupOfCloudBlobStreamICancellableAsyncResultExtensions
     {
         public static IReturnsResult<CloudBlobStream> ReturnsCompletedSynchronously(
-            this ISetup<CloudBlobStream, ICancellableAsyncResult> setup)
+            this ISetup<CloudBlobStream, IAsyncResult> setup)
         {
             if (setup == null)
             {
@@ -20,14 +20,14 @@ namespace Microsoft.Azure.WebJobs.Host.UnitTests.Blobs.Bindings
 
             return setup.Returns<AsyncCallback, object>((callback, state) =>
             {
-                ICancellableAsyncResult result = new CompletedCancellableAsyncResult(state);
+                IAsyncResult result = new CompletedCancellableAsyncResult(state);
                 InvokeCallback(callback, result);
                 return result;
             });
         }
 
         public static IReturnsResult<CloudBlobStream> ReturnsCompletedSynchronously(
-            this ISetup<CloudBlobStream, ICancellableAsyncResult> setup, CompletedCancellationSpy spy)
+            this ISetup<CloudBlobStream, IAsyncResult> setup, CompletedCancellationSpy spy)
         {
             if (setup == null)
             {
@@ -44,7 +44,7 @@ namespace Microsoft.Azure.WebJobs.Host.UnitTests.Blobs.Bindings
         }
 
         public static IReturnsResult<CloudBlobStream> ReturnsCompletingAsynchronously(
-            this ISetup<CloudBlobStream, ICancellableAsyncResult> setup,
+            this ISetup<CloudBlobStream, IAsyncResult> setup,
             CancellableAsyncCompletionSource completionSource)
         {
             if (setup == null)
@@ -61,7 +61,7 @@ namespace Microsoft.Azure.WebJobs.Host.UnitTests.Blobs.Bindings
         }
 
         public static IReturnsResult<CloudBlobStream> ReturnsUncompleted(
-            this ISetup<CloudBlobStream, ICancellableAsyncResult> setup)
+            this ISetup<CloudBlobStream, IAsyncResult> setup)
         {
             if (setup == null)
             {

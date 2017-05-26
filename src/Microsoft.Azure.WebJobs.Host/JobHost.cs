@@ -64,7 +64,10 @@ namespace Microsoft.Azure.WebJobs
             // add webjobs to user agent for all storage calls
             OperationContext.GlobalSendingRequest += (sender, e) =>
             {
-                e.Request.UserAgent += " AzureWebJobs";
+                // TODO: FACAVAL - Need to identify a new way to set the user agent since the Storage SDK no longer exposes this here
+#if !NETSTANDARD2_0
+                e.UserAgent += " AzureWebJobs";
+#endif
             };
         }
 

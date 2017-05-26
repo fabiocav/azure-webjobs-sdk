@@ -454,24 +454,6 @@
       <SubType>Designer</SubType>
     </CodeAnalysisDictionary>
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Microsoft.Azure.WebJobs.Logging\WebJobs.Logging.csproj">
-      <Project>{b5a04006-ab0c-4800-ae4c-080d31867de3}</Project>
-      <Name>WebJobs.Logging</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Microsoft.Azure.WebJobs.Protocols\WebJobs.Protocols.csproj">
-      <Project>{9781d898-5e08-45f1-acd9-7ea106353ac4}</Project>
-      <Name>WebJobs.Protocols</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Microsoft.Azure.WebJobs.Storage\WebJobs.Storage.csproj">
-      <Project>{543edc53-3b68-49a8-9c3f-fc2ed27515aa}</Project>
-      <Name>WebJobs.Storage</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Microsoft.Azure.WebJobs\WebJobs.csproj">
-      <Project>{e3f2b2c8-6b8d-4d6a-a3ae-98366c9f3b49}</Project>
-      <Name>WebJobs</Name>
-    </ProjectReference>
-  </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
