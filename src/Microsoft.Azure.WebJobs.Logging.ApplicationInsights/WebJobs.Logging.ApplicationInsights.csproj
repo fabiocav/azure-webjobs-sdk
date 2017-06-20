@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <SignAssembly>True</SignAssembly>
-    <AssemblyOriginatorKeyFile>D:\src\gh.fabiocav\azure-webjobs-sdk\src\Common\PublicKey.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>..\Common\PublicKey.snk</AssemblyOriginatorKeyFile>
     <DelaySign>True</DelaySign>
     <Version>3.0.0-beta1</Version>
     <PackageId>Microsoft.Azure.WebJobs.Logging.ApplicationInsights</PackageId>
