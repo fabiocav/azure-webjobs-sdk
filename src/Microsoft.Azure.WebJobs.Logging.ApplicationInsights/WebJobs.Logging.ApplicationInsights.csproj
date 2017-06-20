@@ -5,6 +5,17 @@
     <SignAssembly>True</SignAssembly>
     <AssemblyOriginatorKeyFile>D:\src\gh.fabiocav\azure-webjobs-sdk\src\Common\PublicKey.snk</AssemblyOriginatorKeyFile>
     <DelaySign>True</DelaySign>
+    <Version>3.0.0-beta1</Version>
+    <PackageId>Microsoft.Azure.WebJobs.Logging.ApplicationInsights</PackageId>
+    <Authors>Microsoft</Authors>
+    <Company>Microsoft</Company>
+    <PackageProjectUrl>http://go.microsoft.com/fwlink/?LinkID=320972</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Azure/azure-webjobs-sdk</RepositoryUrl>
+    <Copyright>© .NET Foundation.  All rights reserved.</Copyright>
+    <Description>This package contains the runtime assemblies for Microsoft.Azure.WebJobs.Logging.ApplicationInsights. For more information, please visit http://go.microsoft.com/fwlink/?LinkID=320971</Description>
+    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+    <PackageLicenseUrl>http://www.microsoft.com/web/webpi/eula/aspnetcomponent_rtw_enu.htm</PackageLicenseUrl>
+    <PackageIconUrl>https://raw.githubusercontent.com/Azure/azure-webjobs-sdk/dev/webjobs.png</PackageIconUrl>
   </PropertyGroup>
 
   <ItemGroup>

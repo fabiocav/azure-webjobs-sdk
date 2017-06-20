@@ -5,6 +5,18 @@
     <SignAssembly>True</SignAssembly>
     <AssemblyOriginatorKeyFile>..\Common\PublicKey.snk</AssemblyOriginatorKeyFile>
     <DelaySign>True</DelaySign>
+    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+    <Copyright>© .NET Foundation.  All rights reserved.</Copyright>
+    <Description>This package contains the runtime assemblies for Microsoft.Azure.WebJobs.Host. It also adds rich diagnostics capabilities which makes it easier to monitor the WebJobs in the dashboard. For more information, please visit http://go.microsoft.com/fwlink/?LinkID=320971</Description>
+    <Product>WebJobs</Product>
+    <Company>Microsoft</Company>
+    <Authors>Microsoft</Authors>
+    <Version>3.0.0-beta1</Version>
+    <PackageId>Microsoft.Azure.WebJobs</PackageId>
+    <RepositoryUrl>https://github.com/azure/azure-webjobs-sdk</RepositoryUrl>
+    <PackageIconUrl>https://raw.githubusercontent.com/Azure/azure-webjobs-sdk/dev/webjobs.png</PackageIconUrl>
+    <PackageProjectUrl>http://go.microsoft.com/fwlink/?LinkID=320972</PackageProjectUrl>
+    <PackageLicenseUrl>http://www.microsoft.com/web/webpi/eula/aspnetcomponent_rtw_enu.htm</PackageLicenseUrl>
   </PropertyGroup>
 
   <ItemGroup>
