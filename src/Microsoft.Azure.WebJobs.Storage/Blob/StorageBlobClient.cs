@@ -59,7 +59,7 @@ namespace Microsoft.Azure.WebJobs.Host.Storage.Blob
             BlobRequestOptions options, OperationContext operationContext, CancellationToken cancellationToken)
         {
             Task<BlobResultSegment> sdkTask = _sdk.ListBlobsSegmentedAsync(prefix, useFlatBlobListing,
-                blobListingDetails, maxResults, currentToken, options, operationContext); // TODO: FACAVAL - , cancellationToken);
+                blobListingDetails, maxResults, currentToken, options, operationContext);
             return ListBlobsSegmentedAsyncCore(sdkTask);
         }
 

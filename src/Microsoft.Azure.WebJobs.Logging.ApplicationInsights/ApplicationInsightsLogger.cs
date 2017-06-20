@@ -321,7 +321,7 @@ namespace Microsoft.Azure.WebJobs.Logging.ApplicationInsights
             HttpContextBase context = httpRequest.Properties.GetValueOrDefault<HttpContextBase>(ApplicationInsightsScopeKeys.HttpContext);
             return context?.Request?.UserHostAddress ?? LoggingConstants.ZeroIpAddress;
 #else
-            // TODO: FACAVAL
+            // TODO: FACAVAL - Need a proper implementation here.
             return LoggingConstants.ZeroIpAddress;
 #endif
         }

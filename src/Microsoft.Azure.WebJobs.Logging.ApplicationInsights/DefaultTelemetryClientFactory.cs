@@ -119,19 +119,18 @@ namespace Microsoft.Azure.WebJobs.Logging.ApplicationInsights
             // Plug in perf counters
             _perfModule = new PerformanceCollectorModule();
             _perfModule.Initialize(config);
-
+#endif
             // Configure the TelemetryChannel
             ITelemetryChannel channel = CreateTelemetryChannel();
 
             // call Initialize if available
-            ITelemetryModule module = channel as ITelemetryModule;
-            if (module != null)
+            if (channel is ITelemetryModule module)
             {
                 module.Initialize(config);
             }
 
             config.TelemetryChannel = channel;
-#endif
+
 
             return config;
         }
@@ -147,7 +146,7 @@ namespace Microsoft.Azure.WebJobs.Logging.ApplicationInsights
 #if !NETSTANDARD2_0
             return new ServerTelemetryChannel();
 #else
-            throw new NotSupportedException();
+            return new InMemoryChannel();
 #endif
         }
 

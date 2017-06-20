@@ -124,25 +124,7 @@ namespace Microsoft.Azure.WebJobs.Storage.IntegrationTests
         }
 
         private static string GetConnectionString(string connectionStringName)
-        {
-            string connectionStringInConfig = null;
-
-            // TODO: FACAVAL 
-            //var connectionStringEntry = null;
-            
-            //    //ConfigurationManager.ConnectionStrings[connectionStringName];
-            //if (connectionStringEntry != null)
-            //{
-            //    connectionStringInConfig = connectionStringEntry.ConnectionString;
-            //}
-
-            if (!String.IsNullOrEmpty(connectionStringInConfig))
-            {
-                return connectionStringInConfig;
-            }
-
-            return Environment.GetEnvironmentVariable(connectionStringName) ?? connectionStringInConfig;
-        }
+            => ConfigurationUtility.GetConnectionFromConfigOrEnvironment(connectionStringName);
 
         private static string GetQueueName(string infix)
         {

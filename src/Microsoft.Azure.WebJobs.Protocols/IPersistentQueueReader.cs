@@ -24,7 +24,7 @@ namespace Microsoft.Azure.WebJobs.Host.Protocols
 
         /// <summary>Deletes a message from the queue.</summary>
         /// <param name="message">The message to delete.</param>
-        void Delete(T message);
+        Task DeleteAsync(T message);
 
         /// <summary>Tries to makes an item's blob visible.</summary>
         /// <param name="message">The item to make visible.</param>

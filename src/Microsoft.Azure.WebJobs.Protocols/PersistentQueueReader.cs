@@ -357,9 +357,8 @@ namespace Microsoft.Azure.WebJobs.Host.Protocols
             }
         }
 
-        // TODO: Change this to async and remove the wait calls
         /// <inheritdoc />
-        public void Delete(T message)
+        public async Task DeleteAsync(T message)
         {
             ICloudBlob outputBlob = message.Blob;
 
@@ -374,7 +373,7 @@ namespace Microsoft.Azure.WebJobs.Host.Protocols
 
             try
             {
-                archiveBlob.UploadTextAsync(blobText).GetAwaiter().GetResult();
+                await archiveBlob.UploadTextAsync(blobText);
             }
             catch (StorageException exception)
             {
@@ -384,12 +383,12 @@ namespace Microsoft.Azure.WebJobs.Host.Protocols
                 }
                 else
                 {
-                    _archiveContainer.CreateIfNotExistsAsync().GetAwaiter().GetResult();
-                    archiveBlob.UploadTextAsync(blobText).GetAwaiter().GetResult();
+                    await _archiveContainer.CreateIfNotExistsAsync();
+                    await archiveBlob.UploadTextAsync(blobText);
                 }
             }
 
-            outputBlob.DeleteIfExistsAsync().GetAwaiter().GetResult();
+            await outputBlob.DeleteIfExistsAsync();
         }
 
         private static void CopyProperties(ICloudBlob source, ICloudBlob destination)
