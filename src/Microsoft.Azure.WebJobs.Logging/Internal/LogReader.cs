@@ -100,27 +100,23 @@ namespace Microsoft.Azure.WebJobs.Logging
         {
             var tables = await _tableLookup.ListTablesAsync();
 
-            Task<FunctionInstanceLogItem>[] taskLookups = tables.Select(instanceTable =>
+            var taskLookups = tables.Select(async instanceTable =>
             {
                 // Create a retrieve operation that takes a customer entity.
                 TableOperation retrieveOperation = InstanceTableEntity.GetRetrieveOperation(id);
 
                 // Execute the retrieve operation.
-                var retrievedResult = instanceTable.SafeExecuteAsync(retrieveOperation)
-                .ContinueWith(t =>
+                var retrievedResult = await instanceTable.SafeExecuteAsync(retrieveOperation);
+
+                var entity = (InstanceTableEntity)retrievedResult.Result;
+
+                if (entity == null)
                 {
-
-                    var entity = (InstanceTableEntity)t.Result.Result;
-
-                    if (entity == null)
-                    {
-                        return null;
-                    }
-                    return entity.ToFunctionLogItem();
-                });
-
-                return retrievedResult;
-            }).ToArray();
+                    return null;
+                }
+                return entity.ToFunctionLogItem();
+            });
+        
 
             FunctionInstanceLogItem[] results = await Task.WhenAll(taskLookups);
             foreach (var result in results)
