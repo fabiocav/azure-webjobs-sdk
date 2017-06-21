@@ -43,17 +43,17 @@ namespace Microsoft.Azure.WebJobs.Host.UnitTests.Bindings
         [Fact]
         public void Write_VariousWriteOverloads_BuffersUntilNewline()
         {
-            _mockTraceWriter.Setup(p => p.Trace(It.Is<TraceEvent>(q => q.Level == TraceLevel.Info && q.Message == "=====================\r\n")));
-            _mockTraceWriter.Setup(p => p.Trace(It.Is<TraceEvent>(q => q.Level == TraceLevel.Info && q.Message == "TestData123456True=====================\r\n")));
-            _mockTraceWriter.Setup(p => p.Trace(It.Is<TraceEvent>(q => q.Level == TraceLevel.Info && q.Message == "This is a new line\r\n")));
-            _mockTraceWriter.Setup(p => p.Trace(It.Is<TraceEvent>(q => q.Level == TraceLevel.Info && q.Message == "This is some more text")));
+            _mockTraceWriter.Setup(p => p.Trace(It.Is<TraceEvent>(q => q.Level == TraceLevel.Info && q.Message == $"====================={Environment.NewLine}")));
+            _mockTraceWriter.Setup(p => p.Trace(It.Is<TraceEvent>(q => q.Level == TraceLevel.Info && q.Message == $"TestData123456True====================={Environment.NewLine}")));
+            _mockTraceWriter.Setup(p => p.Trace(It.Is<TraceEvent>(q => q.Level == TraceLevel.Info && q.Message == $"This is a new line{Environment.NewLine}")));
+            _mockTraceWriter.Setup(p => p.Trace(It.Is<TraceEvent>(q => q.Level == TraceLevel.Info && q.Message == $"This is some more text")));
             _mockTraceWriter.Setup(p => p.Flush());
 
-            _adapter.Write("=====================\r\n");
-            _adapter.Write("TestData");
+            _adapter.Write($"====================={Environment.NewLine}");
+            _adapter.Write($"TestData");
             _adapter.Write(123456);
             _adapter.Write(true);
-            _adapter.Write("=====================\r\n");
+            _adapter.Write($"====================={Environment.NewLine}");
             _adapter.WriteLine("This is a new line");
             _adapter.Write("This is some more text");
 
