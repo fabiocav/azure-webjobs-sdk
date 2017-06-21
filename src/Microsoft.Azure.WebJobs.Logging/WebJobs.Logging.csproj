@@ -6,7 +6,7 @@
     <AssemblyOriginatorKeyFile>..\Common\PublicKey.snk</AssemblyOriginatorKeyFile>
     <DelaySign>True</DelaySign>
     <PackageId>Microsoft.Azure.WebJobs.Logging</PackageId>
-    <Version>3.0.0-beta1</Version>
+    <Version>3.0.0-beta1$(VersionSuffix)</Version>
     <Authors>Microsoft</Authors>
     <Company>Microsoft</Company>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>

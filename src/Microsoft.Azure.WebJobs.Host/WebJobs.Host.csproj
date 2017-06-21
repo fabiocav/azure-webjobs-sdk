@@ -11,7 +11,7 @@
     <Product>WebJobs</Product>
     <Company>Microsoft</Company>
     <Authors>Microsoft</Authors>
-    <Version>3.0.0-beta1</Version>
+    <Version>3.0.0-beta1$(VersionSuffix)</Version>
     <PackageId>Microsoft.Azure.WebJobs</PackageId>
     <RepositoryUrl>https://github.com/azure/azure-webjobs-sdk</RepositoryUrl>
     <PackageIconUrl>https://raw.githubusercontent.com/Azure/azure-webjobs-sdk/dev/webjobs.png</PackageIconUrl>

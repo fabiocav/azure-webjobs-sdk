@@ -9,6 +9,10 @@ install:
 
     $urlCurrent = "https://download.microsoft.com/download/0/6/5/0656B047-5F2F-4281-A851-F30776F8616D/dotnet-dev-win-x64.2.0.0-preview1-005977.zip"
 
+    $env:DOTNET_SKIP_FIRST_TIME_EXPERIENCE = "true"
+
+    $env:DOTNET_CLI_TELEMETRY_OPTOUT = "true"
+
     $env:DOTNET_INSTALL_DIR = "$pwd\.dotnetsdk"
 
     mkdir $env:DOTNET_INSTALL_DIR -Force | Out-Null
@@ -22,12 +26,20 @@ install:
     $env:Path = "$env:DOTNET_INSTALL_DIR;$env:Path"
 cache: '%USERPROFILE%\.nuget\packages'
 build_script:
-- ps: >-
+- ps: >
     dotnet --version
 
     dotnet restore
 
     dotnet build -v q
+
+    dotnet pack src\Microsoft.Azure.WebJobs\WebJobs.csproj -o ..\..\buildoutput --no-build --version-suffix "-$env:APPVEYOR_BUILD_NUMBER"
+
+    dotnet pack src\Microsoft.Azure.WebJobs.Host\WebJobs.Host.csproj -o ..\..\buildoutput --no-build --version-suffix "-$env:APPVEYOR_BUILD_NUMBER"
+
+    dotnet pack src\Microsoft.Azure.WebJobs.Logging\WebJobs.Logging.csproj -o ..\..\buildoutput --no-build --version-suffix "-$env:APPVEYOR_BUILD_NUMBER"
+
+    dotnet pack src\Microsoft.Azure.WebJobs.Logging.ApplicationInsights\WebJobs.Logging.ApplicationInsights.csproj -o ..\..\buildoutput --no-build --version-suffix "-$env:APPVEYOR_BUILD_NUMBER"
 test_script:
 - ps: >-
     dotnet test .\test\Microsoft.Azure.WebJobs.Host.UnitTests\ -v q
@@ -37,3 +49,6 @@ test_script:
     dotnet test .\test\Microsoft.Azure.WebJobs.Logging.FunctionalTests\ -v q
 
     # dotnet test .\test\Microsoft.Azure.WebJobs.Host.EndToEndTests\ -v q
+artifacts:
+- path: buildoutput\*.nupkg
+  name: Binaries

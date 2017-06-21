@@ -5,7 +5,7 @@
     <SignAssembly>True</SignAssembly>
     <AssemblyOriginatorKeyFile>..\Common\PublicKey.snk</AssemblyOriginatorKeyFile>
     <DelaySign>True</DelaySign>
-    <Version>3.0.0-beta1</Version>
+    <Version>3.0.0-beta1$(VersionSuffix)</Version>
     <PackageId>Microsoft.Azure.WebJobs.Logging.ApplicationInsights</PackageId>
     <Authors>Microsoft</Authors>
     <Company>Microsoft</Company>
