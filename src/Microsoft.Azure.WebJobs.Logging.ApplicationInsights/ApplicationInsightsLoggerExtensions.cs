@@ -2,11 +2,6 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.ApplicationInsights;
-#if !NETSTANDARD2_0
-using Microsoft.ApplicationInsights.WindowsServer.Channel.Implementation;
-#endif
-using Microsoft.Azure.WebJobs.Logging;
 using Microsoft.Azure.WebJobs.Logging.ApplicationInsights;
 
 namespace Microsoft.Extensions.Logging
