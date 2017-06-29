@@ -69,17 +69,6 @@ namespace Microsoft.Azure.WebJobs.Host.Storage.Table
         }
 
         /// <inheritdoc />
-        public IQueryable<TElement> CreateQuery<TElement>() where TElement : ITableEntity, new()
-        {
-            // TODO: FACAVAL - Find a suitable replacement
-#if !NETSTANDARD2_0
-            return _sdk.CreateQuery<TElement>();
-#else
-            throw new NotSupportedException();
-#endif
-        }
-
-        /// <inheritdoc />
         public IStorageTableOperation CreateReplaceOperation(ITableEntity entity)
         {
             return StorageTableOperation.Replace(entity);

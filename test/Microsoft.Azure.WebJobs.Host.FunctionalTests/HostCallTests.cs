@@ -844,7 +844,6 @@ namespace Microsoft.Azure.WebJobs.Host.FunctionalTests
         [InlineData("FuncWithITableEntity")]
         [InlineData("FuncWithPocoObjectEntity")]
         [InlineData("FuncWithPocoValueEntity")]
-        [InlineData("FuncWithIQueryable")]
         [InlineData("FuncWithICollector")]
         public void Table_IfBoundToTypeAndTableIsMissing_DoesNotCreate(string methodName)
         {
@@ -884,47 +883,6 @@ namespace Microsoft.Azure.WebJobs.Host.FunctionalTests
             {
                 TaskSource.TrySetResult(queue);
             }
-        }
-
-        [Fact]
-        public void Table_IfBoundToIQueryable_CanCall()
-        {
-            // Arrange
-            IStorageAccount account = CreateFakeStorageAccount();
-            IStorageTableClient client = account.CreateTableClient();
-            IStorageTable table = client.GetTableReference(TableName);
-            table.CreateIfNotExists();
-            table.Insert(CreateTableEntity("PK", "RK1", "StringProperty", "A"));
-            table.Insert(CreateTableEntity("PK", "RK2", "StringProperty", "B"));
-            table.Insert(CreateTableEntity("PK", "RK3", "StringProperty", "B"));
-            table.Insert(CreateTableEntity("PK", "RK4", "StringProperty", "C"));
-
-            // Act
-            int result = Call<int>(account, typeof(QueryableCountProgram), "CountEntitiesWithStringPropertyB",
-                (s) => QueryableCountProgram.TaskSource = s);
-
-            // Assert
-            Assert.Equal(2, result);
-        }
-
-        private class QueryableCountProgram
-        {
-            public static TaskCompletionSource<int> TaskSource { get; set; }
-
-            public static void CountEntitiesWithStringPropertyB(
-                [Table(TableName)] IQueryable<QueryableTableEntity> table)
-            {
-                IQueryable<QueryableTableEntity> query = from QueryableTableEntity entity in table
-                                                         where entity.StringProperty == "B"
-                                                         select entity;
-                int count = query.ToArray().Count();
-                TaskSource.TrySetResult(count);
-            }
-        }
-
-        private class QueryableTableEntity : TableEntity
-        {
-            public string StringProperty { get; set; }
         }
 
         [Fact]
@@ -1745,12 +1703,6 @@ namespace Microsoft.Azure.WebJobs.Host.FunctionalTests
 
         private class MissingTableProgram
         {
-            public static void FuncWithIQueryable([Table(TableName)] IQueryable<SdkTableEntity> entities)
-            {
-                Assert.NotNull(entities);
-                Assert.Empty(entities);
-            }
-
             public static void FuncWithICollector([Table(TableName)] ICollector<SdkTableEntity> entities)
             {
                 Assert.NotNull(entities);
