@@ -24,7 +24,7 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
         private const string _mockQuickPulseUrl = "http://localhost:4005/QuickPulseService.svc/";
         private const string _mockApplicationInsightsKey = "some_key";
 
-        [Theory]
+        [Theory(Skip ="Compression failure")]
         [InlineData(LogLevel.None, 0)]
         [InlineData(LogLevel.Information, 18)]
         [InlineData(LogLevel.Warning, 10)]
