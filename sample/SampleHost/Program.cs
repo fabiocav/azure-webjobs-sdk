@@ -5,27 +5,37 @@ using System;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Logging;
 using Microsoft.Extensions.Logging;
+using Microsoft.Azure.WebJobs.Hosting;
+using Microsoft.Extensions.Hosting;
+using System.Threading.Tasks;
 
 namespace SampleHost
 {
     class Program
     {
-        static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
-            var config = new JobHostConfiguration();
-            config.Queues.VisibilityTimeout = TimeSpan.FromSeconds(15);
-            config.Queues.MaxDequeueCount = 3;
-            config.LoggerFactory = new LoggerFactory().AddConsole();
+            var builder = JobHostBuilder.CreateDefault()
+                .UseConsoleLifetime();
 
-            if (config.IsDevelopment)
-            {
-                config.UseDevelopmentSettings();
-            }
+            var jobHost = builder.Build();
 
-            CheckAndEnableAppInsights(config);
+            await jobHost.RunAsync();
 
-            var host = new JobHost(config);
-            host.RunAndBlock();
+            //var config = new JobHostConfiguration();
+            //config.Queues.VisibilityTimeout = TimeSpan.FromSeconds(15);
+            //config.Queues.MaxDequeueCount = 3;
+            //config.LoggerFactory = new LoggerFactory().AddConsole();
+
+            //if (config.IsDevelopment)
+            //{
+            //    config.UseDevelopmentSettings();
+            //}
+
+            //CheckAndEnableAppInsights(config);
+
+            //var host = new JobHost(config);
+            //host.RunAndBlock();
         }
 
         private static void CheckAndEnableAppInsights(JobHostConfiguration config)
