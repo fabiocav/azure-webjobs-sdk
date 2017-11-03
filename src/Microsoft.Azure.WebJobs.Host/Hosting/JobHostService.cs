@@ -1,5 +1,4 @@
-﻿using Microsoft.Azure.WebJobs.Host.Configuration;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -17,7 +16,7 @@ namespace Microsoft.Azure.WebJobs.Hosting
         private readonly IConfiguration _configuration;
         private readonly JobHost _jobHost;
 
-        public JobHostService(IConfiguration configuration, IOptions<JobHostOptions> jobHostOptions, ILogger<JobHostService> logger)
+        public JobHostService(IConfiguration configuration, IOptions<JobHostOptions> jobHostOptions, ILogger<JobHostService> logger, IConfiguration config)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _configuration = configuration;
@@ -27,7 +26,7 @@ namespace Microsoft.Azure.WebJobs.Hosting
         public Task StartAsync(CancellationToken cancellationToken)
         {
 
-            _jobHost.StartAsync(cancellationToken);
+            return _jobHost.StartAsync(cancellationToken);
         }
 
         public Task StopAsync(CancellationToken cancellationToken)

@@ -8,6 +8,9 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Azure.WebJobs.Hosting;
 using Microsoft.Extensions.Hosting;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Azure.WebJobs.Host;
+using Microsoft.Extensions.Configuration;
 
 namespace SampleHost
 {
@@ -15,27 +18,20 @@ namespace SampleHost
     {
         public static async Task Main(string[] args)
         {
-            var builder = JobHostBuilder.CreateDefault()
+            var builder = new HostBuilder()
+                .ConfigureAppConfiguration(config =>
+                {
+                    config.AddCommandLine(args);
+                })
+                .ConfigureWebJobsHost(o =>
+                {
+                    o.HostId = Guid.NewGuid().ToString();
+                })
                 .UseConsoleLifetime();
 
             var jobHost = builder.Build();
 
             await jobHost.RunAsync();
-
-            //var config = new JobHostConfiguration();
-            //config.Queues.VisibilityTimeout = TimeSpan.FromSeconds(15);
-            //config.Queues.MaxDequeueCount = 3;
-            //config.LoggerFactory = new LoggerFactory().AddConsole();
-
-            //if (config.IsDevelopment)
-            //{
-            //    config.UseDevelopmentSettings();
-            //}
-
-            //CheckAndEnableAppInsights(config);
-
-            //var host = new JobHost(config);
-            //host.RunAndBlock();
         }
 
         private static void CheckAndEnableAppInsights(JobHostConfiguration config)
