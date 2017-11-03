@@ -17,6 +17,11 @@ namespace Microsoft.Azure.WebJobs.Hosting
     {
         public static IHostBuilder ConfigureWebJobsHost(this IHostBuilder builder)
         {
+            return builder.ConfigureWebJobsHost(o => { });
+        }
+
+        public static IHostBuilder ConfigureWebJobsHost(this IHostBuilder builder, Action<JobHostOptions> configure)
+        {
             builder.ConfigureServices((context, services) =>
             {
                 services.AddSingleton<IExtensionRegistry, DefaultExtensionRegistry>();
@@ -26,12 +31,12 @@ namespace Microsoft.Azure.WebJobs.Hosting
                 services.AddSingleton<IWebJobsExceptionHandler, WebJobsExceptionHandler>();
 
                 services.AddSingleton<IQueueConfiguration, JobHostQueuesConfiguration>();
-                
+
                 // TODO: Remove passing the service provider here.
                 services.AddSingleton<IStorageAccountProvider>(p => new DefaultStorageAccountProvider(p));
                 services.AddSingleton<StorageClientFactory, StorageClientFactory>();
                 services.AddSingleton<INameResolver, DefaultNameResolver>();
-                services.AddSingleton<IJobActivator>(p => DefaultJobActivator.Instance);
+                services.AddSingleton<IJobActivator, DefaultJobActivator>();
                 services.AddSingleton<IFunctionResultAggregatorFactory, FunctionResultAggregatorFactory>();
                 services.AddSingleton<IHostedService, JobHostService>();
             });

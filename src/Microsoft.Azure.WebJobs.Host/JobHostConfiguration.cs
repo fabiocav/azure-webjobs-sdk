@@ -113,7 +113,7 @@ namespace Microsoft.Azure.WebJobs
             AddService<IExtensionRegistry>(extensions);
             AddService<StorageClientFactory>(new StorageClientFactory());
             AddService<INameResolver>(new DefaultNameResolver());
-            AddService<IJobActivator>(DefaultJobActivator.Instance);
+            AddService<IJobActivator>(new DefaultJobActivator());
             AddService<ITypeLocator>(typeLocator);
             AddService<IConverterManager>(converterManager);
             AddService<IWebJobsExceptionHandler>(exceptionHandler);
