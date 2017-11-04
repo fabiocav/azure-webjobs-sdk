@@ -13,23 +13,24 @@ namespace Microsoft.Azure.WebJobs.Hosting
     public class JobHostService : IHostedService
     {
         private readonly ILogger<JobHostService> _logger;
-        private readonly IConfiguration _configuration;
-        private readonly JobHost _jobHost;
+        private readonly IJobHost _jobHost;
 
-        public JobHostService(IConfiguration configuration, IOptions<JobHostOptions> jobHostOptions, ILogger<JobHostService> logger, IConfiguration config)
+        public JobHostService(IJobHost jobhost, ILogger<JobHostService> logger)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _configuration = configuration;
-            _jobHost = new JobHost();
+            _jobHost = jobhost;
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
-
+            _logger.LogInformation("Starting JobHost");
             return _jobHost.StartAsync(cancellationToken);
         }
 
         public Task StopAsync(CancellationToken cancellationToken)
-            => _jobHost.StartAsync(cancellationToken);
+        {
+            _logger.LogInformation("Stopping JobHost");
+            return _jobHost.StartAsync(cancellationToken);
+        }
     }
 }

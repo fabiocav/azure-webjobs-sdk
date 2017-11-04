@@ -11,10 +11,11 @@ namespace Microsoft.Azure.WebJobs.Hosting
 {
     public class JobHostBuilder
     {
-        public static IHostBuilder CreateDefault()
+        public static IHostBuilder CreateDefault(Action<JobHostOptions> configure)
         {
+            configure = configure ?? new Action<JobHostOptions>(o => { });
             return new HostBuilder()
-                .ConfigureWebJobsHost();
+                .ConfigureWebJobsHost(configure);
         }
     }
 }
