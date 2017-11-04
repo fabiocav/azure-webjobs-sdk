@@ -16,9 +16,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="2.1.0-preview1-27509" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="2.1.0-preview1-27509" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="2.1.0-preview1-27509" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="2.1.0-preview1-28222" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="2.1.0-preview1-28222" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="2.1.0-preview1-28222" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.1.0-beta004" />
   </ItemGroup>
 
