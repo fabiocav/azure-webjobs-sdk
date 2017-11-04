@@ -1,4 +1,8 @@
-﻿using Microsoft.Azure.WebJobs.Host;
+﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+
+using System;
+using Microsoft.Azure.WebJobs.Host;
 using Microsoft.Azure.WebJobs.Host.Executors;
 using Microsoft.Azure.WebJobs.Host.Indexers;
 using Microsoft.Azure.WebJobs.Host.Loggers;
@@ -7,9 +11,6 @@ using Microsoft.Azure.WebJobs.Host.Timers;
 using Microsoft.Azure.WebJobs.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Microsoft.Azure.WebJobs.Hosting
 {
@@ -24,6 +25,8 @@ namespace Microsoft.Azure.WebJobs.Hosting
         {
             builder.ConfigureServices((context, services) =>
             {
+                services.Configure(configure);
+
                 services.AddSingleton<IExtensionRegistry, DefaultExtensionRegistry>();
                 services.AddSingleton<IConsoleProvider, DefaultConsoleProvider>();
                 services.AddSingleton<ITypeLocator>(p => new DefaultTypeLocator(p.GetRequiredService<IConsoleProvider>().Out, p.GetRequiredService<IExtensionRegistry>()));
@@ -39,6 +42,7 @@ namespace Microsoft.Azure.WebJobs.Hosting
                 services.AddSingleton<IJobActivator, DefaultJobActivator>();
                 services.AddSingleton<IFunctionResultAggregatorFactory, FunctionResultAggregatorFactory>();
                 services.AddSingleton<IHostedService, JobHostService>();
+                services.AddSingleton<IJobHost, JobHost>();
             });
 
             return builder;

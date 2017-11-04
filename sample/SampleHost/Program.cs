@@ -19,13 +19,15 @@ namespace SampleHost
         public static async Task Main(string[] args)
         {
             var builder = new HostBuilder()
-                .ConfigureAppConfiguration(config =>
-                {
-                    config.AddCommandLine(args);
-                })
                 .ConfigureWebJobsHost(o =>
                 {
-                    o.HostId = Guid.NewGuid().ToString();
+                    // Example setting options properties:
+                    o.HostId = "testhostid";
+                })
+                .ConfigureAppConfiguration(config =>
+                {
+                    // Adding command line as a configuration source
+                    config.AddCommandLine(args);
                 })
                 .UseConsoleLifetime();
 
