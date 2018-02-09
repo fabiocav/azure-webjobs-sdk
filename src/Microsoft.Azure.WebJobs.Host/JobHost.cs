@@ -58,15 +58,6 @@ namespace Microsoft.Azure.WebJobs
 
         private ILogger _logger;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="JobHost"/> class, using a Microsoft Azure Storage connection
-        /// string located in the connectionStrings section of the configuration file or in environment variables.
-        /// </summary>
-        public JobHost()
-            : this(new JobHostConfiguration())
-        {
-        }
-
         static JobHost()
         {
             // add webjobs to user agent for all storage calls
