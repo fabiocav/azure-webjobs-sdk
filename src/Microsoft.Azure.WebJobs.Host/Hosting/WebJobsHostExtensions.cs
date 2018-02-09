@@ -11,6 +11,7 @@ using Microsoft.Azure.WebJobs.Host.Timers;
 using Microsoft.Azure.WebJobs.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace Microsoft.Azure.WebJobs.Hosting
 {
@@ -26,6 +27,10 @@ namespace Microsoft.Azure.WebJobs.Hosting
             builder.ConfigureServices((context, services) =>
             {
                 services.Configure(configure);
+
+                // Temporary... this needs to be removed and JobHostConfiguration needs to have settings
+                // moved to the appropriate options implementation and all services registered through DI
+                services.AddSingleton(p => new JobHostConfiguration(p.GetRequiredService<ILoggerFactory>()));
 
                 services.AddSingleton<IExtensionRegistry, DefaultExtensionRegistry>();
                 services.AddSingleton<IConsoleProvider, DefaultConsoleProvider>();
