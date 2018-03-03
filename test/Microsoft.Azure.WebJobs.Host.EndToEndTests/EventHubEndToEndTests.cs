@@ -10,6 +10,7 @@ using Microsoft.Azure.EventHubs;
 using Microsoft.Azure.WebJobs.ServiceBus;
 using Microsoft.Azure.WebJobs.Host.TestCommon;
 using Xunit;
+using Microsoft.Extensions.Options;
 
 namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
 {
@@ -37,7 +38,7 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
             Assert.True(!string.IsNullOrEmpty(connection), "Required test connection string is missing.");
 
             config.UseEventHub(eventHubConfig);
-            _host = new JobHost(config);
+            _host = new JobHost(config, new OptionsWrapper<JobHostOptions>(new JobHostOptions()));
 
             EventHubTestJobs.Result = null;
         }

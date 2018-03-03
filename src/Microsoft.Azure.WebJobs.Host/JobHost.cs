@@ -16,6 +16,7 @@ using Microsoft.Azure.WebJobs.Host.Listeners;
 using Microsoft.Azure.WebJobs.Host.Protocols;
 using Microsoft.Azure.WebJobs.Logging;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.WindowsAzure.Storage;
 
 namespace Microsoft.Azure.WebJobs
@@ -73,7 +74,7 @@ namespace Microsoft.Azure.WebJobs
         /// Initializes a new instance of the <see cref="JobHost"/> class using the configuration provided.
         /// </summary>
         /// <param name="configuration">The job host configuration.</param>
-        public JobHost(JobHostConfiguration configuration)
+        public JobHost(JobHostConfiguration configuration, IOptions<JobHostOptions> options)
         {
             if (configuration == null)
             {
