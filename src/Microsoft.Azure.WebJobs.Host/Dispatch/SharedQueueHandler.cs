@@ -38,7 +38,7 @@ namespace Microsoft.Azure.WebJobs.Host.Dispatch
         private QueueListener _sharedQueuelistener;
         private SharedQueueWriter _sharedQueueWriter;
 
-        internal SharedQueueHandler(IStorageAccountProvider accountProvider,
+        public SharedQueueHandler(IStorageAccountProvider accountProvider,
                            IHostIdProvider hostIdProvider,
                            IWebJobsExceptionHandler exceptionHandler,
                            ILoggerFactory loggerFactory,

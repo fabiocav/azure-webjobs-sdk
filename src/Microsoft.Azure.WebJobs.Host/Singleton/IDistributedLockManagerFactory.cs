@@ -2,12 +2,13 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
+using System.Text;
 
-namespace Microsoft.Azure.WebJobs.Host.Executors
+namespace Microsoft.Azure.WebJobs.Host
 {
-    public interface IDelayedException
+    public interface IDistributedLockManagerFactory
     {
-        Exception Exception { get; }
-        void Throw();
+        IDistributedLockManager Create();
     }
 }
