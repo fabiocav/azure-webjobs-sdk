@@ -30,7 +30,7 @@ namespace Microsoft.Azure.WebJobs.Host
         /// <summary>
         /// Initializes a new instance of the <see cref="JobHostQueuesConfiguration"/> class.
         /// </summary>
-        internal JobHostQueuesConfiguration()
+        public JobHostQueuesConfiguration()
         {
             _newBatchThreshold = -1;
             QueueProcessorFactory = new DefaultQueueProcessorFactory();
