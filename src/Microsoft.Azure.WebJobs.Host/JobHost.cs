@@ -33,6 +33,7 @@ namespace Microsoft.Azure.WebJobs
         private const int StateStoppingOrStopped = 3;
 
         private readonly JobHostConfiguration _config;
+        private readonly IJobHostContextFactory _jobHostContextFactory;
         private readonly CancellationTokenSource _shutdownTokenSource;
         private readonly WebJobsShutdownWatcher _shutdownWatcher;
         private readonly CancellationTokenSource _stoppingTokenSource;
@@ -74,7 +75,7 @@ namespace Microsoft.Azure.WebJobs
         /// Initializes a new instance of the <see cref="JobHost"/> class using the configuration provided.
         /// </summary>
         /// <param name="configuration">The job host configuration.</param>
-        public JobHost(JobHostConfiguration configuration, IOptions<JobHostOptions> options)
+        public JobHost(JobHostConfiguration configuration, IOptions<JobHostOptions> options, IJobHostContextFactory jobHostContextFactory)
         {
             if (configuration == null)
             {
@@ -82,6 +83,7 @@ namespace Microsoft.Azure.WebJobs
             }
 
             _config = configuration;
+            _jobHostContextFactory = jobHostContextFactory;
             _shutdownTokenSource = new CancellationTokenSource();
             _shutdownWatcher = WebJobsShutdownWatcher.Create(_shutdownTokenSource);
             _stoppingTokenSource = CancellationTokenSource.CreateLinkedTokenSource(_shutdownTokenSource.Token);
@@ -414,9 +416,7 @@ namespace Microsoft.Azure.WebJobs
         {
             try
             {
-                InitializeServices();
-
-                var context = await _config.CreateJobHostContextAsync(_services, this, _shutdownTokenSource.Token, cancellationToken);
+                var context = await _jobHostContextFactory.Create(_shutdownTokenSource.Token, cancellationToken);
 
                 // must call this BEFORE setting the results below
                 // since listener startup is blocking on those members

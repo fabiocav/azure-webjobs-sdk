@@ -29,7 +29,6 @@ namespace Microsoft.Azure.WebJobs
 
         private readonly DefaultStorageAccountProvider _storageAccountProvider;
         private readonly JobHostQueuesConfiguration _queueConfiguration = new JobHostQueuesConfiguration();
-        private readonly JobHostBlobsConfiguration _blobsConfiguration = new JobHostBlobsConfiguration();
         private readonly ConcurrentDictionary<Type, object> _services = new ConcurrentDictionary<Type, object>();
 
         private string _hostId;
@@ -101,33 +100,13 @@ namespace Microsoft.Azure.WebJobs
                 var uri = new Uri(sasBlobContainer);
                 var sdkContainer = new CloudBlobContainer(uri);
 
-                this.InternalStorageConfiguration = new JobHostInternalStorageConfiguration
+                this.InternalStorageConfiguration = new JobHostInternalStorageOptions
                 {
                      InternalContainer = sdkContainer
                 };
             }
 
-            Singleton = new SingletonConfiguration();
-            Aggregator = new FunctionResultAggregatorConfiguration();
-
-            // add our built in services here
-            IExtensionRegistry extensions = new DefaultExtensionRegistry();
-            ITypeLocator typeLocator = new DefaultTypeLocator(ConsoleProvider.Out, extensions);
-            IConverterManager converterManager = new ConverterManager();
-            IWebJobsExceptionHandler exceptionHandler = new WebJobsExceptionHandler();
-
-            AddService<IQueueConfiguration>(_queueConfiguration);
-            AddService<IConsoleProvider>(ConsoleProvider);
-            AddService<ILoggerFactory>(new LoggerFactory());
-            AddService<IStorageAccountProvider>(_storageAccountProvider);
-            AddService<IExtensionRegistry>(extensions);
-            AddService<StorageClientFactory>(new StorageClientFactory());
-            AddService<INameResolver>(new DefaultNameResolver());
-            AddService<IJobActivator>(new DefaultJobActivator());
-            AddService<ITypeLocator>(typeLocator);
-            AddService<IConverterManager>(converterManager);
-            AddService<IWebJobsExceptionHandler>(exceptionHandler);
-            AddService<IFunctionResultAggregatorFactory>(new FunctionResultAggregatorFactory());
+            Singleton = new SingletonOptions();
 
             string value = ConfigurationUtility.GetSetting(Host.Constants.EnvironmentSettingName);
             IsDevelopment = string.Compare(Host.Constants.DevelopmentEnvironmentValue, value, StringComparison.OrdinalIgnoreCase) == 0;
@@ -223,7 +202,7 @@ namespace Microsoft.Azure.WebJobs
         /// <summary>
         /// Gets or sets a the storage configuration that the runtime needs for its internal operations.
         /// </summary>
-        public JobHostInternalStorageConfiguration InternalStorageConfiguration { get; set; }
+        public JobHostInternalStorageOptions InternalStorageConfiguration { get; set; }
 
         /// <summary>Gets or sets the type locator.</summary>
         public ITypeLocator TypeLocator
@@ -282,26 +261,9 @@ namespace Microsoft.Azure.WebJobs
         }
 
         /// <summary>
-        /// Gets the configuration used by <see cref="BlobTriggerAttribute"/>.
-        /// </summary>
-        public JobHostBlobsConfiguration Blobs
-        {
-            get { return _blobsConfiguration; }
-        }
-
-        /// <summary>
         /// Gets the configuration used by <see cref="SingletonAttribute"/>.
         /// </summary>
-        public SingletonConfiguration Singleton
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
-        /// Gets the configuration used by the logging aggregator.
-        /// </summary>
-        public FunctionResultAggregatorConfiguration Aggregator
+        public SingletonOptions Singleton
         {
             get;
             private set;
@@ -347,12 +309,6 @@ namespace Microsoft.Azure.WebJobs
                 AddService<StorageClientFactory>(value);
             }
         }
-
-        /// <summary>
-        /// Default timeout configuration to apply to all functions. 
-        /// If <see cref="TimeoutAttribute"/> is explicitly applied to a function, the values specified by the attribute will take precedence
-        /// </summary>
-        public JobHostFunctionTimeoutConfiguration FunctionTimeout { get; set; }
 
         /// <summary>
         /// Configures various configuration settings on this <see cref="JobHostConfiguration"/> to

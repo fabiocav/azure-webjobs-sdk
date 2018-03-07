@@ -32,7 +32,7 @@ namespace Microsoft.Azure.WebJobs.Host.Blobs.Triggers
         private readonly IBlobPathSource _path;
         private readonly IHostIdProvider _hostIdProvider;
         private readonly IQueueConfiguration _queueConfiguration;
-        private readonly JobHostBlobsConfiguration _blobsConfiguration;
+        private readonly JobHostBlobsOptions _blobsConfiguration;
         private readonly IWebJobsExceptionHandler _exceptionHandler;
         private readonly IContextSetter<IBlobWrittenWatcher> _blobWrittenWatcherSetter;
         private readonly IContextSetter<IMessageEnqueuedWatcher> _messageEnqueuedWatcherSetter;
@@ -48,7 +48,7 @@ namespace Microsoft.Azure.WebJobs.Host.Blobs.Triggers
             IBlobPathSource path,
             IHostIdProvider hostIdProvider,
             IQueueConfiguration queueConfiguration,
-            JobHostBlobsConfiguration blobsConfiguration,
+            JobHostBlobsOptions blobsConfiguration,
             IWebJobsExceptionHandler exceptionHandler,
             IContextSetter<IBlobWrittenWatcher> blobWrittenWatcherSetter,
             IContextSetter<IMessageEnqueuedWatcher> messageEnqueuedWatcherSetter,

@@ -27,7 +27,6 @@ namespace Microsoft.Azure.WebJobs
     {
 
         private readonly JobHostQueuesConfiguration _queueConfiguration = new JobHostQueuesConfiguration();
-        private readonly JobHostBlobsConfiguration _blobsConfiguration = new JobHostBlobsConfiguration();
         private readonly ConcurrentDictionary<Type, object> _services = new ConcurrentDictionary<Type, object>();
 
         private string _hostId;
@@ -37,7 +36,7 @@ namespace Microsoft.Azure.WebJobs
         /// </summary>
         public JobHostOptions()
         {
-            Singleton = new SingletonConfiguration();
+            Singleton = new SingletonOptions();
             Aggregator = new FunctionResultAggregatorOptions();
         }
 
@@ -90,17 +89,9 @@ namespace Microsoft.Azure.WebJobs
         }
 
         /// <summary>
-        /// Gets the configuration used by <see cref="BlobTriggerAttribute"/>.
-        /// </summary>
-        public JobHostBlobsConfiguration Blobs
-        {
-            get { return _blobsConfiguration; }
-        }
-
-        /// <summary>
         /// Gets the configuration used by <see cref="SingletonAttribute"/>.
         /// </summary>
-        public SingletonConfiguration Singleton
+        public SingletonOptions Singleton
         {
             get;
             private set;
@@ -114,5 +105,7 @@ namespace Microsoft.Azure.WebJobs
             get;
             private set;
         }
+
+        public INameResolver NameResolver { get; set; }
     }
 }
