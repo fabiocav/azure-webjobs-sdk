@@ -49,7 +49,7 @@ namespace Microsoft.Azure.WebJobs.Host.Executors
         private readonly IStorageAccountProvider _storageAccountProvider;
         private readonly ILoggerFactory _loggerFactory;
         private readonly IFunctionResultAggregatorFactory _aggregatorFactory;
-        private readonly IQueueConfiguration _queueConfiguration;
+        private readonly IOptions<JobHostQueuesOptions> _queueConfiguration;
         private readonly IWebJobsExceptionHandler _exceptionHandler;
         private readonly SharedQueueHandler _sharedQueueHandler;
         private readonly IOptions<JobHostOptions> _jobHostOptions;
@@ -68,11 +68,11 @@ namespace Microsoft.Azure.WebJobs.Host.Executors
             IStorageAccountProvider storageAccountProvider,
             ILoggerFactory loggerFactory,
             IFunctionResultAggregatorFactory aggregatorFactory,
-            IQueueConfiguration queueConfiguration,
             IWebJobsExceptionHandler exceptionHandler,
             SharedQueueHandler sharedQueueHandler,
             IOptions<JobHostOptions> jobHostOptions,
             IOptions<FunctionResultAggregatorOptions> aggregatorOptions,
+            IOptions<JobHostQueuesOptions> queueOptions,
             IOptions<JobHostBlobsOptions> blobsConfiguration,
             IServiceProvider serviceProvider)
         {
@@ -87,7 +87,7 @@ namespace Microsoft.Azure.WebJobs.Host.Executors
             _storageAccountProvider = storageAccountProvider;
             _loggerFactory = loggerFactory;
             _aggregatorFactory = aggregatorFactory;
-            _queueConfiguration = queueConfiguration;
+            _queueConfiguration = queueOptions;
             _exceptionHandler = exceptionHandler;
             _sharedQueueHandler = sharedQueueHandler;
             _jobHostOptions = jobHostOptions;
@@ -178,14 +178,14 @@ namespace Microsoft.Azure.WebJobs.Host.Executors
                     IStorageQueueClient dashboardQueueClient = dashboardAccount.CreateQueueClient();
                     IStorageQueue sharedQueue = dashboardQueueClient.GetQueueReference(sharedQueueName);
                     IListenerFactory sharedQueueListenerFactory = new HostMessageListenerFactory(sharedQueue,
-                        _queueConfiguration, _exceptionHandler, _loggerFactory, functions,
+                        _queueConfiguration.Value, _exceptionHandler, _loggerFactory, functions,
                         functionInstanceLogger, _functionExecutor);
 
                     Guid hostInstanceId = Guid.NewGuid();
                     string instanceQueueName = HostQueueNames.GetHostQueueName(hostInstanceId.ToString("N"));
                     IStorageQueue instanceQueue = dashboardQueueClient.GetQueueReference(instanceQueueName);
                     IListenerFactory instanceQueueListenerFactory = new HostMessageListenerFactory(instanceQueue,
-                        _queueConfiguration, _exceptionHandler, _loggerFactory, functions,
+                        _queueConfiguration.Value, _exceptionHandler, _loggerFactory, functions,
                         functionInstanceLogger, _functionExecutor);
 
                     HeartbeatDescriptor heartbeatDescriptor = new HeartbeatDescriptor

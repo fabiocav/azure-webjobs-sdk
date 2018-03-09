@@ -58,7 +58,8 @@ namespace Microsoft.Azure.WebJobs.Host.Queues.Bindings
                 _accountProvider = storageAccountProvider;
                 _messageEnqueuedWatcherGetter = contextGetter;
 
-                context.ApplyConfig(context.Config.Queues, "queues");
+                // TODO: FACAVAL replace this with queue options. This should no longer be needed.
+                //context.ApplyConfig(context.Config.Queues, "queues");
 
                 // IStorageQueueMessage is the core testing interface 
                 var binding = context.AddBindingRule<QueueAttribute>();
