@@ -20,6 +20,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Configuration;
 
 namespace Microsoft.Azure.WebJobs.Hosting
 {
@@ -35,7 +36,7 @@ namespace Microsoft.Azure.WebJobs.Hosting
             builder.ConfigureServices((context, services) =>
             {
                 services.Configure(configure);
-
+                services.Configure<JobHostOptions>(context.Configuration);
                 // Temporary... this needs to be removed and JobHostConfiguration needs to have settings
                 // moved to the appropriate options implementation and all services registered through DI
                 services.AddSingleton(p => new JobHostConfiguration(p.GetRequiredService<ILoggerFactory>()));
