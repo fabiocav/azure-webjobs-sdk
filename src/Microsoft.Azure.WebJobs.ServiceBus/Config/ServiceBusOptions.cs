@@ -11,7 +11,7 @@ namespace Microsoft.Azure.WebJobs.ServiceBus
     /// <summary>
     /// Configuration options for the ServiceBus extension.
     /// </summary>
-    public class ServiceBusConfiguration
+    public class ServiceBusOptions
     {
         private bool _connectionStringSet;
         private string _connectionString;
@@ -20,7 +20,7 @@ namespace Microsoft.Azure.WebJobs.ServiceBus
         /// <summary>
         /// Constructs a new instance.
         /// </summary>
-        public ServiceBusConfiguration()
+        public ServiceBusOptions()
         {
             // We do not want to log MessageReceiverPump exceptions so just complete task in the git exception handler
             Func<ExceptionReceivedEventArgs, Task> exceptionReceivedHandler = (args) => { return Task.CompletedTask; };

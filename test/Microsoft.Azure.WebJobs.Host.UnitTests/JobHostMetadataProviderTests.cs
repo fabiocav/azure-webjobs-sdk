@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using Microsoft.Azure.WebJobs.Host.Bindings;
 using Moq;
 using Microsoft.Extensions.Options;
+using Microsoft.Azure.WebJobs.Host.Executors;
 
 namespace Microsoft.Azure.WebJobs.Host.UnitTests
 {
@@ -29,13 +30,14 @@ namespace Microsoft.Azure.WebJobs.Host.UnitTests
             var activator = new FakeActivator();
             activator.Add(prog);
 
-            JobHostConfiguration config = TestHelpers.NewConfig<MyProg>(activator);
+            JobHostOptions config = TestHelpers.NewConfig<MyProg>(activator);
             
             var ext = new TestExtension();
 
-            config.AddExtension(ext);
+            // TODO: FACAVAL - We need to consider whether extensions should be registered through config
+            //config.AddExtension(ext);
 
-            var host = new TestJobHost<MyProg>(config, new OptionsWrapper<JobHostOptions>(new JobHostOptions()));
+            var host = new TestJobHost<MyProg>(new OptionsWrapper<JobHostOptions>(config), new Mock<IJobHostContextFactory>().Object);
             IJobHostMetadataProvider metadataProvider = host.CreateMetadataProvider();
             Assert.Equal(1, ext._counter);
 
@@ -80,8 +82,8 @@ namespace Microsoft.Azure.WebJobs.Host.UnitTests
         [Fact]
         public void AttrBuilder()
         {
-            JobHostConfiguration config = TestHelpers.NewConfig();
-            var host2 = new JobHost(config, new OptionsWrapper<JobHostOptions>(new JobHostOptions()));
+            JobHostOptions config = TestHelpers.NewConfig();
+            var host2 = new JobHost(new OptionsWrapper<JobHostOptions>(config), new Mock<IJobHostContextFactory>().Object);
             var metadataProvider = host2.CreateMetadataProvider();
 
             // Blob 
@@ -147,8 +149,8 @@ namespace Microsoft.Azure.WebJobs.Host.UnitTests
         [Fact]
         public void DefaultTypeForTable()
         {
-            JobHostConfiguration config = TestHelpers.NewConfig();
-            var host2 = new JobHost(config, new OptionsWrapper<JobHostOptions>(new JobHostOptions()));
+            JobHostOptions config = TestHelpers.NewConfig();
+            var host2 = new JobHost(new OptionsWrapper<JobHostOptions>(config), new Mock<IJobHostContextFactory>().Object);
             var metadataProvider = host2.CreateMetadataProvider();
 
             var t1 = metadataProvider.GetDefaultType(new TableAttribute("table1"), FileAccess.Read, null);
@@ -165,8 +167,8 @@ namespace Microsoft.Azure.WebJobs.Host.UnitTests
         [Fact]
         public void DefaultTypeForQueue()
         {
-            JobHostConfiguration config = TestHelpers.NewConfig();
-            var host2 = new JobHost(config, new OptionsWrapper<JobHostOptions>(new JobHostOptions()));
+            JobHostOptions config = TestHelpers.NewConfig();
+            var host2 = new JobHost(new OptionsWrapper<JobHostOptions>(config), new Mock<IJobHostContextFactory>().Object);
             var metadataProvider = host2.CreateMetadataProvider();
 
             var t1 = metadataProvider.GetDefaultType(new QueueTriggerAttribute("q"), FileAccess.Read, typeof(byte[]));
@@ -190,8 +192,8 @@ namespace Microsoft.Azure.WebJobs.Host.UnitTests
         {
             var ext = new TestExtension2();
             var prog = new FakeTypeLocator();
-            JobHostConfiguration config = TestHelpers.NewConfig(prog, ext);                                 
-            var host = new JobHost(config, new OptionsWrapper<JobHostOptions>(new JobHostOptions()));
+            JobHostOptions config = TestHelpers.NewConfig();
+            var host = new JobHost(new OptionsWrapper<JobHostOptions>(config), new Mock<IJobHostContextFactory>().Object);
             IJobHostMetadataProvider metadataProvider = host.CreateMetadataProvider();
 
             var attr = new Test9Attribute(null);
@@ -217,8 +219,8 @@ namespace Microsoft.Azure.WebJobs.Host.UnitTests
         {
             var ext = new TestExtension3();
             var prog = new FakeTypeLocator();
-            JobHostConfiguration config = TestHelpers.NewConfig(prog, ext);
-            var host = new JobHost(config, new OptionsWrapper<JobHostOptions>(new JobHostOptions()));
+            JobHostOptions config = TestHelpers.NewConfig();
+            var host2 = new JobHost(new OptionsWrapper<JobHostOptions>(config), new Mock<IJobHostContextFactory>().Object);
             IJobHostMetadataProvider metadataProvider = host.CreateMetadataProvider();
 
             var attr = new Test9Attribute(null);
@@ -240,8 +242,8 @@ namespace Microsoft.Azure.WebJobs.Host.UnitTests
         [Fact]
         public void GetFunctionMetadata()
         {
-            JobHostConfiguration config = TestHelpers.NewConfig();
-            var host = new JobHost(config, new OptionsWrapper<JobHostOptions>(new JobHostOptions()));
+            JobHostOptions config = TestHelpers.NewConfig();
+            var host2 = new JobHost(new OptionsWrapper<JobHostOptions>(config), new Mock<IJobHostContextFactory>().Object);
 
             var mockFunctionIndexProvider = new Mock<IFunctionIndexProvider>();
 
