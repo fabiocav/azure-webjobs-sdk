@@ -32,7 +32,7 @@ namespace Microsoft.Azure.WebJobs
         private const int StateStarted = 2;
         private const int StateStoppingOrStopped = 3;
 
-        private readonly JobHostConfiguration _config;
+        private readonly JobHostOptions _options;
         private readonly IJobHostContextFactory _jobHostContextFactory;
         private readonly CancellationTokenSource _shutdownTokenSource;
         private readonly WebJobsShutdownWatcher _shutdownWatcher;
@@ -75,14 +75,14 @@ namespace Microsoft.Azure.WebJobs
         /// Initializes a new instance of the <see cref="JobHost"/> class using the configuration provided.
         /// </summary>
         /// <param name="configuration">The job host configuration.</param>
-        public JobHost(JobHostConfiguration configuration, IOptions<JobHostOptions> options, IJobHostContextFactory jobHostContextFactory)
+        public JobHost(IOptions<JobHostOptions> options, IJobHostContextFactory jobHostContextFactory)
         {
-            if (configuration == null)
+            if (options == null)
             {
-                throw new ArgumentNullException("configuration");
+                throw new ArgumentNullException(nameof(options));
             }
 
-            _config = configuration;
+            _options = options.Value;
             _jobHostContextFactory = jobHostContextFactory;
             _shutdownTokenSource = new CancellationTokenSource();
             _shutdownWatcher = WebJobsShutdownWatcher.Create(_shutdownTokenSource);
@@ -447,33 +447,6 @@ namespace Microsoft.Azure.WebJobs
         /// </summary>
         protected virtual void OnHostStarted()
         {
-        }
-
-        // Ensure the static services are initialized. 
-        // These are derived from the underlying JobHostConfiguration. 
-        // Caller ensures this is single threaded. 
-        private void InitializeServices()
-        {
-            if (this._services != null)
-            {
-                return; // already Created 
-            }
-
-            var services = this._config.CreateStaticServices();
-
-            _services = services;
-        }
-
-        /// <summary>
-        /// Get set of services. 
-        /// </summary>
-        public IServiceProvider Services
-        {
-            get
-            {
-                InitializeServices();
-                return _services;
-            }
         }
     }
 }

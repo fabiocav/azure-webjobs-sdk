@@ -15,6 +15,7 @@ using Microsoft.Azure.WebJobs.Host.Indexers;
 using Microsoft.Azure.WebJobs.Host.Loggers;
 using Microsoft.Azure.WebJobs.Host.TestCommon;
 using Microsoft.Extensions.Options;
+using Moq;
 using Newtonsoft.Json;
 using Xunit;
 
@@ -25,7 +26,7 @@ namespace Microsoft.Azure.WebJobs.Host.UnitTests
         [Fact]
         public void ConstructorDefaults()
         {
-            JobHostConfiguration config = new JobHostConfiguration();
+            JobHostOptions config = new JobHostOptions();
 
             Assert.NotNull(config.Singleton);
             Assert.NotNull(config.LoggerFactory);
@@ -39,7 +40,7 @@ namespace Microsoft.Azure.WebJobs.Host.UnitTests
         public void HostId_IfNull_DoesNotThrow()
         {
             // Arrange
-            JobHostConfiguration configuration = new JobHostConfiguration();
+            JobHostOptions configuration = new JobHostOptions();
             string hostId = null;
 
             // Act & Assert
@@ -50,7 +51,7 @@ namespace Microsoft.Azure.WebJobs.Host.UnitTests
         public void HostId_IfValid_DoesNotThrow()
         {
             // Arrange
-            JobHostConfiguration configuration = new JobHostConfiguration();
+            JobHostOptions configuration = new JobHostOptions();
             string hostId = "abc";
 
             // Act & Assert
@@ -61,7 +62,7 @@ namespace Microsoft.Azure.WebJobs.Host.UnitTests
         public void HostId_IfMinimumLength_DoesNotThrow()
         {
             // Arrange
-            JobHostConfiguration configuration = new JobHostConfiguration();
+            JobHostOptions configuration = new JobHostOptions();
             string hostId = "a";
 
             // Act & Assert
@@ -72,7 +73,7 @@ namespace Microsoft.Azure.WebJobs.Host.UnitTests
         public void HostId_IfMaximumLength_DoesNotThrow()
         {
             // Arrange
-            JobHostConfiguration configuration = new JobHostConfiguration();
+            JobHostOptions configuration = new JobHostOptions();
             const int maximumValidCharacters = 32;
             string hostId = new string('a', maximumValidCharacters);
 
@@ -84,7 +85,7 @@ namespace Microsoft.Azure.WebJobs.Host.UnitTests
         public void HostId_IfContainsEveryValidLetter_DoesNotThrow()
         {
             // Arrange
-            JobHostConfiguration configuration = new JobHostConfiguration();
+            JobHostOptions configuration = new JobHostOptions();
             string hostId = "abcdefghijklmnopqrstuvwxyz";
 
             // Act & Assert
@@ -95,7 +96,7 @@ namespace Microsoft.Azure.WebJobs.Host.UnitTests
         public void HostId_IfContainsEveryValidOtherCharacter_DoesNotThrow()
         {
             // Arrange
-            JobHostConfiguration configuration = new JobHostConfiguration();
+            JobHostOptions configuration = new JobHostOptions();
             string hostId = "0-123456789";
 
             // Act & Assert
@@ -144,7 +145,7 @@ namespace Microsoft.Azure.WebJobs.Host.UnitTests
         [Fact]
         public void JobActivator_IfNull_Throws()
         {
-            JobHostConfiguration configuration = new JobHostConfiguration();
+            JobHostOptions configuration = new JobHostOptions();
 
             ExceptionAssert.ThrowsArgumentNull(() => configuration.JobActivator = null, "value");
         }
@@ -152,7 +153,7 @@ namespace Microsoft.Azure.WebJobs.Host.UnitTests
         [Fact]
         public void GetService_IExtensionRegistry_ReturnsDefaultRegistry()
         {
-            JobHostConfiguration configuration = new JobHostConfiguration();
+            JobHostOptions configuration = new JobHostOptions();
 
             IExtensionRegistry extensionRegistry = configuration.GetService<IExtensionRegistry>();
             extensionRegistry.RegisterExtension<IComparable>("test1");
@@ -173,7 +174,7 @@ namespace Microsoft.Azure.WebJobs.Host.UnitTests
         [InlineData(typeof(IConverterManager), typeof(ConverterManager))]
         public void GetService_ReturnsExpectedDefaultServices(Type serviceType, Type expectedInstanceType)
         {
-            JobHostConfiguration configuration = new JobHostConfiguration();
+            JobHostOptions configuration = new JobHostOptions();
 
             var service = configuration.GetService(serviceType);
             Assert.Equal(expectedInstanceType, service.GetType());
@@ -182,7 +183,7 @@ namespace Microsoft.Azure.WebJobs.Host.UnitTests
         [Fact]
         public void GetService_ThrowsArgumentNull_WhenServiceTypeIsNull()
         {
-            JobHostConfiguration configuration = new JobHostConfiguration();
+            JobHostOptions configuration = new JobHostOptions();
 
             ArgumentNullException exception = Assert.Throws<ArgumentNullException>(
                 () => configuration.GetService(null)
@@ -193,7 +194,7 @@ namespace Microsoft.Azure.WebJobs.Host.UnitTests
         [Fact]
         public void GetService_ReturnsNull_WhenServiceTypeNotFound()
         {
-            JobHostConfiguration configuration = new JobHostConfiguration();
+            JobHostOptions configuration = new JobHostOptions();
 
             object result = configuration.GetService(typeof(IComparable));
             Assert.Null(result);
@@ -202,7 +203,7 @@ namespace Microsoft.Azure.WebJobs.Host.UnitTests
         [Fact]
         public void AddService_AddsNewService()
         {
-            JobHostConfiguration configuration = new JobHostConfiguration();
+            JobHostOptions configuration = new JobHostOptions();
 
             IComparable service = "test1";
             configuration.AddService<IComparable>(service);
@@ -214,7 +215,7 @@ namespace Microsoft.Azure.WebJobs.Host.UnitTests
         [Fact]
         public void AddService_ReplacesExistingService()
         {
-            JobHostConfiguration configuration = new JobHostConfiguration();
+            JobHostOptions configuration = new JobHostOptions();
 
             IComparable service = "test1";
             configuration.AddService<IComparable>(service);
@@ -231,7 +232,7 @@ namespace Microsoft.Azure.WebJobs.Host.UnitTests
         [Fact]
         public void AddService_ThrowsArgumentNull_WhenServiceTypeIsNull()
         {
-            JobHostConfiguration configuration = new JobHostConfiguration();
+            JobHostOptions configuration = new JobHostOptions();
 
             ArgumentNullException exception = Assert.Throws<ArgumentNullException>(
                 () => configuration.AddService(null, "test1")
@@ -242,7 +243,7 @@ namespace Microsoft.Azure.WebJobs.Host.UnitTests
         [Fact]
         public void AddService_ThrowsArgumentOutOfRange_WhenInstanceNotInstanceOfType()
         {
-            JobHostConfiguration configuration = new JobHostConfiguration();
+            JobHostOptions configuration = new JobHostOptions();
 
             ArgumentOutOfRangeException exception = Assert.Throws<ArgumentOutOfRangeException>(
                 () => configuration.AddService(typeof(IComparable), new object())
@@ -253,7 +254,7 @@ namespace Microsoft.Azure.WebJobs.Host.UnitTests
         [Fact]
         public void StorageClientFactory_GetterSetter()
         {
-            JobHostConfiguration configuration = new JobHostConfiguration();
+            JobHostOptions configuration = new JobHostOptions();
 
             StorageClientFactory clientFactory = configuration.StorageClientFactory;
             Assert.NotNull(clientFactory);
@@ -274,7 +275,7 @@ namespace Microsoft.Azure.WebJobs.Host.UnitTests
         {
             using (EnvVarHolder.Set(Constants.EnvironmentSettingName, settingValue))
             {
-                JobHostConfiguration config = new JobHostConfiguration();
+                JobHostOptions config = new JobHostOptions();
                 Assert.Equal(config.IsDevelopment, expected);
             }
         }
@@ -283,7 +284,7 @@ namespace Microsoft.Azure.WebJobs.Host.UnitTests
         {
             using (EnvVarHolder.Set(Constants.EnvironmentSettingName, "Development"))
             {
-                JobHostConfiguration config = new JobHostConfiguration();
+                JobHostOptions config = new JobHostOptions();
                 Assert.False(config.UsingDevelopmentSettings);
 
                 if (config.IsDevelopment)
@@ -300,7 +301,7 @@ namespace Microsoft.Azure.WebJobs.Host.UnitTests
         private static void TestHostIdThrows(string hostId)
         {
             // Arrange
-            JobHostConfiguration configuration = new JobHostConfiguration();
+            JobHostOptions configuration = new JobHostOptions();
 
             // Act & Assert
             ExceptionAssert.ThrowsArgument(() => { configuration.HostId = hostId; }, "value",
@@ -343,7 +344,7 @@ namespace Microsoft.Azure.WebJobs.Host.UnitTests
             var fakeSasUri = "https://contoso.blob.core.windows.net/myContainer?signature=foo";
             using (EnvVarHolder.Set("AzureWebJobsInternalSasBlobContainer", fakeSasUri))
             {
-                JobHostConfiguration config = new JobHostConfiguration();
+                JobHostOptions config = new JobHostOptions();
 
                 Assert.NotNull(config.InternalStorageConfiguration); // Env var should cause this to get initialized 
 
@@ -362,7 +363,7 @@ namespace Microsoft.Azure.WebJobs.Host.UnitTests
             using (EnvVarHolder.Set("AzureWebJobsStorage", null))
             using (EnvVarHolder.Set("AzureWebJobsDashboard", null))
             {
-                JobHostConfiguration config = new JobHostConfiguration()
+                JobHostOptions config = new JobHostOptions()
                 {
                     TypeLocator = new FakeTypeLocator(typeof(BasicTest))
                 };
@@ -379,7 +380,7 @@ namespace Microsoft.Azure.WebJobs.Host.UnitTests
                 var fastLogger = new FastLogger();
                 config.AddService<IAsyncCollector<FunctionInstanceLogEntry>>(fastLogger);
 
-                JobHost host = new JobHost(config, new OptionsWrapper<JobHostOptions>(new JobHostOptions()));
+                JobHost host = new JobHost(new OptionsWrapper<JobHostOptions>(new JobHostOptions()), new Mock<IJobHostContextFactory>().Object);
 
                 // Manually invoked.
                 var method = typeof(BasicTest).GetMethod("Method", BindingFlags.Public | BindingFlags.Static);
@@ -425,7 +426,7 @@ namespace Microsoft.Azure.WebJobs.Host.UnitTests
             // - config is created and immediatey passed to a JobHost ctor
             // - config is then initialized, including adding extensions 
             // - extensions may register their own services. 
-            JobHostConfiguration config = new JobHostConfiguration();
+            JobHostOptions config = new JobHostOptions();
             var host = new JobHost(config, new OptionsWrapper<JobHostOptions>(new JobHostOptions()));
 
             var lockManager = config.GetService<IDistributedLockManager>();
