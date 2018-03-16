@@ -23,9 +23,10 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
 
         public EventHubEndToEndTests()
         {
-            var config = new JobHostConfiguration()
+            var config = new JobHostOptions()
             {
-                TypeLocator = new FakeTypeLocator(typeof(EventHubTestJobs))
+                // TODO: DI:
+                //TypeLocator = new FakeTypeLocator(typeof(EventHubTestJobs))
             };
             var eventHubConfig = new EventHubConfiguration();
 
@@ -37,8 +38,8 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
             connection = Environment.GetEnvironmentVariable(TestHub2Connection);
             Assert.True(!string.IsNullOrEmpty(connection), "Required test connection string is missing.");
 
-            config.UseEventHub(eventHubConfig);
-            _host = new JobHost(config, new OptionsWrapper<JobHostOptions>(new JobHostOptions()));
+            //config.UseEventHub(eventHubConfig);
+            JobHost host = new JobHost(new OptionsWrapper<JobHostOptions>(config), null);
 
             EventHubTestJobs.Result = null;
         }
