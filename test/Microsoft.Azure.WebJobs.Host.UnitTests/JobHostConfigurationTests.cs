@@ -148,7 +148,8 @@ namespace Microsoft.Azure.WebJobs.Host.UnitTests
         {
             JobHostOptions configuration = new JobHostOptions();
 
-            ExceptionAssert.ThrowsArgumentNull(() => configuration.JobActivator = null, "value");
+            Assert.False(true, "Remove once DI fixes are in place");
+            //ExceptionAssert.ThrowsArgumentNull(() => configuration.JobActivator = null, "value");
         }
 
         [Fact]
@@ -357,7 +358,8 @@ namespace Microsoft.Azure.WebJobs.Host.UnitTests
                 //var container = null;//config.InternalStorageConfiguration.InternalContainer;
                 //Assert.NotNull(container);
 
-                Assert.Equal(container.Name, "myContainer"); // specified in sas. 
+                Assert.False(true, "Remove once DI fixes are in place");
+                //Assert.Equal(container.Name, "myContainer"); // specified in sas. 
             }
         }
 
