@@ -11,7 +11,7 @@ namespace Microsoft.Azure.WebJobs.ServiceBus.UnitTests.Config
         [Fact]
         public void Constructor_SetsExpectedDefaults()
         {
-            ServiceBusConfiguration config = new ServiceBusConfiguration();
+            ServiceBusOptions config = new ServiceBusOptions();
             Assert.Equal(16, config.MessageOptions.MaxConcurrentCalls);
             Assert.Equal(0, config.PrefetchCount);
         }
@@ -19,7 +19,7 @@ namespace Microsoft.Azure.WebJobs.ServiceBus.UnitTests.Config
         [Fact]
         public void ConnectionString_ReturnsExpectedDefaultUntilSetExplicitly()
         {
-            ServiceBusConfiguration config = new ServiceBusConfiguration();
+            ServiceBusOptions config = new ServiceBusOptions();
 
             string defaultConnection = AmbientConnectionStringProvider.Instance.GetConnectionString(ConnectionStringNames.ServiceBus);
             Assert.Equal(defaultConnection, config.ConnectionString);
@@ -32,7 +32,7 @@ namespace Microsoft.Azure.WebJobs.ServiceBus.UnitTests.Config
         [Fact]
         public void PrefetchCount_GetSet()
         {
-            ServiceBusConfiguration config = new ServiceBusConfiguration();
+            ServiceBusOptions config = new ServiceBusOptions();
             Assert.Equal(0, config.PrefetchCount);
             config.PrefetchCount = 100;
             Assert.Equal(100, config.PrefetchCount);

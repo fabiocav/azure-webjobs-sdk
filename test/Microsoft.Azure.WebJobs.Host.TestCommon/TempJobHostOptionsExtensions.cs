@@ -23,5 +23,9 @@ namespace Microsoft.Azure.WebJobs
         public static void AddExtension(this JobHostOptions options, object service) => throw new NotSupportedException("Using removed/unsupported API");
 
         public static IServiceProvider CreateStaticServices(this JobHostOptions options) => throw new NotSupportedException("Using removed/unsupported API");
+
+        public static void UseServiceBus(this JobHostOptions options) => throw new NotSupportedException("Using removed/unsupported API");
+
+        public static void UseServiceBus(this JobHostOptions options, object o) => throw new NotSupportedException("Using removed/unsupported API");
     }
 }
