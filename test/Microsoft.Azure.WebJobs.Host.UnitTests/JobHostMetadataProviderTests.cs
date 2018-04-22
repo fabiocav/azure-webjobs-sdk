@@ -7,17 +7,17 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs.Description;
+using Microsoft.Azure.WebJobs.Host.Bindings;
 using Microsoft.Azure.WebJobs.Host.Config;
+using Microsoft.Azure.WebJobs.Host.Executors;
 using Microsoft.Azure.WebJobs.Host.Indexers;
 using Microsoft.Azure.WebJobs.Host.Protocols;
 using Microsoft.Azure.WebJobs.Host.TestCommon;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
+using Moq;
 using Newtonsoft.Json.Linq;
 using Xunit;
-using System.Collections.Generic;
-using Microsoft.Azure.WebJobs.Host.Bindings;
-using Moq;
-using Microsoft.Extensions.Options;
-using Microsoft.Azure.WebJobs.Host.Executors;
 
 namespace Microsoft.Azure.WebJobs.Host.UnitTests
 {
@@ -25,24 +25,18 @@ namespace Microsoft.Azure.WebJobs.Host.UnitTests
     {
         [Fact]
         public void Test()
-        {
-            MyProg prog = new MyProg();
-            var activator = new FakeActivator();
-            activator.Add(prog);
-
-            JobHostOptions config = TestHelpers.NewConfig<MyProg>(activator);
-            
+        {          
             var ext = new TestExtension();
 
-            // TODO: FACAVAL - We need to consider whether extensions should be registered through config
-            //config.AddExtension(ext);
-
-            var host = new TestJobHost<MyProg>(new OptionsWrapper<JobHostOptions>(config), new Mock<IJobHostContextFactory>().Object);
+            var host = new HostBuilder()
+                .ConfigureDefaultTestHost<MyProg>()
+                .AddExtension(ext)
+                .Build();
             IJobHostMetadataProvider metadataProvider = host.CreateMetadataProvider();
             Assert.Equal(1, ext._counter);
 
             // Callable            
-            host.Call("Test");
+            host.GetJobHost<MyProg>().Call("Test");
             Assert.Equal(1, ext._counter);
 
             // Fact that we registered a Widget converter is enough to add the assembly 
@@ -75,41 +69,43 @@ namespace Microsoft.Azure.WebJobs.Host.UnitTests
 
         static T GetAttr<T>(IJobHostMetadataProvider metadataProvider, object obj) where T : Attribute
         {
-            var attribute = metadataProvider.GetAttribute(typeof(T), JObject.FromObject(obj));            
-            return (T) attribute;
+            var attribute = metadataProvider.GetAttribute(typeof(T), JObject.FromObject(obj));
+            return (T)attribute;
         }
 
         [Fact]
         public void AttrBuilder()
         {
-            JobHostOptions config = TestHelpers.NewConfig();
-            var host2 = new JobHost(new OptionsWrapper<JobHostOptions>(config), new Mock<IJobHostContextFactory>().Object);
-            var metadataProvider = host2.CreateMetadataProvider();
+            IHost host = new HostBuilder()
+                .ConfigureDefaultTestHost()
+                .Build();
+            
+            var metadataProvider = host.CreateMetadataProvider();
 
             // Blob 
-            var blobAttr = GetAttr<BlobAttribute>(metadataProvider, new { path = "x" } );
+            var blobAttr = GetAttr<BlobAttribute>(metadataProvider, new { path = "x" });
             Assert.Equal("x", blobAttr.BlobPath);
             Assert.Equal(null, blobAttr.Access);
 
-            blobAttr = GetAttr<BlobAttribute>(metadataProvider, new { path = "x", direction="in" });
+            blobAttr = GetAttr<BlobAttribute>(metadataProvider, new { path = "x", direction = "in" });
             Assert.Equal("x", blobAttr.BlobPath);
             Assert.Equal(FileAccess.Read, blobAttr.Access);
 
-            blobAttr = GetAttr<BlobAttribute>(metadataProvider, new { Path = "x", Direction="out" });
+            blobAttr = GetAttr<BlobAttribute>(metadataProvider, new { Path = "x", Direction = "out" });
             Assert.Equal("x", blobAttr.BlobPath);
             Assert.Equal(FileAccess.Write, blobAttr.Access);
 
             blobAttr = GetAttr<BlobAttribute>(metadataProvider, new { path = "x", direction = "inout" });
             Assert.Equal("x", blobAttr.BlobPath);
             Assert.Equal(FileAccess.ReadWrite, blobAttr.Access);
-                        
-            blobAttr = GetAttr<BlobAttribute>(metadataProvider, 
+
+            blobAttr = GetAttr<BlobAttribute>(metadataProvider,
             new
             {
                 path = "x",
                 direction = "in",
                 connection = "cx1"
-            });               
+            });
             Assert.Equal("x", blobAttr.BlobPath);
             Assert.Equal(FileAccess.Read, blobAttr.Access);
             Assert.Equal("cx1", blobAttr.Connection);
@@ -134,12 +130,12 @@ namespace Microsoft.Azure.WebJobs.Host.UnitTests
 
             var queueTriggerAttr = GetAttr<QueueTriggerAttribute>(metadataProvider, new { QueueName = "q1" });
             Assert.Equal("q1", queueTriggerAttr.QueueName);
-            
+
             // Table
             var tableAttr = GetAttr<TableAttribute>(metadataProvider, new { TableName = "t1" });
             Assert.Equal("t1", tableAttr.TableName);
 
-            tableAttr = GetAttr<TableAttribute>(metadataProvider, new { TableName = "t1", partitionKey ="pk", Filter="f1" });
+            tableAttr = GetAttr<TableAttribute>(metadataProvider, new { TableName = "t1", partitionKey = "pk", Filter = "f1" });
             Assert.Equal("t1", tableAttr.TableName);
             Assert.Equal("pk", tableAttr.PartitionKey);
             Assert.Equal(null, tableAttr.RowKey);
@@ -149,9 +145,11 @@ namespace Microsoft.Azure.WebJobs.Host.UnitTests
         [Fact]
         public void DefaultTypeForTable()
         {
-            JobHostOptions config = TestHelpers.NewConfig();
-            var host2 = new JobHost(new OptionsWrapper<JobHostOptions>(config), new Mock<IJobHostContextFactory>().Object);
-            var metadataProvider = host2.CreateMetadataProvider();
+            var host = new HostBuilder()
+                .ConfigureDefaultTestHost()
+                .Build();
+
+            var metadataProvider = host.CreateMetadataProvider();
 
             var t1 = metadataProvider.GetDefaultType(new TableAttribute("table1"), FileAccess.Read, null);
             Assert.Equal(typeof(JArray), t1);
@@ -167,16 +165,18 @@ namespace Microsoft.Azure.WebJobs.Host.UnitTests
         [Fact]
         public void DefaultTypeForQueue()
         {
-            JobHostOptions config = TestHelpers.NewConfig();
-            var host2 = new JobHost(new OptionsWrapper<JobHostOptions>(config), new Mock<IJobHostContextFactory>().Object);
-            var metadataProvider = host2.CreateMetadataProvider();
+            var host = new HostBuilder()
+                .ConfigureDefaultTestHost()
+                .Build();
+
+            var metadataProvider = host.CreateMetadataProvider();
 
             var t1 = metadataProvider.GetDefaultType(new QueueTriggerAttribute("q"), FileAccess.Read, typeof(byte[]));
             Assert.Equal(typeof(byte[]), t1);
 
             var t2 = metadataProvider.GetDefaultType(new QueueTriggerAttribute("q"), FileAccess.Read, null);
             Assert.Equal(typeof(string), t2);
-                        
+
             // Very important that this is byte[]. 
             // Script doesn't require Function.json for JScript to specify datatype. 
             // JScript can convert Jobject, string to byte[].
@@ -191,9 +191,11 @@ namespace Microsoft.Azure.WebJobs.Host.UnitTests
         public void DefaultTypeForOpenTypeCollector()
         {
             var ext = new TestExtension2();
-            var prog = new FakeTypeLocator();
-            JobHostOptions config = TestHelpers.NewConfig();
-            var host = new JobHost(new OptionsWrapper<JobHostOptions>(config), new Mock<IJobHostContextFactory>().Object);
+            var host = new HostBuilder()
+                .ConfigureDefaultTestHost()
+                .AddExtension(ext)
+                .Build();
+
             IJobHostMetadataProvider metadataProvider = host.CreateMetadataProvider();
 
             var attr = new Test9Attribute(null);
@@ -218,9 +220,12 @@ namespace Microsoft.Azure.WebJobs.Host.UnitTests
         public void DefaultTypeForJObjectCollector()
         {
             var ext = new TestExtension3();
-            var prog = new FakeTypeLocator();
-            JobHostOptions config = TestHelpers.NewConfig();
-            var host = new JobHost(new OptionsWrapper<JobHostOptions>(config), new Mock<IJobHostContextFactory>().Object);
+
+            var host = new HostBuilder()
+                .ConfigureDefaultTestHost()
+                .AddExtension(ext)
+                .Build();
+
             IJobHostMetadataProvider metadataProvider = host.CreateMetadataProvider();
 
             var attr = new Test9Attribute(null);
@@ -242,9 +247,6 @@ namespace Microsoft.Azure.WebJobs.Host.UnitTests
         [Fact]
         public void GetFunctionMetadata()
         {
-            JobHostOptions config = TestHelpers.NewConfig();
-            var host2 = new JobHost(new OptionsWrapper<JobHostOptions>(config), new Mock<IJobHostContextFactory>().Object);
-
             var mockFunctionIndexProvider = new Mock<IFunctionIndexProvider>();
 
             var functionDescriptor = new FunctionDescriptor()
@@ -261,7 +263,7 @@ namespace Microsoft.Azure.WebJobs.Host.UnitTests
                 return mockFunctionIndexProvider.Object;
             });
 
-            IJobHostMetadataProvider provider = new JobHostMetadataProvider(getter);
+            IJobHostMetadataProvider provider = new JobHostMetadataProvider(mockFunctionIndexProvider.Object, null, null, null);
 
             var functionMetadata = provider.GetFunctionMetadata("testNotExists");
             Assert.Equal(functionMetadata, null);
@@ -287,9 +289,9 @@ namespace Microsoft.Azure.WebJobs.Host.UnitTests
             public string Value;
         }
 
-        public class TestExtension : IExtensionConfigProvider            
+        public class TestExtension : IExtensionConfigProvider
         {
-            public int _counter; 
+            public int _counter;
 
             public void Initialize(ExtensionConfigContext context)
             {
@@ -297,7 +299,7 @@ namespace Microsoft.Azure.WebJobs.Host.UnitTests
                 context.AddBindingRule<Test9Attribute>().
                     BindToInput<Widget>(Builder);
 
-                context.AddConverter<Widget, JObject>(widget => JObject.FromObject(widget));                
+                context.AddConverter<Widget, JObject>(widget => JObject.FromObject(widget));
             }
 
             Widget Builder(Test9Attribute input)
