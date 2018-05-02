@@ -22,6 +22,7 @@ namespace Microsoft.Azure.WebJobs.Host.FunctionalTests
             IHost host = new HostBuilder()
                 .ConfigureDefaultTestHost<TProgram>()
                 .ConfigureServices(services => services.AddFakeStorageAccountProvider())
+                .AddStorageBindings()
                 .Build();
 
             host.GetJobHost<TProgram>().AssertIndexingError(methodName, expectedErrorMessage);

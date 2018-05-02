@@ -210,6 +210,7 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
                 {
                     services.AddSingleton<INameResolver>(_resolver);
                 })
+                .AddStorageBindings()
                 .Build();
 
             // write test entities
@@ -287,6 +288,7 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
                 {
                     services.AddSingleton<INameResolver>(_resolver);
                 })
+                .AddStorageBindings()
                 .Build();
 
             if (uploadBlobBeforeHostStart)
@@ -342,6 +344,7 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
                         o.QueueProcessorFactory = new TestQueueProcessorFactory();
                     });
                 })
+                .AddStorageBindings()
                 .Build();
 
             TestLoggerProvider loggerProvider = host.GetTestLoggerProvider();

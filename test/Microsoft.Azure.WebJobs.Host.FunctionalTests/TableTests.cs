@@ -67,6 +67,7 @@ namespace Microsoft.Azure.WebJobs.Host.FunctionalTests
                  services.AddSingleton<IFunctionOutputLoggerProvider, NullFunctionOutputLoggerProvider>();
                  services.AddSingleton<IFunctionInstanceLoggerProvider, NullFunctionInstanceLoggerProvider>();
              })
+             .AddStorageBindings()
              .Build();
 
             host.GetJobHost<BindToSingleOutProgram>().Call("Run");
@@ -98,6 +99,7 @@ namespace Microsoft.Azure.WebJobs.Host.FunctionalTests
                     services.AddSingleton<IFunctionOutputLoggerProvider, NullFunctionOutputLoggerProvider>();
                     services.AddSingleton<IFunctionInstanceLoggerProvider, NullFunctionInstanceLoggerProvider>();
                 })
+                .AddStorageBindings()
                 .Build();
 
             host.GetJobHost<BindToICollectorITableEntityResolvedTableProgram>().Call("Run", new { t1 = "ZZ" });
@@ -131,6 +133,7 @@ namespace Microsoft.Azure.WebJobs.Host.FunctionalTests
                     services.AddSingleton<IFunctionInstanceLoggerProvider, NullFunctionInstanceLoggerProvider>();
                 })
                 .AddExtension(ext)
+                .AddStorageBindings()
                 .Build();
 
             host.GetJobHost<CustomTableBindingExtensionProgram>().Call("Run"); // Act
@@ -212,6 +215,7 @@ namespace Microsoft.Azure.WebJobs.Host.FunctionalTests
                     services.AddSingleton<IFunctionOutputLoggerProvider, NullFunctionOutputLoggerProvider>();
                     services.AddSingleton<IFunctionInstanceLoggerProvider, NullFunctionInstanceLoggerProvider>();
                 })
+                .AddStorageBindings()
                 .Build();
                 
             host.GetJobHost<BindToICollectorJObjectProgramKeysInAttr>().Call("Run");

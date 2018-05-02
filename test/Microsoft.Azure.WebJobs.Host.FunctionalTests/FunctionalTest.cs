@@ -231,6 +231,7 @@ namespace Microsoft.Azure.WebJobs.Host.FunctionalTests
                     services.AddSingleton<IFunctionOutputLoggerProvider>(new NullFunctionOutputLoggerProvider());
                     services.AddSingleton<IHostIdProvider>(hostIdProvider);
                 })
+                .AddStorageBindings()
                 .Build();
         }
 
