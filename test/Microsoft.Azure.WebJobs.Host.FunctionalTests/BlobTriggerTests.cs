@@ -64,6 +64,7 @@ namespace Microsoft.Azure.WebJobs.Host.FunctionalTests
                     services.AddSingleton<IJobActivator>(activator);
                     services.AddSingleton<IStorageAccountProvider>(provider);
                 })
+                .AddStorageBindings()
                 .Build();
 
             // Set the binding data, and verify it's accessible in the function. 

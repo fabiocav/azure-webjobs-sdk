@@ -147,6 +147,7 @@ namespace Microsoft.Azure.WebJobs.Host.UnitTests
         {
             var host = new HostBuilder()
                 .ConfigureDefaultTestHost()
+                .AddStorageBindings()
                 .Build();
 
             var metadataProvider = host.CreateMetadataProvider();
