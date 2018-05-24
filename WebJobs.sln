@@ -51,6 +51,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebJobs.Host.Storage", "src
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "WebJobs.Shared.Storage", "src\Microsoft.Azure.WebJobs.Shared.Storage\WebJobs.Shared.Storage.shproj", "{6BED7F8A-A199-4D9D-85D1-6856EE3292C6}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebJobs.Extension.Storage.UnitTests", "test\Microsoft.Azure.Webjobs.Extension.Storage.UnitTests\WebJobs.Extension.Storage.UnitTests.csproj", "{0CC5741F-ACDA-4DB8-9C17-074E8896F244}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		src\Microsoft.Azure.WebJobs.Shared.Storage\Microsoft.Azure.WebJobs.Shared.Storage.projitems*{6bed7f8a-a199-4d9d-85d1-6856ee3292c6}*SharedItemsImports = 13
@@ -129,6 +131,10 @@ Global
 		{DED33098-FE99-436C-96CC-B59A30BEF027}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DED33098-FE99-436C-96CC-B59A30BEF027}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DED33098-FE99-436C-96CC-B59A30BEF027}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0CC5741F-ACDA-4DB8-9C17-074E8896F244}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0CC5741F-ACDA-4DB8-9C17-074E8896F244}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0CC5741F-ACDA-4DB8-9C17-074E8896F244}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0CC5741F-ACDA-4DB8-9C17-074E8896F244}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -142,6 +148,7 @@ Global
 		{340AB554-5482-4B3D-B65F-46DFF5AF1684} = {639967B0-0544-4C52-94AC-9A3D25E33256}
 		{27F0E6AC-505E-4BEC-81CA-8DF777DEA9C7} = {639967B0-0544-4C52-94AC-9A3D25E33256}
 		{D37637D5-7EF9-43CB-86BE-537473CD613B} = {639967B0-0544-4C52-94AC-9A3D25E33256}
+		{0CC5741F-ACDA-4DB8-9C17-074E8896F244} = {639967B0-0544-4C52-94AC-9A3D25E33256}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {371BFA14-0980-4A43-A18A-CA1C1A9CB784}
