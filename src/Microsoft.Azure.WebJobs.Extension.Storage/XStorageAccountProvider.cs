@@ -7,6 +7,7 @@ using Microsoft.WindowsAzure.Storage.Blob;
 using Microsoft.WindowsAzure.Storage.Queue;
 using Microsoft.WindowsAzure.Storage.Table;
 using System;
+using System.Collections.Generic;
 
 namespace Microsoft.Azure.WebJobs
 {
@@ -56,7 +57,7 @@ namespace Microsoft.Azure.WebJobs
     // CloudStorageAccount is not virtual, but all the other classes are. 
     public class XStorageAccount
     {
-        CloudStorageAccount _account;
+        protected CloudStorageAccount _account;
 
         public CloudStorageAccount SdkObject => _account;
 
@@ -84,6 +85,8 @@ namespace Microsoft.Azure.WebJobs
         {
             get { return _account.Credentials.AccountName; }
         }
+
+        public virtual Uri BlobEndpoint => _account.BlobEndpoint;
 
         public virtual CloudBlobClient CreateCloudBlobClient()
         {

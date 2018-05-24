@@ -38,7 +38,7 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
                 {
                     services.AddSingleton<EventHubConfiguration>(serviceProvider =>
                     {
-                        var eventHubConfig = new EventHubConfiguration(serviceProvider.GetRequiredService<IStorageAccountProvider>());
+                        var eventHubConfig = new EventHubConfiguration(serviceProvider.GetRequiredService<IConnectionStringProvider>());
                         eventHubConfig.AddSender(TestHubName, connection);
                         eventHubConfig.AddReceiver(TestHubName, connection);
                         return eventHubConfig;
