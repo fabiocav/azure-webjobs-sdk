@@ -21,6 +21,7 @@ using Xunit;
 
 namespace Microsoft.Azure.WebJobs.Host.UnitTests
 {
+#if false // $$$ reenable
     public class JobHostMetadataProviderTests
     {
         [Fact]
@@ -371,4 +372,5 @@ namespace Microsoft.Azure.WebJobs.Host.UnitTests
             }
         }
     }
+#endif
 }
