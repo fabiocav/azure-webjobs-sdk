@@ -15,22 +15,34 @@ namespace Microsoft.Azure.WebJobs.Host.UnitTests
 {
     internal static class FunctionIndexerFactory
     {
+        public class FakeStorageAccountProvider : XStorageAccountProvider
+        {
+            private readonly XStorageAccount _account;
+
+            public FakeStorageAccountProvider()
+                : base(null)
+            {
+
+            }
+            public override XStorageAccount Get(string name)
+            {
+                return XStorageAccount.New(CloudStorageAccount.DevelopmentStorageAccount);
+            }
+        }
+
         public static FunctionIndexer Create(CloudStorageAccount account = null, INameResolver nameResolver = null,
             IExtensionRegistry extensionRegistry = null, ILoggerFactory loggerFactory = null)
         {
-#if true
+#if false
             throw new System.NotImplementedException();
 #else
-            IStorageAccountProvider storageAccountProvider = GetStorageAccountProvider(account);
-
+            // IStorageAccountProvider storageAccountProvider = GetStorageAccountProvider(account);
             IHost host = new HostBuilder()
                 .ConfigureDefaultTestHost()
                 .ConfigureServices(services =>
                 {
-                    if (storageAccountProvider != null)
-                    {
-                        services.AddSingleton<IStorageAccountProvider>(storageAccountProvider);
-                    }
+                    services.AddSingleton<XStorageAccountProvider>(new FakeStorageAccountProvider());
+                    
 
                     if (nameResolver != null)
                     {

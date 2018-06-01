@@ -23,7 +23,9 @@ namespace Microsoft.Azure.WebJobs.Host.UnitTests.Loggers
                 return Task.FromResult(0);
             };
 
-            UpdateOutputLogCommand writer = UpdateOutputLogCommand.Create(new Mock<CloudBlockBlob>().Object, fp);
+            // $$$ Need a fake blob that we can read from, see UpdateOutputLogCommand.ReadBlobAsync
+            UpdateOutputLogCommand writer = UpdateOutputLogCommand.Create(
+                new Mock<CloudBlockBlob>().Object, fp);
 
             var tw = writer.Output;
             tw.Write("1");
