@@ -21,7 +21,6 @@ using Xunit;
 
 namespace Microsoft.Azure.WebJobs.Host.UnitTests
 {
-#if false // $$$ reenable
     public class JobHostMetadataProviderTests
     {
         [Fact]
@@ -252,9 +251,12 @@ namespace Microsoft.Azure.WebJobs.Host.UnitTests
         public void DefaultTypeForTrigger()
         {
             var ext = new JArrayTriggerExtension();
-            var prog = new FakeTypeLocator();
-            JobHostConfiguration config = TestHelpers.NewConfig(prog, ext);
-            var host = new JobHost(config);
+            var host = new HostBuilder()
+                 .ConfigureDefaultTestHost()
+                 .ConfigureTypeLocator() // empty 
+                 .AddExtension(ext)
+                 .Build();
+
             IJobHostMetadataProvider metadataProvider = host.CreateMetadataProvider();
 
             var attr = new Test9Attribute(null);
@@ -277,9 +279,11 @@ namespace Microsoft.Azure.WebJobs.Host.UnitTests
         public void DefaultTypeForOpenTypeTrigger()
         {
             var ext = new OpenTypeTriggerExtension();
-            var prog = new FakeTypeLocator();
-            JobHostConfiguration config = TestHelpers.NewConfig(prog, ext);
-            var host = new JobHost(config);
+            var host = new HostBuilder()
+                 .ConfigureDefaultTestHost()
+                 .ConfigureTypeLocator() // empty 
+                 .AddExtension(ext)
+                 .Build();
             IJobHostMetadataProvider metadataProvider = host.CreateMetadataProvider();
 
             var attr = new Test9Attribute(null);
@@ -372,5 +376,4 @@ namespace Microsoft.Azure.WebJobs.Host.UnitTests
             }
         }
     }
-#endif
 }

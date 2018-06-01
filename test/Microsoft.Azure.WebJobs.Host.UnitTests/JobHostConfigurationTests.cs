@@ -273,6 +273,7 @@ namespace Microsoft.Azure.WebJobs.Host.UnitTests
 
             Assert.Equal(2, fastLogger.List.Count); // We should be batching, so flush not called yet.
 
+            // $$$ AddStraoge sets SuperHack, which requires Dashboard connection 
             host.Start(); // required to call stop()
             await host.StopAsync(); // will ensure flush is called.
 
