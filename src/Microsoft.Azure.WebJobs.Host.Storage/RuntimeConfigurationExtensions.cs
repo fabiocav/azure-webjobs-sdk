@@ -63,7 +63,7 @@ namespace Microsoft.Extensions.Hosting
                {
                    // Add runtime services that depend on storage.
                    services.TryAddSingleton<BlobManagerXStorageAccountProvider>(); 
-                   services.TryAddSingleton<IDistributedLockManager>(provider => Create(provider));
+                   services.AddSingleton<IDistributedLockManager>(provider => Create(provider));
                                       
                    services.TryAddSingleton<IHostIdProvider, DynamicHostIdProvider>();
 
@@ -76,7 +76,6 @@ namespace Microsoft.Extensions.Hosting
 
         private static IDistributedLockManager Create(IServiceProvider provider)
         {
-
             var opts = provider.GetRequiredService<IOptions<LegacyConfig>>();
 
             // $$$ This is what DefaultDistributedLockManagerFactory used to do. 
