@@ -19,6 +19,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Azure.WebJobs.Host.Loggers;
 using Microsoft.Azure.WebJobs.Host.Configuration;
 using WebJobs.Host.Storage;
+using Microsoft.WindowsAzure.Storage.Blob;
 
 namespace Microsoft.Extensions.Hosting
 {
