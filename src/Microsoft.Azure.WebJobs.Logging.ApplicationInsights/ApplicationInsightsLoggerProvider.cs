@@ -14,6 +14,17 @@ namespace Microsoft.Azure.WebJobs.Logging.ApplicationInsights
         private ITelemetryClientFactory _clientFactory;
         private bool _disposed;
 
+        public ApplicationInsightsLoggerProvider(TelemetryClient client)
+        {
+            if (client == null)
+            {
+                throw new ArgumentNullException(nameof(client));
+            }
+
+            _client = client;
+        }
+
+        [Obsolete("Use ApplicationInsightsLoggerProvider(TelemetryClient client)")]
         public ApplicationInsightsLoggerProvider(ITelemetryClientFactory clientFactory)
         {
             if (clientFactory == null)
@@ -47,7 +58,7 @@ namespace Microsoft.Azure.WebJobs.Logging.ApplicationInsights
                     }
                 }
 
-                _clientFactory.Dispose();
+                _clientFactory?.Dispose();
 
                 _disposed = true;
             }

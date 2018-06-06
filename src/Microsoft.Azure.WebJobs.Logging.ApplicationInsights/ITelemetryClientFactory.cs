@@ -9,6 +9,7 @@ namespace Microsoft.Azure.WebJobs.Logging.ApplicationInsights
     /// <summary>
     /// Interface for creating <see cref="TelemetryClient"/> instances.
     /// </summary>
+    [Obsolete("Use dependency injection to modify TelemetryConfiguration")]
     public interface ITelemetryClientFactory : IDisposable
     {
         /// <summary>

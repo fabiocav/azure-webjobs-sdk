@@ -17,6 +17,7 @@ namespace Microsoft.Azure.WebJobs.Logging.ApplicationInsights
     /// <summary>
     /// Creates a <see cref="TelemetryClient"/> for use by the <see cref="ApplicationInsightsLogger"/>. 
     /// </summary>
+    [Obsolete("Use dependency injection to modify TelemetryConfiguration")]
     public class DefaultTelemetryClientFactory : ITelemetryClientFactory
     {
         private readonly string _instrumentationKey;
