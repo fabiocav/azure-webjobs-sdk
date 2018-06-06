@@ -43,7 +43,7 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
         private const string _customScopeKey = "MyCustomScopeKey";
         private const string _customScopeValue = "MyCustomScopeValue";
 
-        private IHost ConfigureHost(LogCategoryFilter filter = null, bool enableAggregator = false)
+        private IHost ConfigureHost(LogCategoryFilter filter = null)
         {
             if (filter == null)
             {
@@ -57,7 +57,7 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
                 {
                     services.Configure<FunctionResultAggregatorOptions>(o =>
                     {
-                        o.IsEnabled = enableAggregator;
+                        o.IsEnabled = false;
                     });
                 })
                 .AddApplicationInsights(_mockApplicationInsightsKey, filter.Filter)
@@ -182,14 +182,14 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
 
         [Theory]
         [InlineData(LogLevel.None, 0)]
-        [InlineData(LogLevel.Information, 37)] // 3 start, 2 stop, 4x traces per request, 1x requests, 7 metrics 
+        [InlineData(LogLevel.Information, 30)] // 3 start, 2 stop, 4x traces per request, 1x requests
         [InlineData(LogLevel.Warning, 10)] // 2x warning trace per request
         public async Task QuickPulse_Works_EvenIfFiltered(LogLevel defaultLevel, int expectedTelemetryItems)
         {
             LogCategoryFilter filter = new LogCategoryFilter();
             filter.DefaultLevel = defaultLevel;
 
-            using (IHost host = ConfigureHost(filter, true))
+            using (IHost host = ConfigureHost(filter))
             {
                 var listener = new ApplicationInsightsTestListener();
                 int requests = 5;
