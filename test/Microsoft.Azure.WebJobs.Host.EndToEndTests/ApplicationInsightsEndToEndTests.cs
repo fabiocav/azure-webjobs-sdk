@@ -60,7 +60,7 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
                         o.IsEnabled = false;
                     });
                 })
-                .AddApplicationInsights(_mockApplicationInsightsKey, filter.Filter)
+                .AddApplicationInsights(_mockApplicationInsightsKey, filter.Filter, null)
                 .ConfigureServices(services =>
                 {
                     var quickPulse = services.Single(s => s.ImplementationType == typeof(QuickPulseTelemetryModule));

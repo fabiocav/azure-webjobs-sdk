@@ -24,7 +24,7 @@ namespace SampleHost
                 filter.CategoryLevels[LogCategories.Results] = LogLevel.Debug;
                 filter.CategoryLevels[LogCategories.Aggregator] = LogLevel.Debug;
 
-                builder.AddApplicationInsights(instrumentationKey, filter.Filter);
+                builder.AddApplicationInsights(instrumentationKey, filter.Filter, null);
             }
 
             return builder;

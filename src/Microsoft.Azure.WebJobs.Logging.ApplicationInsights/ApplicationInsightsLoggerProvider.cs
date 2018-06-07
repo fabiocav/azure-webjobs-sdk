@@ -11,7 +11,6 @@ namespace Microsoft.Azure.WebJobs.Logging.ApplicationInsights
     public class ApplicationInsightsLoggerProvider : ILoggerProvider
     {
         private readonly TelemetryClient _client;
-        private ITelemetryClientFactory _clientFactory;
         private bool _disposed;
 
         public ApplicationInsightsLoggerProvider(TelemetryClient client)
@@ -22,18 +21,6 @@ namespace Microsoft.Azure.WebJobs.Logging.ApplicationInsights
             }
 
             _client = client;
-        }
-
-        [Obsolete("Use ApplicationInsightsLoggerProvider(TelemetryClient client)")]
-        public ApplicationInsightsLoggerProvider(ITelemetryClientFactory clientFactory)
-        {
-            if (clientFactory == null)
-            {
-                throw new ArgumentNullException(nameof(clientFactory));
-            }
-
-            _clientFactory = clientFactory;
-            _client = _clientFactory.Create();
         }
 
         public ILogger CreateLogger(string categoryName) => new ApplicationInsightsLogger(_client, categoryName);
@@ -57,8 +44,6 @@ namespace Microsoft.Azure.WebJobs.Logging.ApplicationInsights
                         // Ignore failures on dispose
                     }
                 }
-
-                _clientFactory?.Dispose();
 
                 _disposed = true;
             }

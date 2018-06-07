@@ -42,6 +42,7 @@ namespace Microsoft.Azure.WebJobs.Host.UnitTests.Loggers
         private readonly int _durationMs = 450;
         private readonly IFunctionInstance _functionInstance;
         private readonly IHost _host;
+
         public ApplicationInsightsLoggerTests()
         {
             _functionCategoryName = LogCategories.CreateFunctionUserCategory(_functionShortName);
@@ -53,7 +54,7 @@ namespace Microsoft.Azure.WebJobs.Host.UnitTests.Loggers
             };
 
             _host = new HostBuilder()
-                .AddApplicationInsights("some key", (c, l) => true)
+                .AddApplicationInsights("some key", (c, l) => true, null)
                 .Build();
 
             TelemetryConfiguration telemteryConfiguration = _host.Services.GetService<TelemetryConfiguration>();

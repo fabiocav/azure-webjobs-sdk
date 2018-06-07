@@ -15,14 +15,13 @@ using Microsoft.Azure.WebJobs.Logging;
 using Microsoft.Azure.WebJobs.Logging.ApplicationInsights;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Options;
 
 namespace Microsoft.Extensions.Logging
 {
     /// <summary>
     /// Extensions for ApplicationInsights configurationon an <see cref="IHostBuilder"/>. 
     /// </summary>
-    public static class ApplicationInsightsLoggerExtensions
+    public static class ApplicationInsightsHostBuilderExtensions
     {
         /// <summary>
         /// Registers Application Insights and <see cref="ApplicationInsightsLoggerProvider"/> with an <see cref="IHostBuilder"/>.
@@ -30,9 +29,9 @@ namespace Microsoft.Extensions.Logging
         /// <param name="builder">The host builder.</param>
         /// <param name="instrumentationKey">The Application Insights instrumentation key.</param>
         /// <returns>A <see cref="IHostBuilder"/> for chaining additional operations.</returns>
-        public static IHostBuilder AddApplicationInsights(this IHostBuilder builder, string instrumentationKey)
+        public static IHostBuilder AddApplicationInsights(this IHostBuilder builder, string instrumentationKey, SamplingPercentageEstimatorSettings samplingSettings)
         {
-            return AddApplicationInsights(builder, instrumentationKey, (_, level) => level > LogLevel.Debug);
+            return AddApplicationInsights(builder, instrumentationKey, (_, level) => level > LogLevel.Debug, null);
         }
 
         /// <summary>
@@ -43,8 +42,13 @@ namespace Microsoft.Extensions.Logging
         /// <param name="filter">A filter that returns true if a message with the specified <see cref="LogLevel"/>
         /// and category should be logged. You can use <see cref="LogCategoryFilter.Filter(string, LogLevel)"/>
         /// or write a custom filter.</param>
+        /// <param name="samplingSettings">The <see cref="SamplingPercentageEstimatorSettings"/> to use for configuring adaptive sampling. If null, sampling is disabled.</param>
         /// <returns>A <see cref="IHostBuilder"/> for chaining additional operations.</returns>
-        public static IHostBuilder AddApplicationInsights(this IHostBuilder builder, string instrumentationKey, Func<string, LogLevel, bool> filter)
+        public static IHostBuilder AddApplicationInsights(
+            this IHostBuilder builder, 
+            string instrumentationKey,
+            Func<string, LogLevel, bool> filter,
+            SamplingPercentageEstimatorSettings samplingSettings)
         {
             if (string.IsNullOrEmpty(instrumentationKey))
             {
@@ -90,9 +94,6 @@ namespace Microsoft.Extensions.Logging
                         })
                         .Use((next) => new FilteringTelemetryProcessor(filter, next));
 
-                    SamplingPercentageEstimatorSettings samplingSettings =
-                        provider.GetService<IOptions<SamplingPercentageEstimatorSettings>>()?.Value;
-
                     if (samplingSettings != null)
                     {
                         config.TelemetryProcessorChainBuilder.Use((next) =>
@@ -125,55 +126,6 @@ namespace Microsoft.Extensions.Logging
         {
             AssemblyFileVersionAttribute fileVersionAttr = assembly.GetCustomAttribute<AssemblyFileVersionAttribute>();
             return fileVersionAttr?.Version ?? LoggingConstants.Unknown;
-        }
-
-        /// <summary>
-        /// Registers an <see cref="ApplicationInsightsLoggerProvider"/> with an <see cref="ILoggerFactory"/>.
-        /// </summary>
-        /// <param name="loggerFactory">The factory.</param>
-        /// <param name="instrumentationKey">The Application Insights instrumentation key.</param>
-        /// <param name="filter">A filter that returns true if a message with the specified <see cref="LogLevel"/>
-        /// and category should be logged. You can use <see cref="LogCategoryFilter.Filter(string, LogLevel)"/>
-        /// or write a custom filter.</param>
-        /// <returns>A <see cref="ILoggerFactory"/> for chaining additional operations.</returns>
-        [Obsolete("Use 'AddApplicationInsights' IHostBuilder extension method instead.", true)]
-        public static ILoggerFactory AddApplicationInsights(
-            this ILoggerFactory loggerFactory,
-            string instrumentationKey,
-            Func<string, LogLevel, bool> filter)
-        {
-            ITelemetryClientFactory defaultFactory = new DefaultTelemetryClientFactory(instrumentationKey,
-                new SamplingPercentageEstimatorSettings(), filter);
-
-            return AddApplicationInsights(loggerFactory, defaultFactory);
-        }
-
-        /// <summary>
-        /// Registers an <see cref="ApplicationInsightsLoggerProvider"/> with an <see cref="ILoggerFactory"/>.
-        /// </summary>
-        /// <param name="loggerFactory">The factory.</param>        
-        /// <param name="telemetryClientFactory">The factory to use when creating the <see cref="TelemetryClient"/> </param>
-        /// <returns>A <see cref="ILoggerFactory"/> for chaining additional operations.</returns>
-        [Obsolete("Use 'AddApplicationInsights' IHostBuilder extension method instead.", true)]
-        public static ILoggerFactory AddApplicationInsights(
-            this ILoggerFactory loggerFactory,
-            ITelemetryClientFactory telemetryClientFactory)
-        {
-            if (loggerFactory == null)
-            {
-                throw new ArgumentNullException(nameof(loggerFactory));
-            }
-
-            // Note: LoggerFactory calls Dispose() on all registered providers.
-            loggerFactory.AddProvider(new ApplicationInsightsLoggerProvider(telemetryClientFactory));
-
-            return loggerFactory;
-        }
-
-        [Obsolete("Use 'AddApplicationInsights' IHostBuilder extension method instead.", true)]
-        public static ILoggingBuilder AddApplicationInsights(this ILoggingBuilder builder, ITelemetryClientFactory telemetryClientFactory)
-        {
-            return builder.AddProvider(new ApplicationInsightsLoggerProvider(telemetryClientFactory));
         }
     }
 }
