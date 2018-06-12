@@ -75,7 +75,7 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
                 });
 
             _storageAccount = fixture.StorageAccount;
-            _timeoutJobDelay = TimeSpan.FromMinutes(5);
+            _timeoutJobDelay = TimeSpan.FromMinutes(5); // $$$ !!! 5 minutes in a test!!! 
 
             CloudQueueClient queueClient = _storageAccount.CreateCloudQueueClient();
             string queueName = _resolver.ResolveInString(TestQueueName);
@@ -232,7 +232,6 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
                 await Task.Delay(3000);
 
                 await host.StopAsync();
-                host.Dispose();
 
                 // Make sure the aggregator was logged to
                 var logger = host.GetTestLoggerProvider().CreatedLoggers.Where(l => l.Category == LogCategories.Aggregator).Single();
@@ -240,6 +239,8 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
 
                 // Make sure the eventCollector was logged 
                 eventCollectorFactory.EventCollector.AssertFunctionCount(4);
+
+                host.Dispose();
             }
         }
 
@@ -270,12 +271,13 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
                 await Task.Delay(3000);
 
                 await host.StopAsync();
-                host.Dispose();
-
+                
                 // Make sure the aggregator was logged to
 
                 var logger = host.GetTestLoggerProvider().CreatedLoggers.Where(l => l.Category == LogCategories.Aggregator).Single();
                 Assert.True(logger.GetLogMessages().Count == 4, string.Join(Environment.NewLine, logger.GetLogMessages()));
+
+                host.Dispose();
             }
         }
 
