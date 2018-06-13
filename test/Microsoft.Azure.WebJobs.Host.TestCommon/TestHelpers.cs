@@ -116,10 +116,8 @@ namespace Microsoft.Azure.WebJobs.Host.TestCommon
                    // Register this to fail a test if a background exception is thrown
                    services.AddSingleton<IWebJobsExceptionHandlerFactory, TestExceptionHandlerFactory>();
                })
-               .ConfigureLogging(logging =>
-               {
-                   logging.AddProvider(new TestLoggerProvider());
-               }).AddStorageBindings();
+               .ConfigureTestLogger()
+               .AddStorageBindings();
         }
 
         public static IHostBuilder ConfigureDefaultTestHost<TProgram>(this IHostBuilder builder,
@@ -153,6 +151,15 @@ namespace Microsoft.Azure.WebJobs.Host.TestCommon
                     }
                 }).AddStorageBindings();
         }
+
+        public static IHostBuilder ConfigureTestLogger(this IHostBuilder builder)
+        {
+            return builder.ConfigureLogging(logging =>
+             {
+                 logging.AddProvider(new TestLoggerProvider());
+             });
+        }
+
 
         public static IHostBuilder ConfigureTypeLocator(this IHostBuilder builder, params Type[] types)
         {
