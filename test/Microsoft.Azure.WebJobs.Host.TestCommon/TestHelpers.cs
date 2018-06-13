@@ -117,7 +117,7 @@ namespace Microsoft.Azure.WebJobs.Host.TestCommon
                    services.AddSingleton<IWebJobsExceptionHandlerFactory, TestExceptionHandlerFactory>();
                })
                .ConfigureTestLogger()
-               .AddStorageBindings();
+               .AddAzureStorage();
         }
 
         public static IHostBuilder ConfigureDefaultTestHost<TProgram>(this IHostBuilder builder,
@@ -129,7 +129,7 @@ namespace Microsoft.Azure.WebJobs.Host.TestCommon
                     services.AddSingleton<IJobHost, JobHost<TProgram>>();
 
                     services.AddSingleton<IJobActivator>(new FakeActivator(instance));
-                }).AddStorageBindings();
+                }).AddAzureStorage();
         }
 
         public static IHostBuilder ConfigureDefaultTestHost<TProgram>(this IHostBuilder builder,
@@ -149,7 +149,7 @@ namespace Microsoft.Azure.WebJobs.Host.TestCommon
                     {
                         services.AddSingleton<IJobActivator>(activator);
                     }
-                }).AddStorageBindings();
+                }).AddAzureStorage();
         }
 
         public static IHostBuilder ConfigureTestLogger(this IHostBuilder builder)
