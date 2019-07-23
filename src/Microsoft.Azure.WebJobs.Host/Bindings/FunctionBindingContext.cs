@@ -24,13 +24,27 @@ namespace Microsoft.Azure.WebJobs.Host.Bindings
         /// </summary>
         /// <param name="functionInstanceId">The instance ID of the function being bound to.</param>
         /// <param name="functionCancellationToken">The <see cref="CancellationToken"/> to use.</param>
-        /// <param name="userLogger">The user logger.</param>
         /// <param name="functionDescriptor">Current function being executed. </param>
         public FunctionBindingContext(
             Guid functionInstanceId,
             CancellationToken functionCancellationToken,
-            IServiceProvider functionInvocationServices = null,
             FunctionDescriptor functionDescriptor = null)
+            : this(functionInstanceId, functionCancellationToken, null, functionDescriptor)
+        {
+        }
+
+        /// <summary>
+        /// Creates a new instance.
+        /// </summary>
+        /// <param name="functionInstanceId">The instance ID of the function being bound to.</param>
+        /// <param name="functionCancellationToken">The <see cref="CancellationToken"/> to use.</param>
+        /// <param name="functionInvocationServices">The user logger.</param>
+        /// <param name="functionDescriptor">Current function being executed. </param>
+        public FunctionBindingContext(
+            Guid functionInstanceId,
+            CancellationToken functionCancellationToken,
+            IServiceProvider functionInvocationServices,
+            FunctionDescriptor functionDescriptor)
         {
             _functionInstanceId = functionInstanceId;
             _functionCancellationToken = functionCancellationToken;
@@ -56,7 +70,7 @@ namespace Microsoft.Azure.WebJobs.Host.Bindings
         /// <summary>
         /// The service provider for the current function invocation scope.
         /// </summary>
-        public IServiceProvider FunctionServices { get; set; }
+        public IServiceProvider InstanceServices { get; set; }
 
         /// <summary>
         /// Creates an object instance with constructor arguments provided in the
